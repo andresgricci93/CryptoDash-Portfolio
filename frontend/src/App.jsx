@@ -69,12 +69,12 @@ function App() {
      <Routes>
       <Route path="/" element={
          <ProtectedRoute>
-           <Navigate to="/dashboard" replace />
+           <Navigate to="/" replace />
          </ProtectedRoute>
        } />
        
 
-       <Route path="/dashboard/*" element={
+       <Route path="/*" element={
         <ProtectedRoute>
          <Dashboard />
         </ProtectedRoute>

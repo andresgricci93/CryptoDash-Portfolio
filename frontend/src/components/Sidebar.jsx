@@ -9,6 +9,9 @@ import { BarChart2,
  } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from 'react-router-dom';
+import { useAuthStore } from "../store/authStore";
+
+
 
 const SIDEBAR_ITEMS = [
 
@@ -22,6 +25,13 @@ const SIDEBAR_ITEMS = [
 export const Sidebar = () => {
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+    const { user, logout } = useAuthStore();
+  
+    const handleLogout = () => {
+      logout();
+    }
+
 
   return (
     <motion.div
@@ -71,9 +81,7 @@ export const Sidebar = () => {
               whileTap={{ scale: 0.98 }}
               className='flex items-center p-4 hover:-ml-[4px] -ml-[4px] text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors
                   mb-2 '
-                  onClick={() => {
-                    console.log('Logging out...');
-                  }}
+              onClick={handleLogout}  
                   >
               <LogOut size={20} style={{ color: "#FFFFFF", minWidth: "20px" }} />
               <AnimatePresence>

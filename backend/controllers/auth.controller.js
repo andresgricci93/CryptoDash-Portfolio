@@ -130,8 +130,6 @@ export const login = async (req,res) => {
 export const logout = async (req,res) => {
  res.clearCookie("token");
  res.status(200).json({success: true, message: "Logged out successfully" });
-
-
 }
 
 export const forgotPassword = async (req,res) => {
@@ -178,7 +176,7 @@ export const resetPassword = async (req,res) => {
       return res.status(400).json({success: false, message: "Invalid or expired reset token"});
      }
 
-     // update password - once password is reset (inputted two times in the reset form)...the new password is hashed again?
+    
      const hashedPassword = await bcryptjs.hash(password, 10);
 
      user.password = hashedPassword;

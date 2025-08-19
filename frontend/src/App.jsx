@@ -10,8 +10,7 @@ import { Toaster } from "react-hot-toast";
 
 import SignUpPage from "./pages/SignUpPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
-import EmailVerificationPage from "./pages/EmailVerificationPage.jsx";
-import DashboardPage from "./pages/DashboardPage.jsx";  
+import EmailVerificationPage from "./pages/EmailVerificationPage.jsx";  
 import Dashboard from "./components/Dashboard.jsx"
 import ForgotPasswordPage from "./pages/ForgotPasswordPage.jsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
@@ -74,7 +73,7 @@ function App() {
        } />
        
 
-       <Route path="/dashboard/*" element={
+       <Route path="/*" element={
         <ProtectedRoute>
          <Dashboard />
         </ProtectedRoute>

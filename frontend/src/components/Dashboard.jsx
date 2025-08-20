@@ -20,7 +20,7 @@ function Dashboard() {
     
       <Sidebar />
      
-      <div className="flex-1 relative z-10">
+      <div className="flex-1 relative z-10 overflow-y-auto overflow-x-hidden h-screen">
         <Routes>
           <Route path="dashboard" element={<OverviewPage />} />
           <Route path="crypto/:id" element={<CryptoDetailPage />} />

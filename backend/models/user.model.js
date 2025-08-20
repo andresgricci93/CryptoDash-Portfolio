@@ -23,6 +23,16 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    favoriteCoins: {
+        type: [String],
+        default: [],
+        validate: {
+            validator: function(v) {
+                return v.length <= 5;
+            },
+            message:'Maximum 5 favorite coins allowed'
+        }
+    },
     resetPasswordToken: String,
     resetPasswordExpiresAt: Date,
     verificationToken: String,

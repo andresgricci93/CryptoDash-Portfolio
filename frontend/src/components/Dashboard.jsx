@@ -2,7 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import { Sidebar } from './Sidebar.jsx';
 import OverviewPage from '../pages/OverviewPage.jsx';
 import CryptoDetailPage from '../pages/CryptoDetailPage.jsx';
-import FavoriteCoins from '../pages/FavoriteCoins.jsx';
+import FavoriteCoinsPage from '../pages/FavoriteCoinsPage.jsx';
 import NotesPage from '../pages/NotesPage.jsx';
 import SettingsPage from '../pages/SettingsPage.jsx';
 
@@ -24,7 +24,7 @@ function Dashboard() {
         <Routes>
           <Route path="dashboard" element={<OverviewPage />} />
           <Route path="crypto/:id" element={<CryptoDetailPage />} />
-          <Route path="favorites" element={<FavoriteCoins />} />     
+          <Route path="favorites" element={<FavoriteCoinsPage />} />     
           <Route path="notes" element={<NotesPage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Routes>

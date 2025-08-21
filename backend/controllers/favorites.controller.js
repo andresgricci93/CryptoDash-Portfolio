@@ -38,10 +38,69 @@ export const addToFavorites = async (req,res) => {
 
 export const getAllFavorites = async (req,res) => {
 
+     try {
+
+
+        const userId = req.userId;
+
+        const user = await User.findById(userId);
+
+        if (!user) {
+          return res.status(404).json({success: false, message: "User not found"})
+        }
+       
+
+      res.status(200).json({
+        success: true,
+        favoriteCoins: user.favoriteCoins
+       });
+    
+    } catch (error) {
+       res.status(500).json({
+            success: false,
+            message: error.message
+        });
+   }
 
 }
 
 export const removeFromFavorites = async (req,res) => {
 
+ 
+  try {
+        
+        const { cryptoId } = req.body;
+      
+        const userId = req.userId;
+        const user = await User.findById(userId);
+
+        if (!user) {
+          return res.status(404).json({success: false, message: "User not found"})
+        }
+
+   
+
+        if (!user.favoriteCoins.includes(cryptoId)) {
+          return res.status(400).json({ message: "Crypto not in favorites"})
+        }
+
+        user.favoriteCoins.pull(cryptoId);
+
+ 
+        await user.save();
+
+       res.status(200).json({
+        success: true,
+        message: `${cryptoId} removed from favorites`,
+        favoriteCoins: user.favoriteCoins
+       });
+
+
+    } catch (error) {
+        res.status(500).json({
+        success: false,
+        message: error.message
+        });
+    }
 
 }

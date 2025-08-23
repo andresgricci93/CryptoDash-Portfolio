@@ -5,8 +5,7 @@ import { useState, useEffect } from 'react';
 import Header from '../components/common/Header.jsx'
 import { BarChart2, ShoppingBag, Zap,Users } from 'lucide-react';
 import CryptoCard from "../components/common/CryptoCard.jsx";
-import cryptoMockData from '../../cryptomock.json';
-
+import cryptoMockData from './../../../cryptomock.json';
 const OverviewPage = () => {
 
   const [cryptos, setCryptos] = useState([]);

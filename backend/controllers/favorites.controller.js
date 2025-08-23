@@ -1,4 +1,6 @@
 import { User } from "../models/user.model.js";
+import fs from "fs";
+
 
 export const addToFavorites = async (req,res) => {
 
@@ -103,4 +105,51 @@ export const removeFromFavorites = async (req,res) => {
         });
     }
 
+}
+
+export const getFavoritesSelected = async (req, res) => {
+  try {
+    const userId = req.userId; // Del middleware verifyToken
+    
+    const user = await User.findById(userId);
+    console.log("favorites coins:", user.favoriteCoins);
+    const coinsString = user.favoriteCoins.join(",");
+
+    const coingeckoUrl = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${coinsString}`;
+    
+    try {
+
+      const response = await fetch(coingeckoUrl);
+      if (!response.ok) {
+        throw new Error(`CoinGecko API error: ${response.status}`);
+      }
+      const coingeckoData = await response.json();
+      
+      res.status(200).json({
+        success: true,
+        data: coingeckoData,
+        source: "coingecko"
+      });
+      
+    } catch (coingeckoError) {
+
+      console.log("CoinGecko failed to fetch, using mock...");
+      const mockData = JSON.parse(fs.readFileSync('./backend/data/cryptomock.json', 'utf8'));
+      
+      const filteredMock = mockData.filter(crypto => {
+        return user.favoriteCoins.includes(crypto.id);
+      });
+      
+      res.status(200).json({
+        success: true,
+        data: filteredMock,
+        source: "mock" 
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
 }

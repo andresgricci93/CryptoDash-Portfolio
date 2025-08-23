@@ -23,7 +23,7 @@ const OverviewPage = () => {
     <div className='flex-1 overflow-auto relative z-10'>
        <Header title="Overview" />
        <main className='w-full flex justify-center py-6 px-4 lg:px-8 xl:px-12 2xl:px-24 overflow-x-hidden max-w-full'>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-[80%] max-w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 w-[80%] max-w-full">
           {cryptos.map(crypto => (
             <CryptoCard key={crypto.id} crypto={crypto} />
           ))}

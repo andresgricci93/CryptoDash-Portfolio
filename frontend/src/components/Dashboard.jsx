@@ -8,18 +8,15 @@ import SettingsPage from '../pages/SettingsPage.jsx';
 
 
 function Dashboard() {
+
   return (
-    <div className='flex h-screen w-screen bg-gray-900 text-gray-100 overflow-hidden'>
-     
+    <div className='flex h-screen w-screen bg-gray-900 text-gray-100 overflow-hidden'>     
       <div className='fixed inset-0 z-0'>
         <div className='absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 
         to-gray-900 opacity-80'/>
         <div className='absolute inset-0 backdrop-blur-sm'/>
-      </div>
-      
-    
+      </div>    
       <Sidebar />
-     
       <div className="flex-1 relative z-10 overflow-y-auto overflow-x-hidden h-screen">
         <Routes>
           <Route path="dashboard" element={<OverviewPage />} />
@@ -31,6 +28,7 @@ function Dashboard() {
       </div>
     </div>
   );
+  
 }
 
 export default Dashboard;

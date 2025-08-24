@@ -1,23 +1,25 @@
 
 import { useEffect } from "react";
-
-import LoadingSpinner from "./components/LoadingSpinner.jsx";
-import FloatingShape from "./components/FloatingShape.jsx"
-
 import { Navigate, Route, Routes } from "react-router-dom";
 import { useAuthStore } from './store/authStore.js';
 import { Toaster } from "react-hot-toast";
 
+import LoadingSpinner from "./components/LoadingSpinner.jsx";
+import FloatingShape from "./components/FloatingShape.jsx";
+
+import Dashboard from "./components/Dashboard.jsx"
+
 import SignUpPage from "./pages/SignUpPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import EmailVerificationPage from "./pages/EmailVerificationPage.jsx";  
-import Dashboard from "./components/Dashboard.jsx"
 import ForgotPasswordPage from "./pages/ForgotPasswordPage.jsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
-import {Sidebar} from "./components/Sidebar.jsx";
+import { useFavoritesStore } from './store/favStore.js';
+
+const store = useFavoritesStore.getState();
+
+
 // protect routes that require authentication
-
-
 
 const ProtectedRoute = ({children}) => {
   const {isAuthenticated, user} = useAuthStore();
@@ -47,12 +49,13 @@ const RedirectAuthenticatedUser = ({children}) => {
 function App() {
   
   const {isCheckingAuth, checkAuth } = useAuthStore();
+  const { loadFavorites } = useFavoritesStore();
 
   useEffect(() => {
 
-    checkAuth()
-
-  }, [checkAuth])
+    checkAuth();
+    loadFavorites(); 
+  }, [checkAuth, loadFavorites])
  
   if (isCheckingAuth) return <LoadingSpinner />
 

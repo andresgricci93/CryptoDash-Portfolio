@@ -4,7 +4,7 @@ import express from "express";
 
 const router = express.Router();
 
-router.get("/cryptos", getAllCryptos)
+router.get("/cryptos", getAllCryptos);
 router.get("/cryptomockdata", getCryptoMockData );
 
 

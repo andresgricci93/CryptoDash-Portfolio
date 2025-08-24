@@ -109,7 +109,7 @@ export const removeFromFavorites = async (req,res) => {
 
 export const getFavoritesSelected = async (req, res) => {
   try {
-    const userId = req.userId; // Del middleware verifyToken
+    const userId = req.userId; // From middleware, verifyToken
     
     const user = await User.findById(userId);
     console.log("favorites coins:", user.favoriteCoins);

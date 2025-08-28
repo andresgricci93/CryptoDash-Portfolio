@@ -31,9 +31,9 @@ const CryptoCard = ({ crypto }) => {
           <span className="text-gray-400 text-xs">{crypto.symbol.toUpperCase()}</span>
         </div>
       </div>
-          <button  className="p-1 ">
+          <div className="p-1 ">
             <FavoriteStar cryptoId={crypto.id} />
-          </button>
+          </div>
       </div> 
       <div className="space-y-1">
         <div className="text-white font-bold text-lg">{formatPrice(crypto.current_price)}</div>

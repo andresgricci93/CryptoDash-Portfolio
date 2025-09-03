@@ -1,4 +1,4 @@
-
+import fs from 'fs';
 
 
 export const getAllCryptos = async (req,res) => {
@@ -14,4 +14,17 @@ export const getAllCryptos = async (req,res) => {
     console.log(error);
     res.status(500).json({ error: 'Failed to fetch cryptos!' });
     }
+}
+
+export const getCryptoMockData = async (req,res) => {
+
+    try {
+      const mockData = JSON.parse(fs.readFileSync('./backend/data/cryptomock.json', 'utf8')); // ← Se lee aquí
+      res.json(mockData);
+
+  } catch (error) {
+    console.log('ERROR:', error.message);
+  res.status(500).json({ error: 'Error loading mock data' });
+  }
+
 }

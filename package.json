@@ -20,7 +20,8 @@
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.525.0",
     "mailtrap": "^4.2.0",
-    "mongoose": "^8.16.3"
+    "mongoose": "^8.16.3",
+    "node-cron": "^4.2.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"

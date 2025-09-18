@@ -206,3 +206,80 @@ export const checkAuth = async (req,res) => {
 
    }
 }
+
+export const changePassword = async (req, res) => {
+  try {
+    const { newPassword } = req.body;
+    const userId = req.userId;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+  
+    const hashedNewPassword = await bcryptjs.hash(newPassword, 10);
+
+  
+    user.password = hashedNewPassword;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Password changed successfully"
+    });
+
+  } catch (error) {
+    console.log("Error in changePassword", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+
+export const deleteAccount = async (req, res) => {
+  try {
+    const userId = req.userId;
+
+  
+    await Note.deleteMany({ userId: userId });
+    
+    await User.findByIdAndDelete(userId);
+
+ 
+    res.clearCookie("token");
+    
+    res.status(200).json({
+      success: true,
+      message: "Account and all associated data deleted successfully"
+    });
+
+  } catch (error) {
+    console.log("Error in deleteAccount", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+  };
+
+
+  export const verifyCurrentPassword = async (req, res) => {
+
+    try {
+
+     const {password} = req.body;
+     const userId = req.userId;
+
+     const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({success: false, message: "User Not found"});
+    }
+
+    const isPasswordValid = await bcryptjs.compare(password, user.password);
+    res.status(200).json({
+      success: true,
+      isValid: isPasswordValid
+    })
+    } catch (error) {
+     console.log("Error in verifyCurrentPassword", error);
+     res.status(500).json({ success: false, message: "Server error" });
+    }
+  };

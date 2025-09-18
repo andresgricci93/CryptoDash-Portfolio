@@ -33,6 +33,11 @@ const userSchema = new mongoose.Schema({
             message:'Maximum 5 favorite coins allowed'
         }
     },
+    preferredCurrency: {
+    type: String,
+    default: 'USD',
+    uppercase: true
+    },
     resetPasswordToken: String,
     resetPasswordExpiresAt: Date,
     verificationToken: String,

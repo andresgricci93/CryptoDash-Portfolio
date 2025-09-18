@@ -1,7 +1,7 @@
 import {create} from "zustand";
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api/auth";
+const API_URL = `${import.meta.env.VITE_API_URL}/auth`;
 
 axios.defaults.withCredentials = true;
 
@@ -87,6 +87,36 @@ export const useAuthStore = create((set) => ({
         throw error;
       }
    },
+    verifyCurrentPassword: async (password) => {
+   try {
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/verify-current-password`, 
+      { password }
+    );
+    return response.data.isValid;
+   } catch (error) {
+    console.log("Error verifying password:", error);
+    return false;
+   }
+  },
+  changePassword: async (newPassword) => {
+      set({ isLoading: true, error: null });
+      try {
+        const response = await axios.put(`${import.meta.env.VITE_API_URL}/auth/change-password`, {
+          newPassword
+        });
+        set({ 
+          message: response.data.message, 
+          isLoading: false 
+        });
+        return response.data;
+      } catch (error) {
+        set({
+          error: error.response?.data?.message || "Error changing password",
+          isLoading: false
+        });
+        throw error;
+      }
+  },
    resetPassword: async (token, password) => {
      set({ isLoading: true, error: null })
      try {

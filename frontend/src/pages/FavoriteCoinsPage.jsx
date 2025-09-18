@@ -1,4 +1,4 @@
-import {useState,useEffect} from 'react';
+import { useState,useEffect } from 'react';
 import { 
   TrendingUp,
   Brain,
@@ -51,9 +51,6 @@ const handleGenerateProsAndCons = async (favorites,setAiResponse, setIsGeneratin
 
 
 const FavoriteCoinsPage = () => {
-  
-  
-  
   const [favorites, setFavorites] = useState([]);
   const [activeTab, setActiveTab] = useState('pros&cons');
   const [aiResponse, setAiResponse] = useState("");
@@ -68,9 +65,8 @@ const FavoriteCoinsPage = () => {
 
 
   useEffect(() => {
-  
-  axios.get('http://localhost:5000/api/favorites/selected')
-       .then(response => {
+    axios.get(`${import.meta.env.VITE_API_URL}/favorites/selected`)
+      .then(response => {
         setFavorites(response.data.data); 
         setLoading(false);
         console.log("Response data.data:", response.data.data);
@@ -82,17 +78,16 @@ const FavoriteCoinsPage = () => {
 
 
   return (
-    <div className='flex-1 relative z-10'>
-      <Header title="Your Favorite Coins" />
-       <main className='max-w-7xl mx-auto py-6 px-4 lg:px-8'>
-        <div className="mb-8">
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
-            {favorites.map(crypto => (
-              <CryptoCard key={crypto.id} crypto={crypto} />
-            ))}
-          </div>
+  <div className='flex-1 relative z-10'>
+    <Header title="Your Favorite Coins" />
+    <main className='max-w-7xl mx-auto py-6 px-4 lg:px-8'>
+      <div className="mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+          {favorites.map(crypto => (
+            <CryptoCard key={crypto.id} crypto={crypto} />
+          ))}
         </div>
+      </div>
       <div className="border-b border-gray-700 mb-8">
         <div className="flex space-x-8">
           {tabs.map(tab => (
@@ -146,6 +141,9 @@ const FavoriteCoinsPage = () => {
             </p>
             <p className='text-gray-300'>
               Click the button below so that CryptoAI can generate curiosities and specific facts about your favorite coins.
+              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sed temporibus vero ab iure, quas nulla dolorum corporis possimus exercitationem ut minima modi esse saepe voluptas? Maiores nemo fuga perspiciatis ex!
+              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sed temporibus vero ab iure, quas nulla dolorum corporis possimus exercitationem ut minima modi esse saepe voluptas? Maiores nemo fuga perspiciatis ex!
+
             </p>
             <button className='bg-slate-900 text-white hover:bg-white hover:text-black transition-all duration-300 ease-in-out px-6 py-3 rounded-lg font-semibold border border-slate-900 hover:border-slate-900 mt-4'>
               Generate with CryptoAI
@@ -170,4 +168,4 @@ const FavoriteCoinsPage = () => {
 );
 };
 
-export default FavoriteCoinsPage
+export default FavoriteCoinsPage;

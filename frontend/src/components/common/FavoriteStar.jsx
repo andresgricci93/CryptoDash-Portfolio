@@ -3,7 +3,7 @@ import { Star } from "lucide-react";
 import { useFavoritesStore } from '../../store/favStore';
 import axios from 'axios';
 
-const API_URL = "http://localhost:5000/api/favorites";
+const API_URL = `${import.meta.env.VITE_API_URL}/favorites`;
 
 const FavoriteStar = ({ cryptoId }) => {
 

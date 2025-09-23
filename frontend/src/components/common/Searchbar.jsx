@@ -21,7 +21,7 @@ const SearchBar = ({
   };
 
   return (
-    <div className={`mb-3 relative ${fullWidth ? 'w-full' : 'w-auto'} ${className}`}>
+    <div className={`relative ${fullWidth ? 'w-full' : 'w-auto'} ${className}`}>
       <Search 
         className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" 
         size={iconSizes[size]} 

@@ -24,6 +24,13 @@ export const useAuthStore = create((set) => ({
          error: null,
          isLoading: false,
       });
+
+      
+      const { useCurrencyStore } = await import('../store/currencyStore.js');
+      console.log('About to load user currency after login...');
+      await useCurrencyStore.getState().loadUserCurrency();
+      console.log('User currency loaded after login');
+
      } catch (error) {
        set({error: error.response?.data?.message || "Error Logging in", isLoading: false});
        throw error;

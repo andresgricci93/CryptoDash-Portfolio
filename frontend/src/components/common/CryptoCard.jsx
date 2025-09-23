@@ -1,11 +1,21 @@
 import { useNavigate } from 'react-router-dom';
 import FavoriteStar from './FavoriteStar.jsx';
 import {formatPrice,formatPercentage} from '../../utils/formatters.js'
+import { useCurrencyStore } from '../../store/currencyStore.js';
+
 
 const CryptoCard = ({ crypto }) => {
     
   const navigate = useNavigate();
 
+
+    const {formatPrice} = useCurrencyStore();
+
+  const formatPercentage = (percentage) => {
+    const isPositive = percentage > 0;
+    const symbol = isPositive ? '+' : '';
+    return `${symbol}${percentage.toFixed(2)}%`;
+  };
 
   const handleClick = () => {
     navigate(`/crypto/${crypto.id}`);

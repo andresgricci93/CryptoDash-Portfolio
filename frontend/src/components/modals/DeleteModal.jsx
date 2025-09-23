@@ -18,7 +18,7 @@ const DeleteModal = ({
   const [inputValue, setInputValue] = useState("");
   
   const isConfirmDisabled = requireTextConfirmation ? inputValue !== confirmationText : false;
-  const { deleteAccount } = useAuthStore(); 
+
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
   };
@@ -36,8 +36,8 @@ const DeleteModal = ({
 
   const handleConfirmDelete = async () => {
   try {
-    await deleteAccount();
-    console.log("Account deleted successfully!");
+    await onConfirm(); 
+    onClose();
     setIsModalOpen(false);
 
   } catch (error) {

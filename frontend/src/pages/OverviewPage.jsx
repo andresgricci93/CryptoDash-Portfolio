@@ -6,6 +6,8 @@ import { useCurrencyStore } from '../store/currencyStore.js';
 import CurrencyDropdown from '../components/overview/CurrencyDropdown.jsx';
 import OrderByPrice from '../components/overview/OrderByPrice.jsx';
 import OrderByMarketCap from '../components/overview/OrderByMarketCap.jsx';
+import { getNotesCountByCrypto } from '../utils/noteHelpers.js';
+import { useNotesStore } from '../store/notesStore.js';
 
 const OverviewPage = () => {
 
@@ -15,8 +17,12 @@ const OverviewPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('market_cap'); 
   const [sortOrder, setSortOrder] = useState('desc');
-  // const { fetchRatesIfNeeded } = useCurrencyStore();
-
+  const { notes,getAllNotes } = useNotesStore();
+  
+  const noteCounts = getNotesCountByCrypto(notes);
+  console.log('Notes from store:', notes);
+  console.log('Calculated noteCounts:', noteCounts);
+  console.log('First crypto coinId:', cryptos[0]?.coinId);
 
   useEffect(() => {
 
@@ -41,6 +47,7 @@ const OverviewPage = () => {
     };
 
     fetchData();
+    getAllNotes();
   }, []);
 
   const filteredCryptos = cryptos.filter(crypto =>
@@ -62,6 +69,9 @@ const OverviewPage = () => {
       setSortBy(field);
       setSortOrder(order);
    };
+  filteredAndSortedCryptos.forEach(crypto => {
+    console.log(`Crypto: ${crypto.name}, coinId: ${crypto.coinId}, noteCount: ${noteCounts[crypto.coinId] || 0}`);
+  });
 
   if (loading) return <div>Loading cryptos...</div>;
 
@@ -94,6 +104,7 @@ const OverviewPage = () => {
                   key={crypto.id} 
                   crypto={crypto} 
                   isInFavoritePage={false}  
+                  noteCount={noteCounts[crypto.coinId] || 0} 
                   />
             ))}
           </div>

@@ -11,6 +11,9 @@ import axios from "axios";
 import CryptoCard from '../components/common/CryptoCard';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { useFavoritesStore } from '../store/favStore';
+import { getNotesCountByCrypto } from '../utils/noteHelpers.js';
+import { useNotesStore } from '../store/notesStore.js';
+
 const tabs = [
   { id: 'pros&cons', label: 'Pros & Cons', icon: Diff },
   { id: 'facts', label: 'Facts', icon: View },
@@ -46,17 +49,20 @@ const handleGenerateProsAndCons = async (favorites, setAiResponse, setIsGenerati
 }
 
 const FavoriteCoinsPage = () => {
+
   const [favorites, setFavorites] = useState([]);
   const [activeTab, setActiveTab] = useState('pros&cons'); 
   const [aiResponse, setAiResponse] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { notes, getAllNotes } = useNotesStore();
+
 
   const handleClick = () => {
     handleGenerateProsAndCons(favorites, setAiResponse, setIsGenerating);
   };
 const favoriteIds = useFavoritesStore(state => state.favoriteIds);
-
+const noteCounts = getNotesCountByCrypto(notes);
 
 useEffect(() => {
     console.log('=== FAVORITECOINSPAGE DEBUG ===');
@@ -64,6 +70,7 @@ useEffect(() => {
     console.log('Local favorites state:', favorites.map(f => f.coinId));
     console.log('Are they in sync?', favoriteIds.every(id => favorites.some(f => f.coinId === id)));
   
+    getAllNotes();
   // Filtrar nulls y valores vacíos
   const validFavoriteIds = favoriteIds.filter(id => 
     id !== null && 
@@ -102,7 +109,12 @@ useEffect(() => {
                   transition={{ duration: 0.3 }}
                   layout
                 >
-                  <CryptoCard crypto={crypto} isInFavoritePage={true} setFavorites={setFavorites} />
+                  <CryptoCard 
+                    crypto={crypto} 
+                    isInFavoritePage={true} 
+                    setFavorites={setFavorites} 
+                    noteCount={noteCounts[crypto.coinId] || 0}
+                  />
                 </motion.div>
               ))}
             </AnimatePresence>

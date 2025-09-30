@@ -15,6 +15,7 @@ const NoteList = ({ onEditNote }) => {
   const [favoriteCryptos, setFavoriteCryptos] = useState([]);
   const [loadingFavorites, setLoadingFavorites] = useState(true);
   const { notes, getAllNotes, isLoading, deleteNote,searchTerm,setSearchTerm,getFilteredNotes } = useNotesStore();
+  const { associateNoteWithCrypto } = useNotesStore();
 
   const noteCounts = getNotesCountByCrypto(notes);
 
@@ -86,18 +87,13 @@ const NoteList = ({ onEditNote }) => {
 
    
         const handleNoteDrop = async (noteId, cryptoId) => {
-           try {
-            const response = await axios.post(`${import.meta.env.VITE_API_URL}/associateNote`,{
-              noteId,
-              cryptoId
-            });
-            console.log("Association successful:", response.data)
-            toast.success("Note associated successfully!");
+            try {
+              await associateNoteWithCrypto(noteId, cryptoId);
+              toast.success("Note associated successfully!");
             } catch (error) {
-             console.log("Association failed: ", error.response?.data?.message);
+
              const errorMessage = error.response?.data?.message || "Failed to associate note";
              toast.error(errorMessage);
-             console.error("Association failed:", errorMessage);
             }
         };
 
@@ -113,6 +109,7 @@ const NoteList = ({ onEditNote }) => {
     <div className="p-4">
         <SearchBar 
           size="sm" 
+          className="mb-3"
           fullWidth={true}
           onChange={(e) => {setSearchTerm(e.target.value)}}
         />

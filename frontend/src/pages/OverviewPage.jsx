@@ -93,7 +93,7 @@ const OverviewPage = () => {
               <CryptoCard 
                   key={crypto.id} 
                   crypto={crypto} 
-
+                  isInFavoritePage={false}  
                   />
             ))}
           </div>

@@ -9,8 +9,10 @@
   };
 
   //  Format percentage with sign and decimal places
-  export const formatPercentage = (percentage) => {
-    const isPositive = percentage > 0;
-    const symbol = isPositive ? '+' : '';
-    return `${symbol}${percentage.toFixed(2)}%`;
-  };
+export const formatPercentage = (percentage) => {
+  if (percentage === null || percentage === undefined) return 'N/A';
+  
+  const isPositive = percentage > 0;
+  const symbol = isPositive ? '+' : '';
+  return `${symbol}${percentage.toFixed(2)}%`;
+};

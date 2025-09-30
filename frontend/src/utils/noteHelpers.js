@@ -15,6 +15,6 @@ export const getNotesCountByCrypto = (notes) => {
 
 export const formatNoteCount = (count) => {
   if (count === 0) return "";
-  if (count === 1) return "1 nota";
-  return `${count} notas`;
+  if (count === 1) return "1 note";
+  return `${count} notes`;
 };

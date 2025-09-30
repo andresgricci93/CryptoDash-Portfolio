@@ -1,31 +1,31 @@
 import { useNavigate } from 'react-router-dom';
 import FavoriteStar from './FavoriteStar.jsx';
 import { useCurrencyStore } from '../../store/currencyStore.js';
-// import {formatPrice,formatPercentage} from '../../utils/formatters.js'
+import { NotebookText } from 'lucide-react';
 
-const CryptoCard = ({ crypto,isInFavoritePage  = false,  setFavorites}) => {
+const CryptoCard = ({ crypto, isInFavoritePage = false, setFavorites, noteCount = 0 }) => {
     
-  console.log('CryptoCard crypto object:', crypto);
+  //console.log('CryptoCard crypto object:', crypto);
   const navigate = useNavigate();
-  const {formatPrice} = useCurrencyStore();
+  const { formatPrice } = useCurrencyStore();
 
-const formatPercentage = (percentage) => {
-  if (percentage === null || percentage === undefined) return 'N/A';
-  
-  const isPositive = percentage > 0;
-  const symbol = isPositive ? '+' : '';
-  return `${symbol}${percentage.toFixed(2)}%`;
-};
+  const formatPercentage = (percentage) => {
+    if (percentage === null || percentage === undefined) return 'N/A';
+    
+    const isPositive = percentage > 0;
+    const symbol = isPositive ? '+' : '';
+    return `${symbol}${percentage.toFixed(2)}%`;
+  };
+
   const handleClick = () => {
     navigate(`/crypto/${crypto.coinId}`);
   };
 
   const isPositive = crypto.price_change_percentage_24h > 0;
 
-
   return (
     <div 
-      className="bg-gray-800 rounded-lg p-4 hover:bg-gray-700 cursor-pointer transition-colors duration-200 border border-gray-700 min-h-[140px] crypto-card"
+      className="bg-gray-800 rounded-lg p-4 hover:bg-gray-700 cursor-pointer transition-colors duration-200 border border-gray-700 min-h-[140px] relative"
       onClick={handleClick}
     >
       <div className="flex justify-between items-start mb-3">
@@ -40,23 +40,38 @@ const formatPercentage = (percentage) => {
             <span className="text-gray-400 text-xs">{crypto.symbol.toUpperCase()}{' '}</span>
           </div>
         </div>
-          <div  className="p-1 ">
-            <FavoriteStar 
-              cryptoId={crypto.coinId}  
-              isInFavoritePage={isInFavoritePage} 
-              setFavorites={setFavorites}  
-            />
-          </div>
+        <div className="p-1">
+          <FavoriteStar 
+            cryptoId={crypto.coinId}  
+            isInFavoritePage={isInFavoritePage} 
+            setFavorites={setFavorites}  
+          />
+        </div>
       </div>
+    <div className='flex justify-between items-end mb-3'>
+       
       <div className="space-y-1">
         <div className="text-white font-bold text-lg">{formatPrice(crypto.current_price)}</div>
         <div className={`text-sm font-medium ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
           {formatPercentage(crypto.price_change_percentage_24h)}
         </div>
       </div>
+     <div className="p-2">
+
+        {noteCount > 0 && (
+          <div className="bottom-2 right-2">
+            <div className="relative">
+              <NotebookText className="w-5 h-5 text-gray-400" />
+              <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">
+                {noteCount}
+              </div>
+            </div>
+          </div>
+          )}
+       </div>
+      </div> 
     </div>
   );
 };
-
 
 export default CryptoCard;

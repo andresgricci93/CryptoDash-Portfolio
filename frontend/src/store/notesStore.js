@@ -88,5 +88,22 @@ getAllNotes: async () => {
             set({ error: error.response?.data?.message, isLoading: false });
         }
     },
+associateNoteWithCrypto: async (noteId, cryptoId) => {
+  try {
+    const response = await axios.post(`${API_URL}/associateNote`,{
+      noteId,
+      cryptoId
+    });
+    set(state => ({
+      notes: state.notes.map(note => note._id === noteId ? response.data.note : note
+      ),
+      error: null
+    }))
 
+    return response.data;
+  } catch (error) {
+     set({ error: error.response?.data?.message });
+     throw error;
+  }
+}
 }));

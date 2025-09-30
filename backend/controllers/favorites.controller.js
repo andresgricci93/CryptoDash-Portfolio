@@ -1,15 +1,6 @@
 import { User } from "../models/user.model.js";
-import fs from "fs";
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { Crypto } from "../models/crypto.model.js";
 
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-
-const cryptoMockPath = path.join(__dirname, '../data/cryptomock.json');
-const cryptoMockData = JSON.parse(fs.readFileSync(cryptoMockPath, 'utf8'));
 
 
 export const addToFavorites = async (req,res) => {
@@ -47,38 +38,8 @@ export const addToFavorites = async (req,res) => {
     }
 }
 
-
-export const getAllFavorites = async (req,res) => {
-
-     try {
-
-
-        const userId = req.userId;
-
-        const user = await User.findById(userId);
-
-        if (!user) {
-          return res.status(404).json({success: false, message: "User not found"})
-        }
-       
-
-      res.status(200).json({
-        success: true,
-        favoriteCoins: user.favoriteCoins
-       });
-    
-    } catch (error) {
-       res.status(500).json({
-            success: false,
-            message: error.message
-        });
-   }
-
-}
-
 export const removeFromFavorites = async (req,res) => {
 
- 
   try {
         
         const { cryptoId } = req.body;
@@ -114,74 +75,68 @@ export const removeFromFavorites = async (req,res) => {
         message: error.message
         });
     }
-
 }
 
-export const getFavoritesSelected = async (req, res) => {
+export const getFavoritesCoins = async (req,res) => {
+
   try {
-    const userId = req.userId; // From middleware, verifyToken
-    
-    const user = await User.findById(userId);
-    console.log("favorites coins:", user.favoriteCoins);
-    const coinsString = user.favoriteCoins.join(",");
+   const userId = req.userId;
 
-    const coingeckoUrl = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${coinsString}`;
-    
-    try {
+   const user = await User.findById(userId);
+   if (!user) {
+   return res.status(404).json({success:false, message: "User not found"});
+   }
 
-      const response = await fetch(coingeckoUrl);
-      if (!response.ok) {
-        throw new Error(`CoinGecko API error: ${response.status}`);
-      }
-      const coingeckoData = await response.json();
-      
-      res.status(200).json({
-        success: true,
-        data: coingeckoData,
-        source: "coingecko"
-      });
-      
-    } catch (coingeckoError) {
+   const favoriteIds = user.favoriteCoins;
+   const allCryptos = await Crypto.find({});
 
-      console.log("CoinGecko failed to fetch, using mock...");
-      const mockData = JSON.parse(fs.readFileSync('./backend/data/cryptomock.json', 'utf8'));
-      
-      const filteredMock = mockData.filter(crypto => {
-        return user.favoriteCoins.includes(crypto.id);
-      });
-      
-      res.status(200).json({
-        success: true,
-        data: filteredMock,
-        source: "mock" 
-      });
-    }
+
+   const favoriteCryptos = allCryptos.filter(crypto => favoriteIds.includes(crypto.coinId));
+   res.json({success: true, data:favoriteCryptos});
+
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
+   res.status(500).json({ success: false, message: error.message });
   }
+
 }
 
-export const getFavoritesWithData = async (req, res) => {
+export const getFavoriteIds = async (req,res) => {
+   try {
+        const userId = req.userId;
+        const user = await User.findById(userId);
+
+        if (!user) {
+          return res.status(404).json({success: false, message: "User not found"})
+        }
+       
+      res.status(200).json({
+        success: true,
+        favoriteCoins: user.favoriteCoins
+      });
+    } catch (error) {
+       res.status(500).json({
+            success: false,
+            message: error.message
+        });
+   }
+};
+export const getFavoriteDetails = async (req, res) => {
   try {
     const userId = req.userId;
     const user = await User.findById(userId);
     
     if (!user) {
-      return res.status(404).json({success: false, message: "User not found"})
+      return res.status(404).json({success: false, message: "User not found"});
     }
-
-    const favoriteCryptos = cryptoMockData.filter(crypto => 
-      user.favoriteCoins.includes(crypto.id)
+    
+    const favoriteIds = user.favoriteCoins;
+    const allCryptos = await Crypto.find({});
+    const favoriteCryptos = allCryptos.filter(crypto => 
+      favoriteIds.includes(crypto.coinId)
     );
-
-    res.status(200).json({
-      success: true,
-      data: favoriteCryptos
-    });
+    
+    res.json({ success: true, data: favoriteCryptos });
   } catch (error) {
-    res.status(500).json({success: false, message: error.message});
+    res.status(500).json({ success: false, message: error.message });
   }
 }

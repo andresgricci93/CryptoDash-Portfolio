@@ -59,11 +59,10 @@ function App() {
 
   useEffect(() => {
     const initialize = async () => {
-    console.log('App initialization started');
+
     
     await checkAuth();
-   console.log('CheckAuth completed, user:', useAuthStore.getState().user); // <- AQUÍ
-    console.log('CheckAuth completed, authenticated:', useAuthStore.getState().isAuthenticated); // <- Y AQUÍ
+    console.log('CheckAuth completed, authenticated:', useAuthStore.getState().isAuthenticated);
     
     await loadUserCurrency();
     // console.log('LoadUserCurrency completed, current currency:', useCurrencyStore.getState().selectedCurrency);
@@ -71,7 +70,7 @@ function App() {
     await fetchRatesIfNeeded();
     console.log('FetchRates completed');
     
-    // await loadFavorites(); // Comentar temporalmente
+    await loadFavorites(); 
     console.log('Setting isInitialized to true');
     setIsInitialized(true);
     };

@@ -1,11 +1,13 @@
 import { useNotesStore } from '../../store/notesStore.js';
 import { useState,useEffect } from 'react';
 import { motion,AnimatePresence } from "framer-motion";
-import { Pencil } from 'lucide-react';
+
 import SearchBar from '../common/Searchbar.jsx';
 import DeleteModal from '../modals/DeleteModal.jsx';
 import MiniCryptoCard from '../notes/components/MiniCryptoCard.jsx';
 import { getNotesCountByCrypto } from '../../utils/noteHelpers.js';
+import { useNavigate } from 'react-router-dom';
+import { Pencil, Eye } from 'lucide-react';
 import toast from "react-hot-toast";
 import axios from 'axios';
 
@@ -16,7 +18,7 @@ const NoteList = ({ onEditNote }) => {
   const [loadingFavorites, setLoadingFavorites] = useState(true);
   const { notes, getAllNotes, isLoading, deleteNote,searchTerm,setSearchTerm,getFilteredNotes } = useNotesStore();
   const { associateNoteWithCrypto } = useNotesStore();
-
+  const navigate = useNavigate();
   const noteCounts = getNotesCountByCrypto(notes);
 
 
@@ -84,7 +86,9 @@ const NoteList = ({ onEditNote }) => {
           setTimeout(() => document.body.removeChild(dragImage), 0);
           e.target.style.opacity = '0.7';
       };
-
+        const handleViewNote = (noteId) => {
+         navigate(`/notes/${noteId}`);
+        };
    
         const handleNoteDrop = async (noteId, cryptoId) => {
             try {
@@ -137,6 +141,11 @@ const NoteList = ({ onEditNote }) => {
                   >
                   ×
                 </button>
+                <Eye 
+                  onClick={() => handleViewNote(note._id)}
+                  size={13}
+                  className='absolute bottom-4 right-9 cursor-pointer text-white hover:text-blue-300'
+                />
                 <Pencil 
                 onClick={() => handleEditMode(note)}
                 size={13}

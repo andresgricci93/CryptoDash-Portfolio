@@ -5,6 +5,7 @@ import CryptoDetailPage from '../pages/CryptoDetailPage.jsx';
 import FavoriteCoinsPage from '../pages/FavoriteCoinsPage.jsx';
 import NotesPage from '../pages/NotesPage.jsx';
 import SettingsPage from '../pages/SettingsPage.jsx';
+import NoteDetailPage from '../pages/NoteDetailPage.jsx';
 
 
 function Dashboard() {
@@ -23,6 +24,7 @@ function Dashboard() {
           <Route path="crypto/:id" element={<CryptoDetailPage />} />
           <Route path="favorites" element={<FavoriteCoinsPage />} />     
           <Route path="notes" element={<NotesPage />} />
+          <Route path="notes/:noteId" element={<NoteDetailPage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Routes>
       </div>

@@ -9,6 +9,7 @@ import favoritesRoutes from './routes/favorites.route.js';
 import notesRoutes from "./routes/notes.route.js";
 import currenciesRoutes from './routes/currencies.route.js';
 import profileRoutes from './routes/profile.route.js';
+import exportRoutes from './routes/pdfExport.route.js';
 
 
 dotenv.config();
@@ -27,7 +28,7 @@ app.use('/api', favoritesRoutes);
 app.use('/api', notesRoutes )
 app.use('/api', currenciesRoutes);
 app.use('/api/profile', profileRoutes);
-
+app.use('/api', exportRoutes);
 app.listen(PORT,'127.0.0.1' , () => {
     connectDB();
     console.log("Server is running on port:", PORT);

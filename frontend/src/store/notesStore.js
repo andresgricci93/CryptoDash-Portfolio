@@ -88,6 +88,20 @@ getAllNotes: async () => {
             set({ error: error.response?.data?.message, isLoading: false });
         }
     },
+    getNoteById: async (noteId) => {
+       try {
+         const response = await axios.get(`${API_URL}/getNote/${noteId}`);
+         set({ isLoading: false });
+         return response.data.note;
+       } catch (error) {
+           set({
+            error: error.repsonse?.data?.message || "Error fetching note",
+            isLoading: false
+           });
+           throw error;
+       }
+
+  },  
 associateNoteWithCrypto: async (noteId, cryptoId) => {
   try {
     const response = await axios.post(`${API_URL}/associateNote`,{

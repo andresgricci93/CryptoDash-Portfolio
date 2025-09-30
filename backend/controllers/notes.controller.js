@@ -56,7 +56,32 @@ export const getAllNotes = async (req,res) => {
     }
 
 };
+export const getNoteById = async (req,res) => {
+  const { noteId } = req.params;
+  const userId = req.userId;
 
+  try {
+    const note = await Note.findOne({ _id: noteId, userId: userId });
+
+    if (!note) {
+      return res.status(404).json({
+        success: false,
+        message: "Note not found or unauthorized"
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      note
+    });
+
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message
+    });
+  }
+}
 export const updateNote = async (req,res) => {
 
  const {noteId} = req.params;

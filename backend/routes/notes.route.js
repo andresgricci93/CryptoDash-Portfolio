@@ -9,7 +9,8 @@ router.post("/createNote", verifyToken, createNote);
 router.get("/getAllNotes", verifyToken, getAllNotes);
 router.put("/updateNote/:noteId", verifyToken, updateNote);
 router.delete("/deleteNote/:noteId", verifyToken, deleteNote);
-router.put("/associateNote", verifyToken, associateNoteWithCrypto);
+router.post("/associateNote", verifyToken, associateNoteWithCrypto);
+
 
 
 export default router;

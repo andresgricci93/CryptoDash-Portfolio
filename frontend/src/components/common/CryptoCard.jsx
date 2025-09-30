@@ -37,7 +37,7 @@ const formatPercentage = (percentage) => {
           />
           <div className="flex-1">
             <h3 className="text-white font-semibold text-sm">{crypto.name}</h3>
-            <span className="text-gray-400 text-xs">{crypto.symbol.toUpperCase()}</span>
+            <span className="text-gray-400 text-xs">{crypto.symbol.toUpperCase()}{' '}</span>
           </div>
         </div>
           <div  className="p-1 ">

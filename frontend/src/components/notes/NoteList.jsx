@@ -18,7 +18,7 @@ const NoteList = ({ onEditNote }) => {
     const fetchFavoritesWithData = async () => {
       try {
         await getAllNotes();
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/favorites/withData`);
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/favorites/details`);
         setFavoriteCryptos(response.data.data);
       } catch (error) {
         console.error('Error fetching favorites:', error);

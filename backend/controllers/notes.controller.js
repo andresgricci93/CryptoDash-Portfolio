@@ -15,6 +15,7 @@ export const createNote = async (req,res) => {
         htmlContent,
         textContent,
         tags: tags || [],
+        cryptoId: [],
         userId
     });
 
@@ -91,36 +92,50 @@ export const updateNote = async (req,res) => {
  }
 }
 
-export const associateNoteWithCrypto = async (req, res) => {
-  try {
-    const { noteId, cryptoId } = req.body;
-    const userId = req.userId;
+export const associateNoteWithCrypto = async (req,res) => {
+   const  { noteId, cryptoId } = req.body;
+   const userId = req.userId;
+try {
 
-    const note = await Note.findOneAndUpdate(
-      { _id: noteId, userId: userId },
-      { cryptoId: cryptoId },
-      { new: true }
-    );
 
-    if (!note) {
-      return res.status(404).json({
-        success: false,
-        message: "Note not found or unauthorized"
-      });
-    }
+   const note = await Note.findOne({_id:noteId, userId});
 
-    res.status(200).json({
-      success: true,
-      message: "Note associated with crypto successfully",
-      note
+   if (!note) {
+    return res.status(404).json({
+       success: false,
+       message: "Note not found"
+    })
+   }
+
+   if (!note.cryptoId) {
+    note.cryptoId = [];
+   }
+   if (note.cryptoId.includes(cryptoId)) {
+    return res.status(400).json({
+       success: false,
+       message: "Note is already associated with this crypto"
     });
+   }
+
+   note.cryptoId.push(cryptoId);
+   await note.save();
+
+   res.status(200).json({
+    success: true,
+    message: "Note associated successfully",
+    note
+   });
+
   } catch (error) {
-    res.status(400).json({
-      success: false,
-      message: error.message
-    });
+   res.status(500).json({
+    success: false,
+    message: error.message
+   })
   }
-};
+
+
+
+}
 
 export const deleteNote = async (req,res) => {
 

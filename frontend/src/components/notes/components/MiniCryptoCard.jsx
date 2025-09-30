@@ -1,7 +1,8 @@
 import { useCurrencyStore } from '../../../store/currencyStore.js';
 import { Star } from 'lucide-react';
+import { formatNoteCount } from '../../../utils/noteHelpers.js';
 
-const MiniCryptoCard = ({ crypto, onNoteDrop }) => {
+const MiniCryptoCard = ({ crypto, onNoteDrop, noteCount }) => {
 
   const { formatPrice } = useCurrencyStore();  
   
@@ -22,7 +23,7 @@ const MiniCryptoCard = ({ crypto, onNoteDrop }) => {
     console.log('Dropped note:', noteId, 'on crypto:', crypto.id);
     
     if (onNoteDrop) {
-      onNoteDrop(noteId, crypto.id);
+      onNoteDrop(noteId, crypto.coinId);
     }
   };
 
@@ -52,9 +53,11 @@ const MiniCryptoCard = ({ crypto, onNoteDrop }) => {
         </div>
       </div>
       
-      <div className="text-sm text-white font-semibold">
-        {formatPrice(crypto.current_price)}
-      </div>
+      {noteCount > 0 && (
+        <div className='text-xs text-gray-400 ml-2'>
+          {formatNoteCount(noteCount)}
+        </div>  
+      )}
     </div>
   );
 };

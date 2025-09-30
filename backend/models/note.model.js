@@ -21,8 +21,8 @@ const noteSchema = new mongoose.Schema({
         required: true
     },
     cryptoId: {
-        type: String,
-        default: null
+        type: [String],
+        default: []
     },
     tags: [String]
 }, {timestamps: true});

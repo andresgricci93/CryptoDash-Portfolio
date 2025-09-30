@@ -5,6 +5,8 @@ import { Pencil } from 'lucide-react';
 import SearchBar from '../common/Searchbar.jsx';
 import DeleteModal from '../modals/DeleteModal.jsx';
 import MiniCryptoCard from '../notes/components/MiniCryptoCard.jsx';
+import { getNotesCountByCrypto } from '../../utils/noteHelpers.js';
+import toast from "react-hot-toast";
 import axios from 'axios';
 
 
@@ -13,6 +15,9 @@ const NoteList = ({ onEditNote }) => {
   const [favoriteCryptos, setFavoriteCryptos] = useState([]);
   const [loadingFavorites, setLoadingFavorites] = useState(true);
   const { notes, getAllNotes, isLoading, deleteNote,searchTerm,setSearchTerm,getFilteredNotes } = useNotesStore();
+
+  const noteCounts = getNotesCountByCrypto(notes);
+
 
   useEffect(() => {
     const fetchFavoritesWithData = async () => {
@@ -80,10 +85,20 @@ const NoteList = ({ onEditNote }) => {
       };
 
    
-        const handleNoteDrop = (noteId, cryptoId) => {
-          console.log('Associating note', noteId, 'with crypto', cryptoId);
-          
-       
+        const handleNoteDrop = async (noteId, cryptoId) => {
+           try {
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/associateNote`,{
+              noteId,
+              cryptoId
+            });
+            console.log("Association successful:", response.data)
+            toast.success("Note associated successfully!");
+            } catch (error) {
+             console.log("Association failed: ", error.response?.data?.message);
+             const errorMessage = error.response?.data?.message || "Failed to associate note";
+             toast.error(errorMessage);
+             console.error("Association failed:", errorMessage);
+            }
         };
 
      
@@ -149,7 +164,7 @@ const NoteList = ({ onEditNote }) => {
                      key={crypto.id} 
                      crypto={crypto} 
                      onNoteDrop={handleNoteDrop}
-                     
+                     noteCount={noteCounts[crypto.coinId] || 0}
                      />
                 ))}
               </div>

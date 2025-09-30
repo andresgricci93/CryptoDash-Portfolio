@@ -32,6 +32,20 @@ const AVAILABLE_CURRENCIES = [
   { code: 'ARS', name: 'Argentine Peso', symbol: '$' }
 ];
 
+const getCurrencySymbol = (currency) => {
+  const symbols = {
+    'USD': '$', 'EUR': '€', 'GBP': '£', 'JPY': '¥', 
+    'CAD': 'C$', 'AUD': 'A$', 'CHF': 'CHF', 'CNY': '¥', 
+    'INR': '₹', 'BRL': 'R$', 'RUB': '₽', 'KRW': '₩',
+    'MXN': '$', 'SGD': 'S$', 'HKD': 'HK$', 'NOK': 'kr', 
+    'SEK': 'kr', 'DKK': 'kr', 'PLN': 'zł', 'TRY': '₺',
+    'ZAR': 'R', 'THB': '฿', 'CZK': 'Kč', 'ILS': '₪',
+    'ARS': '$'
+  };
+  return symbols[currency] || currency;
+};
+
+
 export const useCurrencyStore = create((set,get) => ({
 
 
@@ -103,21 +117,26 @@ export const useCurrencyStore = create((set,get) => ({
         const rate = currencyRates?.find(r => r.code === selectedCurrency)?.rate;
         return rate ? usdPrice * rate : usdPrice;
     },
-    formatPrice: (usdPrice) => {
-        const convertedPrice = get().convertPrice(usdPrice);
-        const { selectedCurrency } = get();
+    formatPrice: (price) => {
+        const { selectedCurrency, currencyRates } = get(); 
         
-        return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: selectedCurrency,
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 6
+      
+        const convertedPrice = get().convertPrice(price); 
+        
+        const number = new Intl.NumberFormat('en-GB', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 6
         }).format(convertedPrice);
-    },
+        
+        return `${getCurrencySymbol(selectedCurrency)} ${number}`;
+    }
 
 }));
 
+
+
 const store = useCurrencyStore.getState();
+
 console.log('Selected currency:', store.selectedCurrency);
 console.log('Currency rates:', store.currencyRates);
 console.log('Rates loaded:', store.ratesLoaded);

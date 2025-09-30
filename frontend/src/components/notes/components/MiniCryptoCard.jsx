@@ -1,16 +1,17 @@
-import { formatPrice } from '../../../utils/formatters.js';
+import { useCurrencyStore } from '../../../store/currencyStore.js';
 import { Star } from 'lucide-react';
 
 const MiniCryptoCard = ({ crypto, onNoteDrop }) => {
 
-    
+  const { formatPrice } = useCurrencyStore();  
+  
   const handleDragOver = (e) => {
-    e.preventDefault(); // Permitir drop
+    e.preventDefault(); // Allow drag n drop
     e.currentTarget.style.backgroundColor = '#2d3748'; // Highlight al hover
   };
 
   const handleDragLeave = (e) => {
-    e.currentTarget.style.backgroundColor = '#4a5568'; // Volver al color original
+    e.currentTarget.style.backgroundColor = '#4a5568'; // Return to original color - to fix in further iterations UI/UX
   };
 
   const handleDrop = (e) => {
@@ -32,7 +33,6 @@ const MiniCryptoCard = ({ crypto, onNoteDrop }) => {
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      {/* Estrella favorito - solo visual */}
       <Star 
         className="absolute top-2 right-2 w-3 h-3 text-yellow-400 fill-yellow-400" 
       />

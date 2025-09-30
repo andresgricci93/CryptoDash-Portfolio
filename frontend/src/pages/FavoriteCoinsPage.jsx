@@ -28,8 +28,8 @@ const handleGenerateProsAndCons = async (favorites, setAiResponse, setIsGenerati
                 Use simple text structure with clear headings and bullet points using - instead of *.`;
   
   try {
-    const googleai = new GoogleGenerativeAI("AIzaSyBmg3yM7cMpPSfkytPWvl6JWGfjIWVh4dM");
-    const gemini = googleai.getGenerativeModel({model: "gemini-1.5-flash"});
+    const googleai = new GoogleGenerativeAI(import.meta.env.VITE_GOOGLE_AI_API_KEY);
+    const gemini = googleai.getGenerativeModel({model: "gemini-2.5-flash-lite"});
     
     const result = await gemini.generateContentStream(prompt);
     

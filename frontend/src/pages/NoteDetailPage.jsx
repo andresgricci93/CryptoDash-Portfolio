@@ -10,8 +10,10 @@ import Italic from '@tiptap/extension-italic';
 import Heading from '@tiptap/extension-heading';
 import Header from '../components/common/Header';
 import Button from '../components/common/Button';
-import { ArrowLeft,  Loader } from 'lucide-react';
+import { ArrowLeft, Loader } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import CryptoAISummaryModal from '../components/modals/CryptoAISummaryModal';
+import toast from 'react-hot-toast';
 
 const NoteDetailPage = () => {
   const { noteId } = useParams();
@@ -20,8 +22,12 @@ const NoteDetailPage = () => {
   
   const [note, setNote] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [pdfLoading, setPdfLoading] = useState(false);
+  const [wordLoading, setWordLoading] = useState(false);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [showSummaryModal, setShowSummaryModal] = useState(false);
+  const [aiSummary, setAiSummary] = useState('');
+
   // Editor TipTap in read-only mode
   const editor = useEditor({
     extensions: [
@@ -38,8 +44,6 @@ const NoteDetailPage = () => {
 
    const handleExportPDF = async () => {
         setPdfLoading(true); 
-        console.log('noteId:', noteId); 
-        console.log('Full URL:', `http://localhost:5000/api/export/pdf/${noteId}`);
         try {
             const response = await fetch(`http://localhost:5000/api/export/pdf/${noteId}`, {
             credentials: 'include' 
@@ -51,7 +55,6 @@ const NoteDetailPage = () => {
             
             const blob = await response.blob();
             
-            // Crea download automatico
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -64,34 +67,155 @@ const NoteDetailPage = () => {
             
         } catch (error) {
             console.error('PDF export error:', error);
-            setError('Failed to export PDF');
+            toast.error('Failed to export PDF');
         } finally {
             setPdfLoading(false);
         }
     };
 
+   const handleExportWord = async () => {
+      setWordLoading(true);
+      
+      try {
+        const response = await fetch(`http://localhost:5000/api/export/word/${noteId}`, {
+          credentials: 'include'
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to generate Word document');
+        }
+        
+        const blob = await response.blob();
+        
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${note.title}.docx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        
+        window.URL.revokeObjectURL(url);
+        
+      } catch (error) {
+        console.error('Word export error:', error);
+        toast.error('Failed to export Word');
+      } finally {
+        setWordLoading(false);
+      }
+    };
 
+    const handleAISummary = async () => {
+      setSummaryLoading(true);
+      
+      try {
+        const response = await fetch(`http://localhost:5000/api/ai-summary/${noteId}`, {
+          credentials: 'include'
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to generate AI summary');
+        }
+        
+        const data = await response.json();
+        setAiSummary(data.summary);
+        setShowSummaryModal(true);
+        
+      } catch (error) {
+        console.error('AI Summary error:', error);
+        toast.error('Failed to generate summary');
+      } finally {
+        setSummaryLoading(false);
+      }
+    };
 
+     const handleSummaryExportPDF = async (summaryText) => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/export/summary-pdf`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            title: `${note.title} - AI Summary`,
+            content: summaryText
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to generate PDF');
+        }
+        
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${note.title} - AI Summary.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+      } catch (error) {
+        console.error('PDF export error:', error);
+        toast.error('Failed to export PDF');
+      }
+    };
+
+const handleSummaryExportWord = async (summaryText) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/export/summary-word`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          title: `${note.title} - AI Summary`,
+          content: summaryText
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to generate Word document');
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${note.title} - AI Summary.docx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      
+    } catch (error) {
+      console.error('Word export error:', error);
+      toast.error('Failed to export Word');
+    }
+  };
 
   // Fetch note when noteId changes
   useEffect(() => {
     const fetchNote = async () => {
       setLoading(true);
-      setError(null);
       
       try {
         const fetchedNote = await getNoteById(noteId);
         setNote(fetchedNote);
       } catch (err) {
-        setError('Note not found');
         console.error(err);
+        toast.error('Note not found');
+        navigate('/notes');
       } finally {
         setLoading(false);
       }
     };
 
     fetchNote();
-  }, [noteId, getNoteById]);
+  }, [noteId, getNoteById, navigate]);
 
   // Update editor content when note changes
   useEffect(() => {
@@ -101,8 +225,7 @@ const NoteDetailPage = () => {
   }, [note, editor]);
 
   if (loading) return <div className="text-white text-center py-20">Loading note...</div>;
-  if (error) return <div className="text-red-500 text-center py-20">Error: {error}</div>;
-  if (!note) return <div className="text-white text-center py-20">Note not found</div>;
+  if (!note) return null;
 
   return (
     <div className='flex-1 relative z-10'>
@@ -122,10 +245,11 @@ const NoteDetailPage = () => {
            <p>Last updated: {new Date(note.updatedAt).toLocaleDateString()}</p>
           </div>
         </div>
-        {/* Content area */}
-        <div className="bg-white text-black rounded-lg p-8 mb-6 min-h-[400px]">
+        
+        <div className="bg-white text-black rounded-lg p-8 mb-6 h-[600px] overflow-y-auto custom-scrollbar">
           <EditorContent editor={editor} />
         </div>
+        
         {note.tags && note.tags.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-6">
             {note.tags.map((tag, index) => (
@@ -139,10 +263,17 @@ const NoteDetailPage = () => {
           </div>
         )}
 
-
         <div className="flex justify-between items-center">
-        <Button variant="primary">
-            AI Resume
+        <Button 
+          variant="primary" 
+          onClick={handleAISummary}
+          disabled={summaryLoading}
+        >
+          {summaryLoading ? (
+            <Loader className="w-4 h-4 animate-spin" />
+          ) : (
+            "CryptoAI Summary"
+          )}
         </Button>
         
         <div className="flex gap-2">
@@ -157,12 +288,29 @@ const NoteDetailPage = () => {
                 "PDF"
             )}
             </Button>
-            <Button variant="primary">
-            Word
+            <Button 
+              variant="primary" 
+              onClick={handleExportWord}
+              disabled={wordLoading}
+            >
+              {wordLoading ? (
+                <Loader className="w-4 h-4 animate-spin" />
+              ) : (
+                "Word"
+              )}
             </Button>
         </div>
         </div>
       </main>
+      
+      <CryptoAISummaryModal
+        isOpen={showSummaryModal}
+        onClose={() => setShowSummaryModal(false)}
+        summary={aiSummary}
+        originalTitle={note?.title}
+        onExportPDF={handleSummaryExportPDF}
+        onExportWord={handleSummaryExportWord}
+      />
     </div>
   );
 };

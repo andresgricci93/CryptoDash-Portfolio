@@ -64,9 +64,7 @@ function App() {
     await checkAuth();
     console.log('CheckAuth completed, authenticated:', useAuthStore.getState().isAuthenticated);
     
-    await loadUserCurrency();
-    // console.log('LoadUserCurrency completed, current currency:', useCurrencyStore.getState().selectedCurrency);
-    
+    await loadUserCurrency();    
     await fetchRatesIfNeeded();
     console.log('FetchRates completed');
     
@@ -76,7 +74,7 @@ function App() {
     };
     
     initialize();
-  }, []);
+  }, [loadFavorites]);
   
   if (isCheckingAuth || !isInitialized) return <LoadingSpinner />
 

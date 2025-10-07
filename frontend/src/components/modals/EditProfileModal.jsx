@@ -11,8 +11,6 @@ import ModalWrapper from './ModalWrapper';
 
 const EditProfileModal = ({ isOpen, onClose }) => {
     const authStore = useAuthStore();
-console.log('AuthStore keys:', Object.keys(authStore));
-console.log('updateProfile exists:', !!authStore.updateProfile);
 
   const { user, updateProfile, uploadAvatar } = useAuthStore();
   

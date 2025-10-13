@@ -245,7 +245,7 @@ useEffect(() => {
                 />
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 ml-2">
               {editingNote && (
                 <Button 
                   onClick={onCancelEdit}

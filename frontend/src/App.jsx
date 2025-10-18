@@ -50,31 +50,37 @@ const RedirectAuthenticatedUser = ({children}) => {
 
 function App() {
   
-  const {isCheckingAuth, checkAuth } = useAuthStore();
   const { loadFavorites } = useFavoritesStore();
- const { loadUserCurrency } = useCurrencyStore();
-
+  const { loadUserCurrency } = useCurrencyStore();
+  const { isAuthenticated, isCheckingAuth, checkAuth } = useAuthStore();
   const { fetchRatesIfNeeded } = useCurrencyStore();
   const [isInitialized, setIsInitialized] = useState(false);
 
-  useEffect(() => {
+useEffect(() => {
     const initialize = async () => {
-
-    
-    await checkAuth();
-    console.log('CheckAuth completed, authenticated:', useAuthStore.getState().isAuthenticated);
-    
-    await loadUserCurrency();    
-    await fetchRatesIfNeeded();
-    console.log('FetchRates completed');
-    
-    await loadFavorites(); 
-    console.log('Setting isInitialized to true');
-    setIsInitialized(true);
+      console.log('App initialization started');
+      
+      await checkAuth();
+      console.log('CheckAuth completed, authenticated:', useAuthStore.getState().isAuthenticated);
+      
+      setIsInitialized(true);
     };
     
     initialize();
-  }, [loadFavorites]);
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      const loadUserData = async () => {
+        await loadUserCurrency();
+        await fetchRatesIfNeeded();
+        await loadFavorites();
+        console.log('User data loaded');
+      };
+      
+      loadUserData();
+    }
+  }, [isAuthenticated]);
   
   if (isCheckingAuth || !isInitialized) return <LoadingSpinner />
 

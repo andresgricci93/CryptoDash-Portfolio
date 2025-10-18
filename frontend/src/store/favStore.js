@@ -53,6 +53,9 @@ export const useFavoritesStore = create(
        } catch (error) {
          set({ error: error.response?.data?.message || "Error loading favorites", isLoading: false });
        }
+     },
+     resetFavorites: async () => {
+      set({favoriteIds: [], error: null, isLoading: false});
      }
    }),
    {

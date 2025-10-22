@@ -16,6 +16,13 @@ export const addToFavorites = async (req,res) => {
           return res.status(404).json({success: false, message: "User not found"})
         }
 
+        if (user.favoriteCoins.length >= 5) {
+          return res.status().json({
+            success: false,
+            message: "Maximum 5 favorites allowed"
+          })
+        }
+
         if (user.favoriteCoins.includes(cryptoId)) {
           return res.status(400).json({success: false, message: "Crypto already in favorites"})
         }
@@ -108,11 +115,21 @@ export const getFavoriteIds = async (req,res) => {
         if (!user) {
           return res.status(404).json({success: false, message: "User not found"})
         }
-       
+        
+        const validFavorites = user.favoriteCoins.filter(id => 
+          id !== null && 
+          id !== undefined && 
+          id !== '' && 
+          typeof id === 'string'
+        ); 
+
+
       res.status(200).json({
         success: true,
-        favoriteCoins: user.favoriteCoins
+        favoriteCoins: validFavorites
       });
+
+
     } catch (error) {
        res.status(500).json({
             success: false,
@@ -120,6 +137,8 @@ export const getFavoriteIds = async (req,res) => {
         });
    }
 };
+
+
 export const getFavoriteDetails = async (req, res) => {
   try {
     const userId = req.userId;

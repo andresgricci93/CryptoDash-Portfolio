@@ -63,7 +63,7 @@ export const useCurrencyStore = create((set,get) => ({
         const response = await axios.get(`${API_URL}/auth/check-auth`);
         if (response.data.user?.preferredCurrency) {
             set({ selectedCurrency: response.data.user.preferredCurrency });
-            console.log('Loaded user currency:', response.data.user.preferredCurrency);
+           
         }
         } catch (error) {
         console.log('No user currency preference found');
@@ -85,7 +85,7 @@ export const useCurrencyStore = create((set,get) => ({
         }
     },
     fetchRatesIfNeeded: async () => {
-        console.log('fetchRatesIfNeeded called');
+       
         
         const { ratesLoaded, currencyRates } = get();
         
@@ -94,17 +94,13 @@ export const useCurrencyStore = create((set,get) => ({
             return;
         }
 
-        try {
-  
-            const response = await axios.get(`${API_URL}/currencies`);
-            console.log(' Rates response:', response.data);
-            
+        try { 
+            const response = await axios.get(`${API_URL}/currencies`);           
             set({
                 currencyRates: response.data.currencies,
                 ratesLoaded: true
             });
-            
-            console.log(' Rates loaded successfully');
+        
         } catch (error) {
             console.error(" Error fetching rates:", error);
         }
@@ -137,6 +133,4 @@ export const useCurrencyStore = create((set,get) => ({
 
 const store = useCurrencyStore.getState();
 
-console.log('Selected currency:', store.selectedCurrency);
-console.log('Currency rates:', store.currencyRates);
-console.log('Rates loaded:', store.ratesLoaded);
+

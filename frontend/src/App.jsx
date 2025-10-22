@@ -19,7 +19,7 @@ import { useCurrencyStore } from "./store/currencyStore.js";
 
 
 const store = useFavoritesStore.getState();
-console.log('Current favorites:', store.favoriteIds);
+
 
 // protect routes that require authentication
 
@@ -57,12 +57,10 @@ function App() {
   const [isInitialized, setIsInitialized] = useState(false);
 
 useEffect(() => {
+
     const initialize = async () => {
-      console.log('App initialization started');
       
       await checkAuth();
-      console.log('CheckAuth completed, authenticated:', useAuthStore.getState().isAuthenticated);
-      
       setIsInitialized(true);
     };
     
@@ -75,7 +73,6 @@ useEffect(() => {
         await loadUserCurrency();
         await fetchRatesIfNeeded();
         await loadFavorites();
-        console.log('User data loaded');
       };
       
       loadUserData();

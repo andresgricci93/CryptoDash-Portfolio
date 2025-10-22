@@ -74,11 +74,9 @@ getFilteredNotes: () => {
 },
 
 getAllNotes: async () => {
-    console.log(" getAllNotes called");
       set({ isLoading: true, error: null });
       try {
           const response = await axios.get(`${API_URL}/getAllNotes`);
-          console.log(" Notes response:", response.data); 
           set({ 
               notes: response.data.notes,
               isLoading: false 

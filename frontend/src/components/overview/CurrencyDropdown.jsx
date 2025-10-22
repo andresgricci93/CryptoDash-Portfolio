@@ -18,7 +18,7 @@ const CurrencyDropdown = () => {
     console.log('fetchRatesIfNeeded completed');
   };
 
-  console.log('Current selected currency in dropdown:', selectedCurrency); // Debug
+  
 
   return (
     <select 

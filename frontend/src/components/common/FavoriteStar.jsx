@@ -1,58 +1,70 @@
+import { Star } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { Star } from "lucide-react";
 import { useFavoritesStore } from '../../store/favStore';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
-const API_URL = `${import.meta.env.VITE_API_URL}/favorites`;
+const FavoriteStar = ({ cryptoId, isInFavoritePage = false, setFavorites }) => {
 
-const FavoriteStar = ({ cryptoId, isInFavoritePage,  setFavorites }) => {
   const favoriteIds = useFavoritesStore(state => state.favoriteIds);
-  const [localFavorite, setLocalFavorite] = useState(false);
+  const addFavorite = useFavoritesStore(state => state.addFavorite);
+  const removeFavorite = useFavoritesStore(state => state.removeFavorite);
   
+  const [localFavorite, setLocalFavorite] = useState(false);
+
   useEffect(() => {
     setLocalFavorite(favoriteIds.includes(cryptoId));
   }, [favoriteIds, cryptoId]);
-  
+
   const handleClick = async (e) => {
     e.stopPropagation();
     
-    
-    if (isInFavoritePage && localFavorite) {
+    if (!localFavorite && favoriteIds.length >= 5) {
+      toast.error('Maximum 5 favorites allowed', {
+        icon: '⚠️',
+        duration: 3000,
+      });
+      return;
+    }
 
-      setFavorites(prev => prev.filter(crypto => crypto.coinId !== cryptoId));
-      
-      // Call to backend API (without store actualization)
-      axios.delete(`${API_URL}/remove`, { data: { cryptoId } });
-      setTimeout(() => {
-        const currentFavorites = useFavoritesStore.getState().favoriteIds;
-        useFavoritesStore.setState({
-          favoriteIds: currentFavorites.filter(id => id !== cryptoId)
-        });
-      }, 350);
-    } else {
-    
-      setLocalFavorite(!localFavorite);
-      
-      const currentFavorites = useFavoritesStore.getState().favoriteIds;
+    const previousState = localFavorite;
+    setLocalFavorite(!localFavorite);
+
+    try {
       if (localFavorite) {
-        useFavoritesStore.setState({
-          favoriteIds: currentFavorites.filter(id => id !== cryptoId)
-        });
-        axios.delete(`${API_URL}/remove`, { data: { cryptoId } });
+        removeFavorite(cryptoId);
+        
+        if (isInFavoritePage) {
+          setFavorites(prev => prev.filter(fav => fav.coinId !== cryptoId));
+        }
+        toast.success('Removed from favorites');
       } else {
-        useFavoritesStore.setState({
-          favoriteIds: [...currentFavorites, cryptoId]
-        });
-        axios.post(`${API_URL}/add`, { cryptoId });
+        addFavorite(cryptoId);
+        toast.success('Added to favorites');
       }
+    } catch (error) {
+      setLocalFavorite(previousState);
+      
+
+      const errorMsg = error.response?.data?.message || 'Error updating favorites';
+      toast.error(errorMsg);
     }
   };
-  
+
   return (
-    <button onClick={handleClick} className="p-1 hover:bg-gray-600 rounded">
-      <Star 
-        size={18}
-        className={localFavorite ? "fill-yellow-400 text-yellow-400" : "text-gray-400 hover:text-yellow-400"}
+    <button
+      onClick={handleClick}
+      className={`transition-colors ${
+        localFavorite 
+          ? 'text-yellow-400 hover:text-yellow-300' 
+          : 'text-gray-400 hover:text-yellow-400'
+      }`}
+      aria-label={localFavorite ? 'Remove from favorites' : 'Add to favorites'}
+    >
+      <Star
+        size={20}
+        fill={localFavorite ? 'currentColor' : 'none'}
+        strokeWidth={2}
       />
     </button>
   );

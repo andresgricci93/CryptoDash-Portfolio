@@ -5,7 +5,7 @@ import { NotebookText } from 'lucide-react';
 
 const CryptoCard = ({ crypto, isInFavoritePage = false, setFavorites, noteCount = 0 }) => {
     
-  //console.log('CryptoCard crypto object:', crypto);
+
   const navigate = useNavigate();
   const { formatPrice } = useCurrencyStore();
 

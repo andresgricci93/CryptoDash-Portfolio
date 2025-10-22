@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import SearchBar from '../components/common/Searchbar.jsx';
 import Header from '@components/common/Header.jsx';
 import CryptoCard from '../components/common/CryptoCard.jsx';
-import { useCurrencyStore } from '../store/currencyStore.js';
 import CurrencyDropdown from '../components/overview/CurrencyDropdown.jsx';
 import OrderByPrice from '../components/overview/OrderByPrice.jsx';
 import OrderByMarketCap from '../components/overview/OrderByMarketCap.jsx';
@@ -20,23 +19,14 @@ const OverviewPage = () => {
   const { notes,getAllNotes } = useNotesStore();
   
   const noteCounts = getNotesCountByCrypto(notes);
-  console.log('Notes from store:', notes);
-  console.log('Calculated noteCounts:', noteCounts);
-  console.log('First crypto coinId:', cryptos[0]?.coinId);
 
   useEffect(() => {
 
     const fetchData = async () => {
       try {
 
-
         const response = await fetch(`${import.meta.env.VITE_API_URL}/cryptos`);
         const data = await response.json();
-
-              
-      // Agregá esto para debuggear
-      console.log('Response data:', data);
-      console.log('Is array?', Array.isArray(data));
 
         setCryptos(data);
       } catch (error) {
@@ -69,9 +59,7 @@ const OverviewPage = () => {
       setSortBy(field);
       setSortOrder(order);
    };
-  filteredAndSortedCryptos.forEach(crypto => {
-    console.log(`Crypto: ${crypto.name}, coinId: ${crypto.coinId}, noteCount: ${noteCounts[crypto.coinId] || 0}`);
-  });
+
 
   if (loading) return <div>Loading cryptos...</div>;
 

@@ -148,25 +148,16 @@ const FavoriteCoinsPage = () => {
   };
 
   useEffect(() => {
-    console.log('=== FAVORITECOINSPAGE DEBUG ===');
-    console.log('Store favoriteIds:', favoriteIds);
-    console.log("Estos son mis favoritos: ", favoriteIds);
-    
     getAllNotes();
     
-    const validFavoriteIds = favoriteIds.filter(id => 
-      id !== null && 
-      id !== undefined && 
-      id !== '' && 
-      typeof id === 'string'
-    );
-    
-    console.log('Valid IDs after filter:', validFavoriteIds);
-    
-    if (validFavoriteIds.length > 0) {
+    if (favoriteIds.length > 0) {
       axios.get(`${import.meta.env.VITE_API_URL}/favorites/details`)
         .then(response => {
           setFavorites(response.data.data);
+          setLoading(false);
+        })
+        .catch(error => {
+          console.error('Error fetching favorites:', error);
           setLoading(false);
         });
     } else {
@@ -191,12 +182,10 @@ const FavoriteCoinsPage = () => {
    fetchAllCryptos();
   },[])
 
- console.log(allCryptos);
 
 
   if (loading) return <div>Loading...</div>;
-console.log("prosAndConsResponse type:", typeof prosAndConsResponse);
-console.log("prosAndConsResponse value:", prosAndConsResponse);
+
 
   return (
     <div className='flex-1 relative z-10'>

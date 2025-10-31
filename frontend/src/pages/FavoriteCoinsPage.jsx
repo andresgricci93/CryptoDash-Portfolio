@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TrendingUp, Brain, Diff, View } from "lucide-react";
 import Header from '../components/common/Header';
-import axios from "axios";
 import CryptoCard from '../components/common/CryptoCard';
 import { useFavoritesStore } from '../store/favStore';
 import { getNotesCountByCrypto } from '../utils/noteHelpers.js';
 import { useNotesStore } from '../store/notesStore.js';
 import { useFavoritePageStore } from '../store/favoritePageStore.js';
 import AIReportForm from '../components/favorites/AIReportForm';
+import { useQuery } from '@tanstack/react-query';
+import { fetchCryptos, fetchFavoritesDetails } from '../api/cryptos.js';
 
 const tabs = [
   { id: 'pros&cons', label: 'Pros & Cons', icon: Diff },
@@ -17,7 +18,6 @@ const tabs = [
 ];
 
 const FavoriteCoinsPage = () => {
-  // Estados del store en lugar de useState locales
   const {
     activeTab,
     prosAndConsResponse,
@@ -41,76 +41,110 @@ const FavoriteCoinsPage = () => {
     setReportsCopied
   } = useFavoritePageStore();
 
-  // Estados locales que no necesitan persistir
-  const [favorites, setFavorites] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [allCryptos, setAllCryptos] = useState([]);  
   const { notes, getAllNotes } = useNotesStore();
   const favoriteIds = useFavoritesStore(state => state.favoriteIds);
   const noteCounts = getNotesCountByCrypto(notes);
 
-    const handleProsAndCons = async () => {
-      setProsAndConsLoading(true);
-      setProsAndConsResponse(""); 
 
-      let fullResponse = ""; 
+  const { 
+    data: favorites = [], 
+    isLoading: loadingFavorites,
+    error: favoritesError,
+    isFetching: isFetchingFavorites
+  } = useQuery({
+    queryKey: ['favorites-details'],
+    queryFn: fetchFavoritesDetails,
+    enabled: favoriteIds.length > 0,
+    staleTime: 30 * 60 * 1000,       
+    gcTime: 2 * 60 * 60 * 1000,       
+    refetchInterval: 5 * 60 * 1000,   
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  });
 
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/pros-and-cons`, {
-          credentials: 'include'
-        });
+  const { 
+    data: allCryptos = [],
+    isLoading: loadingAllCryptos,
+    isFetching: isFetchingCryptos
+  } = useQuery({
+    queryKey: ['cryptos'],
+    queryFn: fetchCryptos,
+    staleTime: 30 * 60 * 1000,      
+    gcTime: 2 * 60 * 60 * 1000,       
+    refetchInterval: 5 * 60 * 1000,   
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  });
 
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          
-          const chunk = decoder.decode(value);
-          fullResponse += chunk; 
-          setProsAndConsResponse(fullResponse); 
-        }
-        
-      } catch (error) {
-        console.log("Error:", error);
-        setProsAndConsResponse("Error generating analysis...");
-      } finally {
-        setProsAndConsLoading(false);
-      }
-    };
+  
+  useEffect(() => {
+    getAllNotes();
+  }, []);
 
-    const handleFacts = async () => {
-      setFactsLoading(true);
-      setFactsResponse(""); 
+  const handleProsAndCons = async () => {
+    setProsAndConsLoading(true);
+    setProsAndConsResponse(""); 
+
+    let fullResponse = ""; 
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/pros-and-cons`, {
+        credentials: 'include'
+      });
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
       
-      let fullResponse = ""; 
-      
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/facts`, {
-          credentials: 'include'
-        });
-
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
         
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          
-          const chunk = decoder.decode(value);
-          fullResponse += chunk; 
-          setFactsResponse(fullResponse); 
-        }
-        
-      } catch (error) {
-        console.log("Error:", error);
-        setFactsResponse("Error generating facts...");
-      } finally {
-        setFactsLoading(false);
+        const chunk = decoder.decode(value);
+        fullResponse += chunk; 
+        setProsAndConsResponse(fullResponse); 
       }
-    };
-  // Handler para Reports 
+      
+    } catch (error) {
+      console.log("Error:", error);
+      setProsAndConsResponse("Error generating analysis...");
+    } finally {
+      setProsAndConsLoading(false);
+    }
+  };
+
+  const handleFacts = async () => {
+    setFactsLoading(true);
+    setFactsResponse(""); 
+    
+    let fullResponse = ""; 
+    
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/facts`, {
+        credentials: 'include'
+      });
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        const chunk = decoder.decode(value);
+        fullResponse += chunk; 
+        setFactsResponse(fullResponse); 
+      }
+      
+    } catch (error) {
+      console.log("Error:", error);
+      setFactsResponse("Error generating facts...");
+    } finally {
+      setFactsLoading(false);
+    }
+  };
+
   const handleReports = async (formData) => {
     setReportsLoading(true);
     setReportsResponse(""); 
@@ -147,45 +181,33 @@ const FavoriteCoinsPage = () => {
     }
   };
 
-  useEffect(() => {
-    getAllNotes();
-    
-    if (favoriteIds.length > 0) {
-      axios.get(`${import.meta.env.VITE_API_URL}/favorites/details`)
-        .then(response => {
-          setFavorites(response.data.data);
-          setLoading(false);
-        })
-        .catch(error => {
-          console.error('Error fetching favorites:', error);
-          setLoading(false);
-        });
-    } else {
-      setFavorites([]);
-      setLoading(false);
-    }
-  }, [favoriteIds]);
+  if (loadingFavorites || loadingAllCryptos) {
+    return (
+      <div className='flex-1 relative z-10'>
+        <Header title="Your Favorite Coins" />
+        <div className="flex items-center justify-center" style={{ height: 'calc(100vh - 80px)' }}>
+          <motion.div
+            className='w-16 h-16 border-4 border-t-4 border-t-white border-gray-700 rounded-full'
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          />
+        </div>
+      </div>
+    );
+  }
 
-  useEffect(() => {
-
-    const fetchAllCryptos = async () => {
-
-      try {
-
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/cryptos`);
-        setAllCryptos(response.data);
-      } catch (error) {
-        console.error("Error fetching all cryptos:", error);
-      }
-    }
-
-   fetchAllCryptos();
-  },[])
-
-
-
-  if (loading) return <div>Loading...</div>;
-
+  if (favoritesError) {
+    return (
+      <div className='flex-1 relative z-10'>
+        <Header title="Your Favorite Coins" />
+        <div className="flex items-center justify-center" style={{ height: 'calc(100vh - 80px)' }}>
+          <div className="text-red-500 text-xl">
+            Error loading favorites: {favoritesError.message}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className='flex-1 relative z-10'>
@@ -194,7 +216,7 @@ const FavoriteCoinsPage = () => {
         <div className="mb-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
             <AnimatePresence>
-              {favorites.map(crypto => (
+              {favorites?.map(crypto => (
                 <motion.div
                   key={crypto.coinId}
                   initial={{ opacity: 1, filter: "blur(0px)" }}
@@ -205,7 +227,6 @@ const FavoriteCoinsPage = () => {
                   <CryptoCard 
                     crypto={crypto} 
                     isInFavoritePage={true} 
-                    setFavorites={setFavorites} 
                     noteCount={noteCounts[crypto.coinId] || 0}
                   />
                 </motion.div>
@@ -234,7 +255,6 @@ const FavoriteCoinsPage = () => {
         </div>
         
         <div className="min-h-[400px]">
-          {/* PROS & CONS TAB */}
           {activeTab === 'pros&cons' && (
             <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
               <h3 className="text-xl font-semibold mb-4">Pros & Cons</h3>
@@ -275,7 +295,6 @@ const FavoriteCoinsPage = () => {
             </div>
           )}
           
-          {/* FACTS TAB */}
           {activeTab === 'facts' && (
             <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
               <h3 className="text-xl font-semibold mb-4">Facts and Curiosities</h3>
@@ -338,7 +357,6 @@ const FavoriteCoinsPage = () => {
             </div>
           )}
           
-          {/* AI REPORTS TAB */}
           {activeTab === 'reports' && (
             <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
               <h3 className="text-xl font-semibold mb-4">AI Report</h3>

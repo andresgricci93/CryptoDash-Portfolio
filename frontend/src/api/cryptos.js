@@ -28,7 +28,7 @@ export const fetchCryptoDetail = async (coinId) => {
 
 }
 
-// Dynamic data (precio, volume, etc)
+// Dynamic data (price, volume, etc)
 export const fetchCryptoDynamic = async (coinId) => {
   const response = await fetch(
     `${import.meta.env.VITE_API_URL}/crypto/${coinId}/dynamic`
@@ -38,7 +38,7 @@ export const fetchCryptoDynamic = async (coinId) => {
   return result.data; 
 };
 
-// Dynamic data (price, volume, etc)
+// Static data (description, links, etc)
 export const fetchCryptoStatic = async (coinId) => {
   const response = await fetch(
     `${import.meta.env.VITE_API_URL}/crypto/${coinId}/static`
@@ -48,7 +48,7 @@ export const fetchCryptoStatic = async (coinId) => {
   return result.data; 
 };
 
-// Static data (description, links, etc)
+// Fetch favorites data for cache
 export const fetchFavoritesDetails = async () => {
   const response = await fetch(`${import.meta.env.VITE_API_URL}/favorites/details`,
     {credentials: 'include'}

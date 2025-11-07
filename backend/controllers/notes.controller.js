@@ -1,5 +1,8 @@
 import { Note } from "../models/note.model.js";
-
+import { generateEmbedding } from "../services/embedding.services.js";
+import { addNote as addNoteToChroma } from "../services/chromadb.service.js";
+import {updateNote as updateNoteInChroma} from "../services/chromadb.service.js"
+import {deleteNote as deleteNoteForChroma} from '../services/chromadb.service.js'
 
 
 export const createNote = async (req,res) => {
@@ -20,7 +23,26 @@ export const createNote = async (req,res) => {
     });
 
     await note.save();
+      // vectorize and save to ChromaDB (async, non blocking)
+    try {
 
+      // The same textContent that we are retrieving from the request body and 
+      // that we are saving as a note in mongodb we will use again for generating the embedding
+      
+      const embedding = await generateEmbedding(textContent);
+      await addNoteToChroma(
+        note._id.toString(),
+        embedding,
+        {
+          userId: userId.toString(),
+          title: title,
+          tags: tags || []
+        }
+      );
+
+    } catch (embeddingError) {
+    console.error('Failed to vectorize note:', embeddingError.message);
+    } 
     res.status(201).json({
         success: true,
         message: "Note created successfully",
@@ -103,7 +125,26 @@ export const updateNote = async (req,res) => {
     message: "Note not found or unauthorized"
    });
   }
-  
+    
+  // Re-vectorize and update in ChromaDB
+  try {
+      const embedding = await generateEmbedding(textContent);
+      
+      await updateNoteInChroma(
+        noteId,  
+        embedding,
+        {
+          userId: userId.toString(),
+          title: title,
+          tags: tags || []
+        }
+      );
+      
+      console.log(`✅ Note ${noteId} re-vectorized`);
+    } catch (embeddingError) {
+      console.error('⚠️ Failed to re-vectorize note:', embeddingError.message);
+    }
+
   res.status(200).json({
     success: true,
     message: "Note updated successfully",
@@ -176,7 +217,13 @@ export const deleteNote = async (req,res) => {
     message: "Note not found or unauthorized"
    });
   }
-  
+    try {
+      await deleteNoteForChroma(noteId);
+      console.log(`Note ${noteId} deleted from vector store`)
+    } catch (embeddingError) {
+      console.error("Failed to delete from ChromaDB", embeddingError.message)
+    }
+    
   res.status(200).json({
     success: true,
     message: "Note deleted successfully",

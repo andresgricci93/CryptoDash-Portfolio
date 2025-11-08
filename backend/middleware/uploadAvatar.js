@@ -1,5 +1,5 @@
 import multer from 'multer';
-import sharp from 'sharp';
+import { Jimp } from 'jimp';
 
 // Store files in memory (not on disk)
 const storage = multer.memoryStorage();
@@ -22,29 +22,26 @@ export const uploadAvatar = multer({
   },
 }).single('avatar'); 
 
-// Middleware to process image and convert to base64
+// Middleware to process image and convert to base64 with JIMP
 export const processImageToBase64 = async (req, res, next) => {
-
   if (!req.file) return next();
   
   try {
-    // Optimize image with Sharp
-    const processedImage = await sharp(req.file.buffer)
-      .resize(200, 200, { 
-        fit: 'cover', 
-        position: 'center' 
-      })
-      .jpeg({ quality: 85 }) 
-      .toBuffer();
+    // Read image from buffer
+    const image = await Jimp.read(req.file.buffer);
     
-    // Convert to base64 with data URL format
-    const base64 = `data:image/jpeg;base64,${processedImage.toString('base64')}`;
+    // Resize to 200x200 and cover (crop to fit)
+    image.cover({ w: 200, h: 200 });
+    
+    // Convert to base64 (JPEG format automatically compresses)
+    const base64 = await image.getBase64('image/jpeg');
     
     // Attach processed image to request object
     req.processedAvatar = base64;
     
     next();
   } catch (error) {
+    console.error('Image processing error:', error);
     next(new Error(`Image processing failed: ${error.message}`));
   }
 };

@@ -1,5 +1,5 @@
 import { Note } from "../models/note.model.js";
-import { generateEmbedding } from "../services/embedding.services.js";
+import { generateEmbedding } from "../services/embedding.service.js";
 import { addNote as addNoteToChroma } from "../services/chromadb.service.js";
 import {updateNote as updateNoteInChroma} from "../services/chromadb.service.js"
 import {deleteNote as deleteNoteForChroma} from '../services/chromadb.service.js'
@@ -36,7 +36,7 @@ export const createNote = async (req,res) => {
         {
           userId: userId.toString(),
           title: title,
-          tags: tags || []
+          tags: (tags || []).join(',')
         }
       );
 
@@ -136,13 +136,13 @@ export const updateNote = async (req,res) => {
         {
           userId: userId.toString(),
           title: title,
-          tags: tags || []
+          tags: (tags || []).join(',')
         }
       );
       
-      console.log(`✅ Note ${noteId} re-vectorized`);
+      console.log(`Note ${noteId} re-vectorized`);
     } catch (embeddingError) {
-      console.error('⚠️ Failed to re-vectorize note:', embeddingError.message);
+      console.error(' Failed to re-vectorize note:', embeddingError.message);
     }
 
   res.status(200).json({

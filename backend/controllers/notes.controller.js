@@ -1,5 +1,5 @@
 import { Note } from "../models/note.model.js";
-import { generateEmbedding } from "../services/embedding.services.js";
+import { generateEmbedding } from "../services/embedding.service.js";
 import { addNote as addNoteToChroma } from "../services/chromadb.service.js";
 import {updateNote as updateNoteInChroma} from "../services/chromadb.service.js"
 import {deleteNote as deleteNoteForChroma} from '../services/chromadb.service.js'

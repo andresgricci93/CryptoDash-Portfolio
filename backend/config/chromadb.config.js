@@ -14,18 +14,17 @@ const createChromaClient = () => {
   switch (CHROMA_MODE) {
     case 'local':
       // Development mode: embedded ChromaDB with persistent storage
-      const localPath = process.env.CHROMA_PATH 
-        ? path.resolve(process.env.CHROMA_PATH)
-        : path.join(__dirname, '../../chroma_data');
-      
-      console.log(`ChromaDB LOCAL mode - Path: ${localPath}`);
-      return new ChromaClient({ path: localPath });
+      console.log('ChromaDB LOCAL mode (embedded)');
+      return new ChromaClient();
 
     case 'server':
       // Server mode: separate ChromaDB instance (Docker/VPS)
-      const serverUrl = process.env.CHROMA_URL || 'http://localhost:8000';
-      console.log(`ChromaDB SERVER mode - URL: ${serverUrl}`);
-      return new ChromaClient({ path: serverUrl });
+      const serverUrl = new URL(process.env.CHROMA_URL || 'http://localhost:8000');
+      console.log(`ChromaDB SERVER mode - URL: ${serverUrl.href}`);
+      return new ChromaClient({
+        host: serverUrl.hostname,
+        port: serverUrl.port || '8000'
+      });
 
     case 'cloud':
       // Production mode: ChromaDB Cloud (managed service)
@@ -69,7 +68,11 @@ export const initializeChromaDB = async () => {
     console.log('✅ ChromaDB connected. Heartbeat:', heartbeat);
     
     // Get or create collection
-    const collection = await client.getOrCreateCollection(collectionConfig);
+    const collection = await client.getOrCreateCollection({
+      name: NOTES_COLLECTION_NAME,
+      metadata: collectionConfig.metadata,
+      embeddingFunction: null  // Disable auto-embedding, we provide pre-computed vectors
+    });
     console.log(`✅ Collection "${NOTES_COLLECTION_NAME}" ready`);
     
     return collection;

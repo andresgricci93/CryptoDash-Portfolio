@@ -2,6 +2,7 @@ import {useState, useEffect} from 'react';
 import NoteEditor from '@components/notes/NoteEditor.jsx'
 import Header from '../components/common/Header';
 import NoteList from '../components/notes/NoteList.jsx';
+import ChatAI from '../components/notes/ChatAI.jsx'
 
 
 const NotesPage = () => {
@@ -26,7 +27,7 @@ const NotesPage = () => {
       <div className="flex flex-1 overflow-hidden">
         <div className="w-2/5 bg-gray-800 border-r border-gray-700">
           {/* Chat interface */}
-          <h1>Chat Interface</h1>
+          <ChatAI />
         </div>
         <NoteEditor  
            editingNote={editingNote} 

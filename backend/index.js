@@ -22,7 +22,8 @@ const allowedOrigins = process.env.NODE_ENV === 'production'
   ? [
       process.env.FRONTEND_URL,
       'https://cryptodashboard-portfolio-frontend.onrender.com',
-      'https://crypto-dash.xyz'
+      'https://crypto-dash.xyz',
+      'https://www.crypto-dash.xyz'
     ].filter(Boolean) // Elimina valores undefined
   : ["http://localhost:5173", "http://127.0.0.1:5173"];
 

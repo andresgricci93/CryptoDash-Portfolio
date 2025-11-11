@@ -12,7 +12,6 @@ import profileRoutes from './routes/profile.route.js';
 import exportRoutes from './routes/pdfExport.route.js';
 import aiRoutes from './routes/ai.route.js';
 
-
 dotenv.config();
 
 const app = express();
@@ -28,30 +27,35 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(express.json());  // allow us to parse incoming requests :req.body
-app.use(cookieParser());  // allow us to parse incoming cookies
+app.use(express.json());
+app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
 app.use('/api', cryptosRoutes); 
 app.use('/api', favoritesRoutes);
-app.use('/api', notesRoutes )
+app.use('/api', notesRoutes)
 app.use('/api', currenciesRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api', exportRoutes);
 app.use('/api/ai', aiRoutes);
 
-app.listen(PORT, async () => {
-    await connectDB();
-    
-    
+
+const server = app.listen(PORT, () => {
+    console.log("Server is running on port:", PORT);
+});
+
+
+(async () => {
     try {
+        await connectDB();
+        console.log('✅ MongoDB connected');
+        
+        // ChromaDB initialization (no bloqueante)
         const { initialize: initializeChromaDB } = await import('./services/chromadb.service.js');
         await initializeChromaDB();
         console.log('✅ ChromaDB initialized');
     } catch (error) {
-        console.error("ChromaDB initialization failed:", error.message);
+        console.error('⚠️ Service initialization error:', error.message);
+        // El servidor sigue funcionando aunque falle ChromaDB
     }
-    
-    console.log("Server is running on port:", PORT);
-})
-
+})();

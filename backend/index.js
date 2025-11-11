@@ -40,8 +40,18 @@ app.use('/api/profile', profileRoutes);
 app.use('/api', exportRoutes);
 app.use('/api/ai', aiRoutes);
 
-app.listen(PORT,'127.0.0.1' , () => {
-    connectDB();
+app.listen(PORT, async () => {
+    await connectDB();
+    
+    
+    try {
+        const { initialize: initializeChromaDB } = await import('./services/chromadb.service.js');
+        await initializeChromaDB();
+        console.log('✅ ChromaDB initialized');
+    } catch (error) {
+        console.error("ChromaDB initialization failed:", error.message);
+    }
+    
     console.log("Server is running on port:", PORT);
 })
 

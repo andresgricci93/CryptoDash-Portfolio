@@ -19,7 +19,11 @@ const PORT = process.env.PORT || 5000;
 
 // CORS configurado para desarrollo y producción
 const allowedOrigins = process.env.NODE_ENV === 'production' 
-  ? [process.env.FRONTEND_URL]
+  ? [
+      process.env.FRONTEND_URL,
+      'https://cryptodashboard-portfolio-frontend.onrender.com',
+      'https://crypto-dash.xyz'
+    ].filter(Boolean) // Elimina valores undefined
   : ["http://localhost:5173", "http://127.0.0.1:5173"];
 
 app.use(cors({

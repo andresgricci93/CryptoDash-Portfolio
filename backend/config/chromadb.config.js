@@ -1,10 +1,4 @@
-import { ChromaClient } from 'chromadb';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-// Get __dirname in ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { ChromaClient, CloudClient } from 'chromadb';
 
 // Configuration based on environment variables
 const CHROMA_MODE = process.env.CHROMA_MODE || 'local';
@@ -13,12 +7,10 @@ const CHROMA_MODE = process.env.CHROMA_MODE || 'local';
 const createChromaClient = () => {
   switch (CHROMA_MODE) {
     case 'local':
-      // Development mode: embedded ChromaDB with persistent storage
       console.log('ChromaDB LOCAL mode (embedded)');
       return new ChromaClient();
 
     case 'server':
-      // Server mode: separate ChromaDB instance (Docker/VPS)
       const serverUrl = new URL(process.env.CHROMA_URL || 'http://localhost:8000');
       console.log(`ChromaDB SERVER mode - URL: ${serverUrl.href}`);
       return new ChromaClient({
@@ -27,14 +19,17 @@ const createChromaClient = () => {
       });
 
     case 'cloud':
-      // Production mode: ChromaDB Cloud (managed service)
-      if (!process.env.CHROMA_CLOUD_URL || !process.env.CHROMA_API_KEY) {
-        throw new Error('CHROMA_CLOUD_URL and CHROMA_API_KEY required for cloud mode');
+      if (!process.env.CHROMA_TENANT || !process.env.CHROMA_DATABASE || !process.env.CHROMA_API_KEY) {
+        throw new Error('CHROMA_TENANT, CHROMA_DATABASE and CHROMA_API_KEY required for cloud mode');
       }
       console.log('ChromaDB CLOUD mode');
-      return new ChromaClient({
-        path: process.env.CHROMA_CLOUD_URL,
-        auth: { token: process.env.CHROMA_API_KEY }
+      console.log('Tenant:', process.env.CHROMA_TENANT);
+      console.log('Database:', process.env.CHROMA_DATABASE);
+      
+      return new CloudClient({
+        apiKey: process.env.CHROMA_API_KEY,
+        tenant: process.env.CHROMA_TENANT,
+        database: process.env.CHROMA_DATABASE
       });
 
     default:
@@ -52,26 +47,24 @@ export const NOTES_COLLECTION_NAME = "crypto_notes";
 export const collectionConfig = {
   name: NOTES_COLLECTION_NAME,
   metadata: {
-    "hnsw:space": "cosine",        // Cosine similarity (best for text embeddings)
-    "hnsw:M": 16,                  // Connections per node (default, balanced)
-    "hnsw:construction_ef": 100    // Build precision (default, balanced)
+    "hnsw:space": "cosine",
+    "hnsw:M": 16,
+    "hnsw:construction_ef": 100
   }
 };
 
 // Initialize ChromaDB and verify connection
 export const initializeChromaDB = async () => {
   try {
-    console.log('🔄 Initializing ChromaDB...');
+    console.log('Initializing ChromaDB...');
     
-    // Verify client connection
     const heartbeat = await client.heartbeat();
     console.log('✅ ChromaDB connected. Heartbeat:', heartbeat);
     
-    // Get or create collection
     const collection = await client.getOrCreateCollection({
       name: NOTES_COLLECTION_NAME,
       metadata: collectionConfig.metadata,
-      embeddingFunction: null  // Disable auto-embedding, we provide pre-computed vectors
+      embeddingFunction: null
     });
     console.log(`✅ Collection "${NOTES_COLLECTION_NAME}" ready`);
     

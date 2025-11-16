@@ -77,13 +77,15 @@ const buildContextForGemini = (relevantNotes, userQuery) => {
       weekday: 'long', 
       year: 'numeric', 
       month: 'long', 
-      day: 'numeric' 
+      day: 'numeric',
+      timeZone: 'Europe/Rome' 
     });
 
     const timeStr = now.toLocaleTimeString('en-US', { 
       hour: '2-digit', 
       minute: '2-digit',
-      hour12: true 
+      hour12: true,
+      timeZone: 'Europe/Rome'
     });
   
 

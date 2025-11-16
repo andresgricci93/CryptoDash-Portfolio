@@ -17,14 +17,14 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// CORS configurado para desarrollo y producción
+
 const allowedOrigins = process.env.NODE_ENV === 'production' 
   ? [
       process.env.FRONTEND_URL,
       'https://cryptodashboard-portfolio-frontend.onrender.com',
       'https://crypto-dash.xyz',
       'https://www.crypto-dash.xyz'
-    ].filter(Boolean) // Elimina valores undefined
+    ].filter(Boolean) 
   : ["http://localhost:5173", "http://127.0.0.1:5173"];
 
 app.use(cors({
@@ -55,12 +55,11 @@ const server = app.listen(PORT, () => {
         await connectDB();
         console.log('✅ MongoDB connected');
         
-        // ChromaDB initialization (no bloqueante)
-        const { initialize: initializeChromaDB } = await import('./services/chromadb.service.js');
+         const { initialize: initializeChromaDB } = await import('./services/chromadb.service.js');
         await initializeChromaDB();
         console.log('✅ ChromaDB initialized');
     } catch (error) {
-        console.error('⚠️ Service initialization error:', error.message);
-        // El servidor sigue funcionando aunque falle ChromaDB
+        console.error('Service initialization error:', error.message);
+
     }
 })();

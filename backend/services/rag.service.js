@@ -66,7 +66,7 @@ const searchRelevantNotes = async (query, userId, limit = 5) => {
  * @param {string} userQuery - Original user question
  * @returns {string} Formatted context for LLM
  */
-const buildContextForGemini = (relevantNotes, userQuery) => {
+const buildContextForGemini = (relevantNotes, userQuery, priceData = '', newsData = '') => {
 
     // Inject current date/time into prompt to establish temporal context
     // Without this, the LLM may hallucinate dates or misinterpret "today", "yesterday", etc.
@@ -132,23 +132,28 @@ const buildContextForGemini = (relevantNotes, userQuery) => {
           
           User Question: "${userQuery}"
           
+          ${priceData ? `\nCURRENT CRYPTO PRICES:\n${priceData}\n` : ''}
+    
+          ${newsData ? `\nLATEST CRYPTO NEWS:\n${newsData}\n` : ''}
+
           Relevant Notes from User's Knowledge Base:
           ${notesContext}
           
           Instructions:
           1. Answer based PRIMARILY on the notes provided above
-          2. IMPORTANT: This is a CONTEXT-BASED system, not a search engine. You work with semantic similarity and context from the user's notes, not keyword matching. Explain this to users if they ask why certain notes appear or don't appear.
-          3. Reference specific notes with their dates (e.g., "In your note from November 10...")
-          4. Calculate time references correctly using TODAY's date: ${dateStr}
-          5. If notes are old, mention it (e.g., "This note is from 2 weeks ago, so prices may have changed")
-          6. Be concise but informative
-          7. If you notice contradictions between notes, point them out
-          8. Use a friendly, conversational tone
-          9. NEVER make up dates or times - always reference the actual dates provided
-          10. If the user asks "why didn't you find X note?", explain that the system uses semantic similarity to find contextually relevant notes, not exact keyword matches
+          2. If the user asks about news, use the LATEST CRYPTO NEWS section above to provide current information
+          3. If the user asks about prices, use the CURRENT CRYPTO PRICES section above
+          4. Reference specific notes with their dates (e.g., "In your note from November 10...")
+          5. Calculate time references correctly using TODAY's date: ${dateStr}
+          6. If notes are old, mention it (e.g., "This note is from 2 weeks ago, so prices may have changed")
+          7. Be concise but informative
+          8. If you notice contradictions between notes, point them out
+          9. Use a friendly, conversational tone
+          10. NEVER make up dates or times - always reference the actual dates provided
+          11. **WHEN DISCUSSING NEWS: ALWAYS include the source URL in markdown format [Read full article](URL) so users can click to read more** 🔗
+          12. OPTIONAL: Only when highly relevant to the context and emotions (bullish news, crashes, celebrations, etc), you MAY occasionally add ONE GIF suggestion using: [GIF:keyword]. Use it sparingly - not in every response, only when it truly enhances the message. Examples: [GIF:rocket] for major bullish news, [GIF:crash] for market drops, [GIF:diamond-hands] for hodl discussion.
           
           Please provide a helpful response:`.trim();
-            
             return prompt;
           };
 

@@ -51,9 +51,9 @@ const ChatMessages = ({ messages }) => {
                 {processMarkdown(content)}
               </ReactMarkdown>
               
-              {role === 'assistant' && content.includes('[GIF:') && (
+              {/* {role === 'assistant' && content.includes('[GIF:') && (
                 <GifRenderer text={content} />
-              )}
+              )} */}
             </div>
           </div>
         ))}

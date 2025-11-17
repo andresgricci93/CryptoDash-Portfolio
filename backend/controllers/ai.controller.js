@@ -1,4 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import {detectCryptoMentions, getCurrentPrices} from "../../backend/services/cryptoPrices.service.js"
+import { getLatestCryptoNews, formatNewsForPrompt } from '../services/cryptoNews.service.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -90,7 +92,26 @@ export const chat = async (req, res) => {
     const { searchRelevantNotes, buildContextForGemini } = await import('../services/rag.service.js');
 
     const relevantNotes = await searchRelevantNotes(message, userId, limit);
-    const prompt = buildContextForGemini(relevantNotes, message);
+   
+    let priceData = '';
+    const detectedCryptos = detectCryptoMentions(message);
+    
+    if (detectedCryptos.length > 0) {
+      const prices = await getCurrentPrices(detectedCryptos);
+      
+      if (prices) {
+        priceData = Object.entries(prices).map(([crypto, data]) => 
+          `${crypto.toUpperCase()}: $${data.usd.toLocaleString()} (24h: ${data.usd_24h_change?.toFixed(2)}%)`
+        ).join(' | ');
+
+      }
+    }
+
+    // Fetch latest crypto news
+    const newsItems = await getLatestCryptoNews(3);
+    const newsData = formatNewsForPrompt(newsItems);
+
+    const prompt = buildContextForGemini(relevantNotes, message, priceData, newsData);
 
     const model = googleai.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
     const result = await model.generateContentStream(prompt);

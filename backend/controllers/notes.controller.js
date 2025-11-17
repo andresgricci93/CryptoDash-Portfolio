@@ -1,4 +1,5 @@
 import { Note } from "../models/note.model.js";
+import logger from '../utils/logger.js';
 import { generateEmbedding } from "../services/embedding.service.js";
 import { addNote as addNoteToChroma } from "../services/chromadb.service.js";
 import {updateNote as updateNoteInChroma} from "../services/chromadb.service.js"
@@ -39,9 +40,19 @@ export const createNote = async (req,res) => {
           tags: (tags || []).join(',')
         }
       );
-
+      logger.info('Note vectorized successfully', { 
+        noteId: note._id.toString(), 
+        title: title,
+        userId: userId.toString()
+      });
     } catch (embeddingError) {
-    console.error('Failed to vectorize note:', embeddingError.message);
+      logger.error('Failed to vectorize note', {
+        noteId: note._id.toString(),
+        title: title,
+        userId: userId.toString(),
+        error: embeddingError.message,
+        stack: embeddingError.stack
+      });
     } 
     res.status(201).json({
         success: true,
@@ -139,10 +150,19 @@ export const updateNote = async (req,res) => {
           tags: (tags || []).join(',')
         }
       );
-      
-      console.log(`Note ${noteId} re-vectorized`);
+      logger.info('Note re-vectorized successfully', {
+        noteId,
+        title,
+        userId: userId.toString()
+      });
     } catch (embeddingError) {
-      console.error(' Failed to re-vectorize note:', embeddingError.message);
+      logger.error('Failed to re-vectorize note', {
+        noteId,
+        title,
+        userId: userId.toString(),
+        error: embeddingError.message,
+        stack: embeddingError.stack
+      });
     }
 
   res.status(200).json({
@@ -219,9 +239,13 @@ export const deleteNote = async (req,res) => {
   }
     try {
       await deleteNoteForChroma(noteId);
-      console.log(`Note ${noteId} deleted from vector store`)
+      logger.info('Note deleted from ChromaDB', { noteId });
     } catch (embeddingError) {
-      console.error("Failed to delete from ChromaDB", embeddingError.message)
+      logger.error('Failed to delete from ChromaDB', {
+        noteId,
+        error: embeddingError.message,
+        stack: embeddingError.stack
+      });
     }
     
   res.status(200).json({

@@ -137,13 +137,15 @@ const buildContextForGemini = (relevantNotes, userQuery) => {
           
           Instructions:
           1. Answer based PRIMARILY on the notes provided above
-          2. Reference specific notes with their dates (e.g., "In your note from November 10...")
-          3. Calculate time references correctly using TODAY's date: ${dateStr}
-          4. If notes are old, mention it (e.g., "This note is from 2 weeks ago, so prices may have changed")
-          5. Be concise but informative
-          6. If you notice contradictions between notes, point them out
-          7. Use a friendly, conversational tone
-          8. NEVER make up dates or times - always reference the actual dates provided
+          2. IMPORTANT: This is a CONTEXT-BASED system, not a search engine. You work with semantic similarity and context from the user's notes, not keyword matching. Explain this to users if they ask why certain notes appear or don't appear.
+          3. Reference specific notes with their dates (e.g., "In your note from November 10...")
+          4. Calculate time references correctly using TODAY's date: ${dateStr}
+          5. If notes are old, mention it (e.g., "This note is from 2 weeks ago, so prices may have changed")
+          6. Be concise but informative
+          7. If you notice contradictions between notes, point them out
+          8. Use a friendly, conversational tone
+          9. NEVER make up dates or times - always reference the actual dates provided
+          10. If the user asks "why didn't you find X note?", explain that the system uses semantic similarity to find contextually relevant notes, not exact keyword matches
           
           Please provide a helpful response:`.trim();
             

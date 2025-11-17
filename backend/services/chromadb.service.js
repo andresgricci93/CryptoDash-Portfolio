@@ -2,7 +2,8 @@ import chromaClient, {
     NOTES_COLLECTION_NAME, 
     initializeChromaDB 
   } from '../config/chromadb.config.js';
-  
+import logger from '../utils/logger.js';
+
   /**
    * ChromaDB Service (Functional)
    * Handles all vector storage operations for notes
@@ -65,9 +66,18 @@ import chromaClient, {
         metadatas: [metadata]
       });
   
-      console.log(`✅ Note ${noteId} added to ChromaDB`);
+      logger.info('Note added to ChromaDB', { 
+        noteId, 
+        title: metadata.title,
+        userId: metadata.userId 
+      });
     } catch (error) {
-      console.error(`❌ Error adding note ${noteId} to ChromaDB:`, error.message);
+      logger.error('Error adding note to ChromaDB', {
+        noteId,
+        error: error.message,
+        stack: error.stack,
+        metadata
+      });
       throw new Error(`Failed to add note to vector store: ${error.message}`);
     }
   };
@@ -108,7 +118,8 @@ import chromaClient, {
       }
   
       const results = await collection.query(queryOptions);
-  
+      
+
       // Format results
       const formattedResults = [];
       
@@ -123,10 +134,20 @@ import chromaClient, {
         }
       }
   
-      console.log(`🔍 Found ${formattedResults.length} similar notes`);
+      logger.info('Similar notes found', { 
+        count: formattedResults.length,
+        limit 
+      });
+      
+      console.log(`Found ${formattedResults.length} similar notes`);
       return formattedResults;
     } catch (error) {
-      console.error('❌ Error searching similar notes:', error.message);
+      logger.error('Error searching similar notes', {
+        error: error.message,
+        stack: error.stack,
+        limit,
+        hasFilter: !!filter
+      });
       throw new Error(`Failed to search vector store: ${error.message}`);
     }
   };
@@ -164,9 +185,16 @@ import chromaClient, {
         metadatas: [metadata]
       });
   
-      console.log(`✅ Note ${noteId} updated in ChromaDB`);
+      logger.info('Note updated in ChromaDB', { 
+        noteId,
+        title: metadata.title 
+      });
     } catch (error) {
-      console.error(`❌ Error updating note ${noteId}:`, error.message);
+      logger.error('Error updating note in ChromaDB', {
+        noteId,
+        error: error.message,
+        stack: error.stack
+      });
       throw new Error(`Failed to update note in vector store: ${error.message}`);
     }
   };
@@ -192,9 +220,13 @@ import chromaClient, {
         ids: [noteId]
       });
   
-      console.log(`✅ Note ${noteId} deleted from ChromaDB`);
+      logger.info('Note deleted from ChromaDB', { noteId });
     } catch (error) {
-      console.error(`❌ Error deleting note ${noteId}:`, error.message);
+      logger.error('Error deleting note from ChromaDB', {
+        noteId,
+        error: error.message,
+        stack: error.stack
+      });
       throw new Error(`Failed to delete note from vector store: ${error.message}`);
     }
   };

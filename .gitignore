@@ -33,7 +33,7 @@ Thumbs.db
 # Logs
 logs
 *.log
-
+backend/logs/
 # Runtime data
 pids
 *.pid

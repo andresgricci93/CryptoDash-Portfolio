@@ -4,7 +4,7 @@ dotenv.config();
 
 import mongoose from 'mongoose';
 import { Note } from '../models/note.model.js';
-import { generateEmbedding } from '../services/embedding.services.js';
+import { generateEmbedding } from '../services/embedding.service.js';
 import { addNote as addNoteToChroma } from '../services/chromadb.service.js';
 
 

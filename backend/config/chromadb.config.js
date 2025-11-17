@@ -1,4 +1,5 @@
 import { ChromaClient, CloudClient } from 'chromadb';
+import logger from '../utils/logger.js';
 
 // Configuration based on environment variables
 const CHROMA_MODE = process.env.CHROMA_MODE || 'local';
@@ -56,21 +57,27 @@ export const collectionConfig = {
 // Initialize ChromaDB and verify connection
 export const initializeChromaDB = async () => {
   try {
-    console.log('Initializing ChromaDB...');
+    logger.info('Initializing ChromaDB...');
     
     const heartbeat = await client.heartbeat();
-    console.log('✅ ChromaDB connected. Heartbeat:', heartbeat);
+    logger.info('ChromaDB connected', { heartbeat });
     
     const collection = await client.getOrCreateCollection({
       name: NOTES_COLLECTION_NAME,
       metadata: collectionConfig.metadata,
       embeddingFunction: null
     });
-    console.log(`✅ Collection "${NOTES_COLLECTION_NAME}" ready`);
+    
+    logger.info('Collection ready', { 
+      collectionName: NOTES_COLLECTION_NAME 
+    });
     
     return collection;
   } catch (error) {
-    console.error('❌ Error initializing ChromaDB:', error.message);
+    logger.error('Error initializing ChromaDB', {
+      error: error.message,
+      stack: error.stack
+    });
     throw error;
   }
 };

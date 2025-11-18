@@ -72,3 +72,23 @@
 .animate-slide-down {
   animation: slide-down 0.3s ease-out;
 }
+
+/* Personalized scrollbar for chat and note editor */
+.chat-scrollbar::-webkit-scrollbar {
+  width: 15px;
+  height: 6px;
+}
+
+.chat-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1; 
+  border-radius: 3px;
+}
+
+.chat-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1; 
+  border-radius: 3px;
+}
+
+.chat-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

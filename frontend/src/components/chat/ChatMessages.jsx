@@ -1,3 +1,4 @@
+import {useRef, useEffect} from 'react';
 import ReactMarkdown from 'react-markdown';
 
 
@@ -8,6 +9,10 @@ const WELCOME_MESSAGE = {
 
 const ChatMessages = ({ messages }) => {
     
+    const messagesEndRef = useRef(null);
+    const containerRef = useRef(null);
+
+
     const processMarkdown = (text) => {
       // Remove GIF tags
       let processed = text.replace(/\[GIF:\w+(-\w+)*\]/gi, '').trim();
@@ -15,9 +20,20 @@ const ChatMessages = ({ messages }) => {
       return processed;
     };
 
+    useEffect(() => {
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'end'
+        });
+      }
+    }, [messages])
+
 
     return (
-      <div className="flex flex-col gap-2 text-black h-full p-2 overflow-y-auto bg-white rounded">
+      <div 
+       ref={containerRef}
+       className="flex flex-col gap-2 text-black h-full p-2 overflow-y-auto bg-white rounded">
         {[WELCOME_MESSAGE, ...messages].map(({ role, content }, index) => (
           <div
             key={index}
@@ -57,6 +73,7 @@ const ChatMessages = ({ messages }) => {
             </div>
           </div>
         ))}
+        <div ref={messagesEndRef} />
       </div>
     );
   }

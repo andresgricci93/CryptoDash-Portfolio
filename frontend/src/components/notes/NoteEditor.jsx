@@ -209,7 +209,7 @@ useEffect(() => {
              </div>
              
              {/* Editor */}
-             <div className="bg-white text-black rounded p-4 flex-1 min-h-0 overflow-y-auto">
+             <div className="bg-white text-black rounded p-4 flex-1 min-h-0 overflow-y-auto chat-scrollbar">
                <EditorContent
                     key={editingNote ? editingNote._id : 'create'} 
                     editor={editor} 

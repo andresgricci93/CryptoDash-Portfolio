@@ -33,7 +33,7 @@ const ChatMessages = ({ messages }) => {
     return (
       <div 
        ref={containerRef}
-       className="flex flex-col gap-2 text-black h-full p-2 overflow-y-auto bg-white rounded">
+       className="flex flex-col gap-2 text-black h-full p-2 overflow-y-auto bg-white rounded chat-scrollbar">
         {[WELCOME_MESSAGE, ...messages].map(({ role, content }, index) => (
           <div
             key={index}

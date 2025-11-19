@@ -26,10 +26,10 @@ const Controls = ({onSend}) => {
 
    return (
     <div className="flex items-center mt-[17px] gap-4 w-[100%]">
-        <div className="flex items-center gap-1  bg-white rounded h-12 mb-[1px] w-full p-2 overflow-x-auto">
+        <div className="flex items-center gap-1  bg-white rounded h-12 mb-[1px] flex-1 p-2 overflow-x-auto">
             <input 
               type="text"
-              className="bg-transparent mt-[1px] text-black outline-none min-w-[60px] flex-shrink-0"
+              className="bg-transparent mt-[1px] text-black outline-none w-full"
               placeholder="Message CryptoDash AI "
               value={content}
               onChange={handleContentChange}

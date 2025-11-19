@@ -252,14 +252,20 @@ const handleSummaryExportWord = async (summaryText) => {
         
         {note.tags && note.tags.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-6">
-            {note.tags.map((tag, index) => (
-              <span 
-                key={index} 
-                className="bg-blue-500 text-white px-3 py-1 rounded-full text-sm"
-              >
-                {tag}
-              </span>
-            ))}
+            {note.tags.map((tag, index) => {
+                
+                  const tagText = typeof tag === 'string' ? tag : tag.text;
+                  const tagColor = typeof tag === 'object' && tag.color ? tag.color : 'bg-blue-500';
+                  
+                  return (
+                    <span 
+                      key={index} 
+                      className={`${tagColor} text-white px-3 py-1 rounded text-sm`}
+                    >
+                      {tagText}
+                    </span>
+                  );
+             })}
           </div>
         )}
 

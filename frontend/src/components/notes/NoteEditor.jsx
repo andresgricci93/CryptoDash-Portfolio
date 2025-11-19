@@ -48,10 +48,18 @@ useEffect(() => {
       setTitle(editingNote.title);
       
       const noteTags = editingNote.tags || [];
-      setTags(noteTags.map(tagText => ({
-        text: tagText,
-        color: getRandomColor()
-      })));
+      setTags(noteTags.map(tag => {
+
+        if (typeof tag === 'object' && tag.color) {
+          return tag; 
+        } else {
+
+          return {
+            text: typeof tag === 'string' ? tag : tag.text,
+            color: getRandomColor()
+          };
+        }
+      }));
       
       if (editor) {
         editor.commands.setContent(editingNote.htmlContent);

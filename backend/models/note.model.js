@@ -24,7 +24,10 @@ const noteSchema = new mongoose.Schema({
         type: [String],
         default: []
     },
-    tags: [String]
+    tags: [{
+        text:String,
+        color: String
+    }]
 }, {timestamps: true});
  
 export const Note = mongoose.model('Note', noteSchema);

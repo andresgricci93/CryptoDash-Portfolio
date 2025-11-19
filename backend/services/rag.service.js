@@ -66,7 +66,7 @@ const searchRelevantNotes = async (query, userId, limit = 5) => {
  * @param {string} userQuery - Original user question
  * @returns {string} Formatted context for LLM
  */
-const buildContextForGemini = (relevantNotes, userQuery, priceData = '', newsData = '') => {
+const buildContextForGemini = (relevantNotes, userQuery, conversationHistory = [], priceData = '', newsData = '') => {
 
     // Inject current date/time into prompt to establish temporal context
     // Without this, the LLM may hallucinate dates or misinterpret "today", "yesterday", etc.
@@ -112,6 +112,17 @@ const buildContextForGemini = (relevantNotes, userQuery, priceData = '', newsDat
           `.trim();
         }).join('\n\n');
     
+
+      let conversationContext = '';
+      if (conversationHistory.length > 0) {
+        conversationContext = '\n\nPREVIOUS CONVERSATION:\n';
+        conversationHistory.forEach(msg => {
+          const role = msg.role === 'user' ? 'User' : 'Assistant';
+          conversationContext += `${role}: ${msg.content}\n`;
+        });
+        conversationContext += '\n';
+      }
+
         // Build full prompt
         const prompt = `SYSTEM CONTEXT - READ CAREFULLY:
           ===========================================
@@ -125,9 +136,12 @@ const buildContextForGemini = (relevantNotes, userQuery, priceData = '', newsDat
           - NEVER guess or invent dates - always calculate from TODAY's date
           - When referencing notes, always mention how old they are (e.g., "3 days ago", "last week")
           - If you're unsure about a date calculation, say so explicitly
+
           
           ===========================================
-          
+          ${conversationContext} 
+          ===========================================
+
           You are an AI assistant helping a user analyze their personal notes about cryptocurrency and trading.
           
           User Question: "${userQuery}"

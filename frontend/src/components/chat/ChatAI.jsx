@@ -1,25 +1,21 @@
 import { useState } from 'react';
 import ChatMessages from "./ChatMessages.jsx";
 import Controls from "./Controls";
+import { useChatStore } from "../../store/chatStore.js"
+
+
 
 const ChatAI = () => {
-  const [messages, setMessages] = useState([]);
-  const [isStreaming, setIsStreaming] = useState(false);
-  
-  const addMessage = (message) => {
-    setMessages((prevMessages) => [...prevMessages, message]);
-  };
 
-  const updateLastMessage = (content) => {
-    setMessages((prevMessages) => {
-      const newMessages = [...prevMessages];
-      newMessages[newMessages.length - 1] = {
-        ...newMessages[newMessages.length - 1],
-        content
-      };
-      return newMessages;
-    });
-  };
+   
+  const { 
+    messages, 
+    isStreaming, 
+    addMessage, 
+    updateLastMessage, 
+    setIsStreaming,
+    getContextMessages 
+  } = useChatStore();
 
   const handleContentSend = async (content) => {
     if (!content.trim() || isStreaming) return;
@@ -39,7 +35,10 @@ const ChatAI = () => {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ message: content, limit: 10 }),
+        body: JSON.stringify({ 
+          message: content, 
+          conversationHistory: getContextMessages(),
+          limit: 20 }),
       });
 
       if (!response.ok) {

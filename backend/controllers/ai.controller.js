@@ -79,7 +79,7 @@ export const generateReport = async (req, res) => {
 
 export const chat = async (req, res) => {
   try {
-    const { message, limit = 5 } = req.body;
+    const { message, conversationHistory = [], limit = 5 } = req.body;
     const userId = req.userId;
 
     if (!message || typeof message !== 'string' || message.trim().length === 0) {
@@ -111,7 +111,7 @@ export const chat = async (req, res) => {
     const newsItems = await getLatestCryptoNews(3);
     const newsData = formatNewsForPrompt(newsItems);
 
-    const prompt = buildContextForGemini(relevantNotes, message, priceData, newsData);
+    const prompt = buildContextForGemini(relevantNotes, message, conversationHistory, priceData, newsData);
 
     const model = googleai.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
     const result = await model.generateContentStream(prompt);

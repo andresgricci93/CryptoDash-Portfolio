@@ -21,8 +21,8 @@ const testRAG = async () => {
     
     const userId = anyNote.userId.toString();
     console.log(` Using userId: ${userId}\n`);
-    
-    const query = 'whats my strategy about bitcoin?';  // ← Cambiá esto por lo que quieras buscar
+    // Testing RAG query
+    const query = 'whats my strategy about bitcoin?'; 
     
     console.log(` Query: "${query}"\n`);
     

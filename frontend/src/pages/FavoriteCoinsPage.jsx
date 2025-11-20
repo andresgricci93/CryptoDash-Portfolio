@@ -42,9 +42,8 @@ const FavoriteCoinsPage = () => {
   } = useFavoritePageStore();
 
   const { notes, getAllNotes } = useNotesStore();
-  const favoriteIds = useFavoritesStore(state => state.favoriteIds);
   const noteCounts = getNotesCountByCrypto(notes);
-
+  const { loadFavorites, favoriteIds } = useFavoritesStore();
 
   const { 
     data: favorites = [], 

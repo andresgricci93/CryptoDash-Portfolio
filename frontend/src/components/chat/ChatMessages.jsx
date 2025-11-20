@@ -23,7 +23,7 @@ const ChatMessages = ({ messages }) => {
     useEffect(() => {
       if (messagesEndRef.current) {
         messagesEndRef.current.scrollIntoView({
-          behavior: 'smooth',
+          behavior: 'auto',
           block: 'end'
         });
       }
@@ -37,7 +37,7 @@ const ChatMessages = ({ messages }) => {
         {[WELCOME_MESSAGE, ...messages].map(({ role, content }, index) => (
           <div
             key={index}
-            className={`w-[90%] px-4 py-4 rounded-[10px] text-sm ${
+            className={`w-[90%] px-4 py-4 rounded-[10px] text-base ${
               role === 'user' 
                 ? 'self-end bg-gray-300' 
                 : 'bg-[#f3f3f3]'

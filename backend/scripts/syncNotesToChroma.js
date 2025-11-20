@@ -55,8 +55,6 @@ const syncNotesToChroma = async () => {
                 );
 
 
-
-            
             successCount++;
             console.log(`✅ Note ${note._id} synced\n`);
             

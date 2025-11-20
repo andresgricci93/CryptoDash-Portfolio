@@ -44,21 +44,15 @@ const FavoriteStar = ({ cryptoId, isInFavoritePage = false }) => {
         });
         
 
-        if (isInFavoritePage) {
-
-          setTimeout(() => {
+        if (!isInFavoritePage) {
             queryClient.invalidateQueries(['favorites-details']);
-          }, 350);
-        } else {
-
-          queryClient.invalidateQueries(['favorites-details']);
-        }
+        } 
         
         toast.success('Removed from favorites');
         
       } else {
  
-        await addFavorite(cryptoId);
+         addFavorite(cryptoId);
   
         queryClient.setQueryData(['favorites-details'], (oldData) => {
           const allCryptos = queryClient.getQueryData(['cryptos']);

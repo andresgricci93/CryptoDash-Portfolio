@@ -1,12 +1,41 @@
 import  { useState, useEffect, useRef } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import Button from '../common/Button.jsx';
+import { 
+  Bold as BoldIcon, 
+  Italic as ItalicIcon, 
+  Underline as UnderlineIcon, 
+  Strikethrough as StrikethroughIcon,
+  Heading1,
+  Heading2,
+  Heading3,
+  List,
+  ListOrdered,
+  Quote,
+  Highlighter,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
+  Undo as UndoIcon,
+  Redo as RedoIcon,
+  Loader
+} from 'lucide-react';
 import Document from '@tiptap/extension-document';
 import Paragraph from '@tiptap/extension-paragraph';
 import Text from '@tiptap/extension-text';
 import Bold from '@tiptap/extension-bold';
 import Italic from '@tiptap/extension-italic';
+import Underline from '@tiptap/extension-underline';
+import Strike from '@tiptap/extension-strike';
+import History from '@tiptap/extension-history';
 import Heading from '@tiptap/extension-heading';
+import BulletList from '@tiptap/extension-bullet-list';
+import OrderedList from '@tiptap/extension-ordered-list';
+import ListItem from '@tiptap/extension-list-item';
+import Blockquote from '@tiptap/extension-blockquote';
+import Highlight from '@tiptap/extension-highlight';
+import TextAlign from '@tiptap/extension-text-align';
 import { useNotesStore } from '../../store/notesStore.js';
 
 
@@ -22,22 +51,38 @@ const NoteEditor = ({ editingNote, onCancelEdit }) => {
   const [title,setTitle] = useState(''); 
   const [tags,setTags] = useState([]);
   const [inputTag,setInputTag] = useState('');
-
+  const [isSaving, setIsSaving] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  
+  const tagsContainerRef = useRef(null);
 
   
-  const editor = useEditor({
-    extensions: [
-      Document,
-      Paragraph,
-      Text,
-      Bold,
-      Italic,
-      Heading.configure({
-     levels: [1, 2, 3],
-   }),
-    ],
-    content: '<p>Hello World!</p>',
- })
+    const editor = useEditor({
+      extensions: [
+        Document,
+        Paragraph,
+        Text,
+        Bold,
+        Italic,
+        Underline,
+        Strike,
+        History,
+        Heading.configure({
+          levels: [1, 2, 3],
+        }),
+        BulletList,
+        OrderedList,
+        ListItem,
+        Blockquote,
+        Highlight.configure({
+          multicolor: true
+        }),
+        TextAlign.configure({
+          types: ['heading', 'paragraph'],
+        }),
+      ],
+      content: '<p>Hello World!</p>',
+    })
    
 
 useEffect(() => {
@@ -75,18 +120,35 @@ useEffect(() => {
     }
 }, [editingNote, editor]);
 
+  // Horizontal scroll with mouse wheel for tags
+  useEffect(() => {
+    const container = tagsContainerRef.current;
+    if (!container) return;
 
-   const toggleBold = () => {
-     editor.chain().focus().toggleBold().run();
-   };
- 
-   const toggleItalic = () => {
-     editor.chain().focus().toggleItalic().run();
-   };
- 
-   const addHeading = () => {
-     editor.chain().focus().toggleHeading({ level: 2}).run();
-   };
+    const handleWheel = (e) => {
+      if (e.deltaY !== 0) {
+        e.preventDefault();
+        container.scrollLeft += e.deltaY;
+      }
+    };
+
+    container.addEventListener('wheel', handleWheel, { passive: false });
+    return () => container.removeEventListener('wheel', handleWheel);
+  }, []);
+
+
+    const toggleBold = () => editor?.chain().focus().toggleBold().run();
+    const toggleItalic = () => editor?.chain().focus().toggleItalic().run();
+    const toggleUnderline = () => editor?.chain().focus().toggleUnderline().run();
+    const toggleStrike = () => editor?.chain().focus().toggleStrike().run();
+    const addHeading = (level) => editor?.chain().focus().toggleHeading({ level }).run();
+    const toggleBulletList = () => editor?.chain().focus().toggleBulletList().run();
+    const toggleOrderedList = () => editor?.chain().focus().toggleOrderedList().run();
+    const toggleBlockquote = () => editor?.chain().focus().toggleBlockquote().run();
+    const toggleHighlight = () => editor?.chain().focus().toggleHighlight().run();
+    const setTextAlign = (align) => editor?.chain().focus().setTextAlign(align).run();
+    const undo = () => editor?.chain().focus().undo().run();
+    const redo = () => editor?.chain().focus().redo().run();
  
 
  
@@ -133,7 +195,7 @@ useEffect(() => {
           return tagColors[newIndex];
         };
 
-        const handleCreateNote = async () => {
+                const handleCreateNote = async () => {
             if (!title.trim() || !editor.getText().trim()) {
               alert("Title and content are required");
               return;
@@ -143,9 +205,9 @@ useEffect(() => {
               title: title.trim(),
               htmlContent: editor.getHTML(),
               textContent: editor.getText(),
-              tags: tags.map(tag => tag.text)
+              tags: tags
             };
-
+            setIsSaving(true);
             try {
               await createNote(noteData);
               setTitle('');
@@ -153,6 +215,8 @@ useEffect(() => {
               editor.commands.setContent('<p>Write something...</p>');
             } catch (error) {
               console.error('Error creating the note:', error);
+            } finally {
+              setIsSaving(false);
             }
         };
 
@@ -165,16 +229,19 @@ useEffect(() => {
             title: title.trim(),
             htmlContent: editor.getHTML(),
             textContent: editor.getText(),
-            tags: tags.map(tag => tag.text)
+            tags: tags
           };
-
+          setIsUpdating(true);
           try {
             await updateNote(editingNote._id, noteData);
             onCancelEdit();
           } catch (error) {
             console.error("Error updating note:", error)
+          } finally {
+            setIsUpdating(false);
           }
       }
+
 
  return (
        <div className="w-2/5 bg-gray-900 border-r border-gray-700 p-4 flex flex-col">
@@ -189,32 +256,187 @@ useEffect(() => {
               className="w-full p-2 mb-4 bg-white text-black rounded placeholder-gray-400"
               />
              {/* Toolbar */}
-             <div className="flex gap-2 mb-4 p-2 bg-gray-700 rounded">
-               <button 
-                 onClick={toggleBold}
-                 className={`px-3 py-1 rounded hover:bg-gray-500 ${
-                   editor.isActive('bold') ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
-                 }`}
-               >
-                 B
-               </button>
-               <button 
-                 onClick={toggleItalic}
-                 className={`px-3 py-1 rounded hover:bg-gray-500 ${
-                   editor.isActive('italic') ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
-                 }`}
-               >
-                 I
-               </button>
-               <button 
-                 onClick={addHeading}
-                 className={`px-3 py-1 rounded hover:bg-gray-500 ${
-                   editor.isActive('heading', { level: 2 }) ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
-                 }`}
-               >
-                 H2
-               </button>
-             </div>
+         
+              <div className="flex flex-wrap gap-1 mb-4 p-2 bg-gray-700 rounded">
+                {/* Text formatting */}
+                <button 
+                  onClick={toggleBold}
+                  className={`p-2 rounded hover:bg-gray-500 ${
+                    editor?.isActive('bold') ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
+                  }`}
+                  title="Bold"
+                >
+                  <BoldIcon size={16} />
+                </button>
+                
+                <button 
+                  onClick={toggleItalic}
+                  className={`p-2 rounded hover:bg-gray-500 ${
+                    editor?.isActive('italic') ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
+                  }`}
+                  title="Italic"
+                >
+                  <ItalicIcon size={16} />
+                </button>
+                
+                <button 
+                  onClick={toggleUnderline}
+                  className={`p-2 rounded hover:bg-gray-500 ${
+                    editor?.isActive('underline') ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
+                  }`}
+                  title="Underline"
+                >
+                  <UnderlineIcon size={16} />
+                </button>
+                
+                <button 
+                  onClick={toggleStrike}
+                  className={`p-2 rounded hover:bg-gray-500 ${
+                    editor?.isActive('strike') ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
+                  }`}
+                  title="Strikethrough"
+                >
+                  <StrikethroughIcon size={16} />
+                </button>
+
+                <div className="w-px h-8 bg-gray-500 mx-1" /> {/* Separator */}
+
+                {/* Headings */}
+                <button 
+                  onClick={() => addHeading(1)}
+                  className={`p-2 rounded hover:bg-gray-500 ${
+                    editor?.isActive('heading', { level: 1 }) ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
+                  }`}
+                  title="Heading 1"
+                >
+                  <Heading1 size={16} />
+                </button>
+                
+                <button 
+                  onClick={() => addHeading(2)}
+                  className={`p-2 rounded hover:bg-gray-500 ${
+                    editor?.isActive('heading', { level: 2 }) ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
+                  }`}
+                  title="Heading 2"
+                >
+                  <Heading2 size={16} />
+                </button>
+                
+                <button 
+                  onClick={() => addHeading(3)}
+                  className={`p-2 rounded hover:bg-gray-500 ${
+                    editor?.isActive('heading', { level: 3 }) ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
+                  }`}
+                  title="Heading 3"
+                >
+                  <Heading3 size={16} />
+                </button>
+
+                <div className="w-px h-8 bg-gray-500 mx-1" /> {/* Separator */}
+
+                {/* Lists */}
+                <button 
+                  onClick={toggleBulletList}
+                  className={`p-2 rounded hover:bg-gray-500 ${
+                    editor?.isActive('bulletList') ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
+                  }`}
+                  title="Bullet List"
+                >
+                  <List size={16} />
+                </button>
+                
+                <button 
+                  onClick={toggleOrderedList}
+                  className={`p-2 rounded hover:bg-gray-500 ${
+                    editor?.isActive('orderedList') ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
+                  }`}
+                  title="Numbered List"
+                >
+                  <ListOrdered size={16} />
+                </button>
+                
+                <button 
+                  onClick={toggleBlockquote}
+                  className={`p-2 rounded hover:bg-gray-500 ${
+                    editor?.isActive('blockquote') ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
+                  }`}
+                  title="Quote"
+                >
+                  <Quote size={16} />
+                </button>
+                
+                <button 
+                  onClick={toggleHighlight}
+                  className={`p-2 rounded hover:bg-gray-500 ${
+                    editor?.isActive('highlight') ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
+                  }`}
+                  title="Highlight"
+                >
+                  <Highlighter size={16} />
+                </button>
+
+                <div className="w-px h-8 bg-gray-500 mx-1" /> {/* Separator */}
+
+                {/* Text Alignment */}
+                <button 
+                  onClick={() => setTextAlign('left')}
+                  className={`p-2 rounded hover:bg-gray-500 ${
+                    editor?.isActive({ textAlign: 'left' }) ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
+                  }`}
+                  title="Align Left"
+                >
+                  <AlignLeft size={16} />
+                </button>
+                
+                <button 
+                  onClick={() => setTextAlign('center')}
+                  className={`p-2 rounded hover:bg-gray-500 ${
+                    editor?.isActive({ textAlign: 'center' }) ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
+                  }`}
+                  title="Align Center"
+                >
+                  <AlignCenter size={16} />
+                </button>
+                
+                <button 
+                  onClick={() => setTextAlign('right')}
+                  className={`p-2 rounded hover:bg-gray-500 ${
+                    editor?.isActive({ textAlign: 'right' }) ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
+                  }`}
+                  title="Align Right"
+                >
+                  <AlignRight size={16} />
+                </button>
+                
+                <button 
+                  onClick={() => setTextAlign('justify')}
+                  className={`p-2 rounded hover:bg-gray-500 ${
+                    editor?.isActive({ textAlign: 'justify' }) ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
+                  }`}
+                  title="Justify"
+                >
+                  <AlignJustify size={16} />
+                </button>
+
+                <div className="w-px h-8 bg-gray-500 mx-1" /> {/* Separator */}
+
+                {/* History */}
+                <button 
+                  onClick={undo}
+                  className="p-2 rounded hover:bg-gray-500 bg-gray-600 text-white"
+                  title="Undo"
+                >
+                  <UndoIcon size={16} />
+                </button>
+                
+                <button 
+                  onClick={redo}
+                  className="p-2 rounded hover:bg-gray-500 bg-gray-600 text-white"
+                  title="Redo"
+                >
+                  <RedoIcon size={16} />
+                </button>
+              </div>
              
              {/* Editor */}
              <div className="bg-white text-black rounded p-4 flex-1 min-h-0 overflow-y-auto chat-scrollbar">
@@ -228,7 +450,10 @@ useEffect(() => {
 
             <div className="flex items-center min-w-0 flex-1">
               <span className="text-white mr-2 flex-shrink-0">Tags:</span>
-              <div className="flex items-center gap-1 p-2 bg-gray-700 rounded h-12 w-full max-w-[160px] sm:max-w-[200px] md:max-w-[240px] lg:max-w-[384px] overflow-x-auto overflow-y-hidden custom-scrollbar">
+              <div 
+                ref={tagsContainerRef}
+                className="flex items-center gap-1 p-2 bg-gray-700 rounded h-12 w-full max-w-[160px] sm:max-w-[200px] md:max-w-[240px] lg:max-w-[384px] overflow-x-auto overflow-y-hidden tags-scrollbar-invisible"
+              >
                 {/* Chips */}
                 {tags.map((tag, index) => (
                   <span key={index} className={`${tag.color} text-white px-2 py-1 rounded text-sm flex items-center gap-1 flex-shrink-0`}>
@@ -262,8 +487,15 @@ useEffect(() => {
                   Cancel
                 </Button>
               )}
-              <Button onClick={editingNote ? handleUpdateNote : handleCreateNote}>
-                {editingNote ? "Save Note" : "Create Note"}
+              <Button 
+                onClick={editingNote ? handleUpdateNote : handleCreateNote}
+                disabled={isSaving || isUpdating}
+                >
+                  {( isSaving || isUpdating) ? (
+                    <Loader className="w-4 h-4 animate-spin" />
+                  ) : (
+                    editingNote ? "Save Note" : "Create Note"
+                  )}
               </Button>
             </div>
             </div>

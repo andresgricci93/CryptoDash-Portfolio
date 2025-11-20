@@ -121,7 +121,7 @@ const NoteList = ({ onEditNote }) => {
         <div>Loading...</div>
       ) : (
         <>
-        <div className='h-64 overflow-y-auto  custom-scrollbar pr-1'>
+        <div className='h-64 overflow-y-auto overflow-x-hidden custom-scrollbar pr-1'>
           <AnimatePresence initial={false}>
             {filteredNotes?.map(note => (
               <motion.div

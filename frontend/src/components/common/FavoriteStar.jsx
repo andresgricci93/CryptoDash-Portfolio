@@ -35,7 +35,7 @@ const FavoriteStar = ({ cryptoId, isInFavoritePage = false }) => {
     try {
       if (localFavorite) {
 
-       await removeFavorite(cryptoId);
+        removeFavorite(cryptoId);
         
 
         queryClient.setQueryData(['favorites-details'], (oldData) => {

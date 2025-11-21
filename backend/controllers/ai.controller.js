@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import {detectCryptoMentions, getCurrentPrices} from "../../backend/services/cryptoPrices.service.js"
 import { getLatestCryptoNews, formatNewsForPrompt } from '../services/cryptoNews.service.js';
+import { addMessage, getTodayHistory } from '../services/memory.service.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -79,7 +80,7 @@ export const generateReport = async (req, res) => {
 
 export const chat = async (req, res) => {
   try {
-    const { message, conversationHistory = [], limit = 5 } = req.body;
+    const { message, limit = 5 } = req.body;
     const userId = req.userId;
 
     if (!message || typeof message !== 'string' || message.trim().length === 0) {
@@ -88,6 +89,13 @@ export const chat = async (req, res) => {
         message: 'Message is required and must be a non-empty string'
       });
     }
+
+    // Save user message to today's conversation
+    await addMessage(userId, 'user', message);
+
+    
+    // Get today's conversation history from DB (short-term memory)
+    const conversationHistory = await getTodayHistory(userId);
 
     const { searchRelevantNotes, buildContextForGemini } = await import('../services/rag.service.js');
 
@@ -133,10 +141,16 @@ export const chat = async (req, res) => {
       }))
     })}\n\n`);
 
+    // Collect assistant response chunks
+    let assistantResponse = '';
     for await (const chunk of result.stream) {
       const chunkText = chunk.text();
+      assistantResponse += chunkText;
       res.write(`data: ${JSON.stringify({ type: 'text', text: chunkText })}\n\n`);
     }
+
+    // Save assistant response to today's conversation
+    await addMessage(userId, 'assistant', assistantResponse);
 
     res.write(`data: [DONE]\n\n`);
     res.end();

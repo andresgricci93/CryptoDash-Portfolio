@@ -38,8 +38,7 @@ const conversationSchema = new mongoose.Schema({
     index: true
   },
   
-  // Summary generated when conversation ends
-  // for now only when user close a tab or logout
+// Summary generated daily at 3 AM for long-term memory
   summary: {
     type: String
   },

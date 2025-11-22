@@ -55,3 +55,26 @@ export const buildBinanceKlinesURL = (symbol, interval, limit = 1440) => {
   const { BASE_URL, ENDPOINTS } = BINANCE_API;
   return `${BASE_URL}${ENDPOINTS.KLINES}?symbol=${symbol}&interval=${interval}&limit=${limit}`;
 };
+
+const COINGECKO_BASE = 'https://api.coingecko.com/api/v3';
+
+// ============================================================================
+// LEGACY FUNCTIONS - Keep for backward compatibility
+// These functions are used by existing controllers and services
+// TODO: Migrate all usages to the helper functions above
+// ============================================================================
+
+// Markets Overview - 250 cryptos
+export const getMarketsURL = () => {
+  return `${COINGECKO_BASE}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=160&page=1&sparkline=false&price_change_percentage=24h`;
+};
+
+// - Detail for a specific crypto (static data)
+export const getCoinDetailURL = (coinId) => {
+  return `${COINGECKO_BASE}/coins/${coinId}?localization=false&tickers=false&market_data=false&community_data=false&developer_data=false`;
+};
+
+// - Chart Data
+export const getChartDataURL = (coinId, days) => {
+  return `${COINGECKO_BASE}/coins/${coinId}/market_chart?vs_currency=usd&days=${days}`;
+};

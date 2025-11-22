@@ -14,18 +14,18 @@ const MiniCryptoCard = ({ crypto, onNoteDrop, noteCount }) => {
   });
 
   const handleDragOver = (e) => {
-    e.preventDefault(); // Permitir drop
-    e.currentTarget.style.backgroundColor = '#2d3748'; // Highlight al hover
+    e.preventDefault(); 
+    e.currentTarget.style.backgroundColor = '#2d3748';
   };
 
   const handleDragLeave = (e) => {
-    e.currentTarget.style.backgroundColor = '#4a5568'; // Volver al color original
+    e.currentTarget.style.backgroundColor = '#4a5568';
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
     const noteId = e.dataTransfer.getData('noteId');
-    e.currentTarget.style.backgroundColor = '#4a5568'; // Reset color
+    e.currentTarget.style.backgroundColor = '#4a5568'; 
     
     console.log('Dropped note:', noteId, 'on crypto:', crypto.coinId);
     

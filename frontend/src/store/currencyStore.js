@@ -89,7 +89,7 @@ export const useCurrencyStore = create((set,get) => ({
         
         const { ratesLoaded, currencyRates } = get();
         
-        // Solo skip si YA están cargadas Y hay data
+        // Only skip if already loaded AND there's data
         if (ratesLoaded && currencyRates && currencyRates.length > 0) {
             return;
         }
@@ -125,6 +125,10 @@ export const useCurrencyStore = create((set,get) => ({
         }).format(convertedPrice);
         
         return `${getCurrencySymbol(selectedCurrency)} ${number}`;
+    },
+    
+    getCurrencySymbol: (currency) => {
+        return getCurrencySymbol(currency);
     }
 
 }));

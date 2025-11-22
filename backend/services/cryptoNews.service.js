@@ -14,8 +14,8 @@ export const getLatestCryptoNews = async (limit = 5) => {
       if (response.data && response.data.Data) {
         const news = response.data.Data.slice(0, limit);
         
-        // 🔍 DEBUG: Ver qué trae realmente la API
-        console.log('📰 First news item FULL DATA:');
+        // DEBUG: Check what the API returns
+        console.log('First news item FULL DATA:');
         console.log(JSON.stringify(news[0], null, 2));
         
         return news.map(item => ({
@@ -30,7 +30,7 @@ export const getLatestCryptoNews = async (limit = 5) => {
       
       return [];
     } catch (error) {
-      console.error('❌ Error fetching crypto news:', error.message);
+      console.error('Error fetching crypto news:', error.message);
       return [];
     }
   };
@@ -50,7 +50,7 @@ export const getLatestCryptoNews = async (limit = 5) => {
       const snippet = item.body || 'No description available';
       
       return `
-  ${index + 1}. 📰 ${item.title}
+  ${index + 1}. ${item.title}
      Source: ${item.source} | Published: ${date}
      Content: ${snippet}
      URL: ${item.url}

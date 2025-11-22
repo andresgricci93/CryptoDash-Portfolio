@@ -89,6 +89,31 @@ export const getAllNotes = async (req,res) => {
     }
 
 };
+
+export const getNotesByCrypto = async (req, res) => {
+  const { cryptoId } = req.params;
+  const userId = req.userId;
+
+  try {
+    const notes = await Note.find({ 
+      userId: userId,
+      cryptoId: { $in: [cryptoId] }
+    }).sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      notes,
+      count: notes.length
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
 export const getNoteById = async (req,res) => {
   const { noteId } = req.params;
   const userId = req.userId;

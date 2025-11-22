@@ -11,6 +11,7 @@ import currenciesRoutes from './routes/currencies.route.js';
 import profileRoutes from './routes/profile.route.js';
 import exportRoutes from './routes/pdfExport.route.js';
 import aiRoutes from './routes/ai.route.js';
+import chartDataRoutes from './routes/chartData.route.js';
 
 dotenv.config();
 
@@ -43,6 +44,7 @@ app.use('/api', currenciesRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api', exportRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/chart', chartDataRoutes);
 
 
 const server = app.listen(PORT, () => {

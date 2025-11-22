@@ -99,7 +99,23 @@ getAllNotes: async () => {
            throw error;
        }
 
-  },  
+  },
+  
+  getNotesByCrypto: async (cryptoId) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await axios.get(`${API_URL}/getNotesByCrypto/${cryptoId}`);
+      set({ isLoading: false });
+      return response.data.notes || [];
+    } catch (error) {
+      set({
+        error: error.response?.data?.message || "Error fetching notes by crypto",
+        isLoading: false
+      });
+      return [];
+    }
+  },
+  
 associateNoteWithCrypto: async (noteId, cryptoId) => {
   try {
     const response = await axios.post(`${API_URL}/associateNote`,{

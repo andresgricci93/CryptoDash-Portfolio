@@ -302,7 +302,7 @@ import logger from '../utils/logger.js';
         await collection.delete({
           ids: allNotes.ids
         });
-        console.log(`✅ Deleted ${allNotes.ids.length} notes from ChromaDB`);
+        console.log(`Deleted ${allNotes.ids.length} notes from ChromaDB`);
       } else {
         console.log('No notes to delete');
       }

@@ -37,6 +37,7 @@ import Blockquote from '@tiptap/extension-blockquote';
 import Highlight from '@tiptap/extension-highlight';
 import TextAlign from '@tiptap/extension-text-align';
 import { useNotesStore } from '../../store/notesStore.js';
+import toast from 'react-hot-toast';
 
 
 const NoteEditor = ({ editingNote, onCancelEdit }) => {
@@ -210,11 +211,13 @@ useEffect(() => {
             setIsSaving(true);
             try {
               await createNote(noteData);
+              toast.success('Note created successfully!');
               setTitle('');
               setTags([]);
               editor.commands.setContent('<p>Write something...</p>');
             } catch (error) {
               console.error('Error creating the note:', error);
+              toast.error('Failed to create note');
             } finally {
               setIsSaving(false);
             }
@@ -234,9 +237,11 @@ useEffect(() => {
           setIsUpdating(true);
           try {
             await updateNote(editingNote._id, noteData);
+            toast.success('Note updated successfully!');
             onCancelEdit();
           } catch (error) {
-            console.error("Error updating note:", error)
+            console.error("Error updating note:", error);
+            toast.error('Failed to update note');
           } finally {
             setIsUpdating(false);
           }
@@ -257,7 +262,7 @@ useEffect(() => {
               />
              {/* Toolbar */}
          
-              <div className="flex flex-wrap gap-1 mb-4 p-2 bg-gray-700 rounded">
+              <div className="flex flex-wrap justify-center gap-1 mb-4 p-2 bg-gray-700 rounded">
                 {/* Text formatting */}
                 <button 
                   onClick={toggleBold}

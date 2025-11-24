@@ -53,7 +53,8 @@ const FavoriteCoinsPage = () => {
   } = useQuery({
     queryKey: ['favorites-details'],
     queryFn: fetchFavoritesDetails,
-    enabled: favoriteIds.length > 0,
+    // Prevents query execution when favoriteIds is undefined or empty
+    enabled: favoriteIds?.length > 0,
     staleTime: 30 * 60 * 1000,       
     gcTime: 2 * 60 * 60 * 1000,       
     refetchInterval: 5 * 60 * 1000,   

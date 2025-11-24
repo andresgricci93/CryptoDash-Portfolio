@@ -1,6 +1,11 @@
 export const getNotesCountByCrypto = (notes) => {
   const counts = {};
   
+  //prevents "Cannot read properties of undefined (reading 'forEach)" when notes is undefined at the beginning.
+  if (!notes || !Array.isArray(notes)) {
+     return counts;
+  }
+
   notes.forEach(note => {
     if (note.cryptoId && Array.isArray(note.cryptoId)) {
       note.cryptoId.forEach(cryptoId => {

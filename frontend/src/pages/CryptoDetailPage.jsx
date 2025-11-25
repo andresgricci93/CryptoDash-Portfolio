@@ -261,12 +261,12 @@ const CryptoDetailPage = () => {
 
         <div className='flex flex-row gap-8 mb-8'>
           {/* CHART */}
-          <div className="w-2/3">
+          <div className="w-2/3 border border-gray-700 rounded-lg">
            <TradingViewChart coinId={id} symbol={staticData?.symbol} />
           </div>
 
           {/* NOTES */}
-          <div className="w-1/3 bg-gray-800/50 border border-gray-700 rounded-lg p-6">
+          <div className="w-1/3 min-h-[472px] bg-gray-800/50 border border-gray-700 rounded-lg p-6">
             <div className="flex items-center gap-2 mb-4">
               <h2 className="text-xl font-semibold text-white">
                 Notes ({cryptoNotes.length})
@@ -290,7 +290,7 @@ const CryptoDetailPage = () => {
                 <p className="text-sm mt-2">Create your first note!</p>
               </div>
             ) : (
-              <div className="h-64 overflow-y-auto custom-scrollbar pr-1">
+              <div className="h-[325px] overflow-y-auto custom-scrollbar pr-1">
                 <AnimatePresence initial={false}>
                   {filteredCryptoNotes.map(note => (
                     <NoteCard
@@ -333,7 +333,7 @@ const CryptoDetailPage = () => {
         )}
 
         {staticData?.links && (
-          <div className="mb-8 bg-gray-800/50 rounded-lg p-6">
+          <div className="mb-8 bg-gray-800/50 border border-gray-700 rounded-lg p-6">
             <h2 className="text-2xl font-semibold mb-4 text-white">Links</h2>
             <div className="flex flex-wrap gap-3">
               
@@ -361,7 +361,7 @@ const CryptoDetailPage = () => {
               
               {staticData.links.blockchain_site && staticData.links.blockchain_site.length > 0 && (
                 <div className="w-full">
-                  <h3 className="text-lg font-medium text-white mb-2">🔍 Block Explorers</h3>
+                  <h3 className="text-lg font-medium text-white mb-2">Block Explorers</h3>
                   <div className="flex flex-wrap gap-2">
                     {staticData.links.blockchain_site.slice(0, 4).map((site, index) => {
                       let siteName;
@@ -435,21 +435,21 @@ const CryptoDetailPage = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {staticData?.metadata?.genesis_date && (
-            <div className="bg-gray-800/50 rounded-lg p-4">
+            <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
               <span className="text-gray-400 text-sm">Genesis Date</span>
               <p className="text-white font-semibold mt-1">{staticData.metadata.genesis_date}</p>
             </div>
           )}
           
           {staticData?.metadata?.hashing_algorithm && (
-            <div className="bg-gray-800/50 rounded-lg p-4">
+            <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
               <span className="text-gray-400 text-sm">Algorithm</span>
               <p className="text-white font-semibold mt-1">{staticData.metadata.hashing_algorithm}</p>
             </div>
           )}
 
           {staticData?.metadata?.block_time_in_minutes && (
-            <div className="bg-gray-800/50 rounded-lg p-4">
+            <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
               <span className="text-gray-400 text-sm">Block Time</span>
               <p className="text-white font-semibold mt-1">{staticData.metadata.block_time_in_minutes} min</p>
             </div>

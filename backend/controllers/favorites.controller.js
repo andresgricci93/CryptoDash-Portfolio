@@ -186,7 +186,7 @@ export const generateProsAndCons = async (req, res) => {
       'Connection': 'keep-alive',
     });
 
-    const googleai = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
+    const googleai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const gemini = googleai.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
     
     const result = await gemini.generateContentStream(prompt);
@@ -237,7 +237,7 @@ export const generateFacts = async (req, res) => {
       'Connection': 'keep-alive',
     });
 
-    const googleai = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
+    const googleai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const gemini = googleai.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
     
     const result = await gemini.generateContentStream(prompt);
@@ -329,7 +329,7 @@ export const generateAIReport = async (req, res) => {
       'Connection': 'keep-alive',
     });
 
-    const googleai = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
+    const googleai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const gemini = googleai.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
     
     const result = await gemini.generateContentStream(prompt);

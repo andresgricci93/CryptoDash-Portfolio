@@ -9,8 +9,12 @@ export const useLivePrice = (coinId, symbol, isEnabled = false) => {
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState(null);
   const wsRef = useRef(null);
+  const hasInitialized = useRef(false);
+  const currentCoinRef = useRef(null);
 
   useEffect(() => {
+    const coinKey = `${coinId}-${symbol}`;
+    
     if (!isEnabled || !coinId || !symbol) {
       if (wsRef.current) {
         wsRef.current.close();
@@ -18,8 +22,20 @@ export const useLivePrice = (coinId, symbol, isEnabled = false) => {
         setIsConnected(false);
         setLiveData(null);
         setLiveHistory([]);
+        hasInitialized.current = false;
+        currentCoinRef.current = null;
       }
       return;
+    }
+
+
+    if (hasInitialized.current && currentCoinRef.current === coinKey) {
+      return;
+    }
+
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
     }
 
     const binanceSymbol = coinIdToBinanceSymbol(coinId, symbol);
@@ -34,18 +50,15 @@ export const useLivePrice = (coinId, symbol, isEnabled = false) => {
       try {
         // 1. Fetch 240 historical points (4 hours)
         setIsLoadingHistory(true);
-        console.log(`Fetching 240 historical points for ${binanceSymbol}...`);
         const historical = await fetchBinanceKlines(binanceSymbol, '1m', 240);
         setLiveHistory(historical);
         setIsLoadingHistory(false);
-        console.log(`Loaded ${historical.length} historical points`);
 
         // 2. Connect WebSocket after loading historical data
         const wsUrl = `wss://stream.binance.com:9443/ws/${binanceSymbol.toLowerCase()}@ticker`;
         const ws = new WebSocket(wsUrl);
 
         ws.onopen = () => {
-          console.log(`Connected to live price for ${coinId} (${binanceSymbol})`);
           setIsConnected(true);
           setError(null);
         };
@@ -91,11 +104,12 @@ export const useLivePrice = (coinId, symbol, isEnabled = false) => {
         };
 
         ws.onclose = () => {
-          console.log(`Disconnected from live price for ${coinId}`);
           setIsConnected(false);
         };
 
         wsRef.current = ws;
+        hasInitialized.current = true;
+        currentCoinRef.current = coinKey;
 
       } catch (err) {
         console.error('Error initializing live mode:', err);

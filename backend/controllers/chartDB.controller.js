@@ -24,8 +24,8 @@ export const getHistoricalData = async (req, res) => {
     let startDate = new Date();
 
     if (timeframe === '7D') {
-      // 7D: HOURLY data (1h) - ~240 points
-      startDate.setDate(endDate.getDate() - 10);
+      // 1 Day: HOURLY data (1h) - 72 points (3 days for better visualization)
+      startDate.setDate(endDate.getDate() - 3);
       
       const startTimestamp = startDate.getTime();
       const endTimestamp = endDate.getTime();
@@ -37,7 +37,7 @@ export const getHistoricalData = async (req, res) => {
       .sort({ timestamp: 1 })
       .lean();
       
-      console.log(`Found ${hourlyData.length} hourly data points`);
+      console.log(`Found ${hourlyData.length} hourly data points for 1D`);
 
       data = hourlyData.map(item => ({
         time: Math.floor(item.timestamp / 1000),
@@ -49,8 +49,8 @@ export const getHistoricalData = async (req, res) => {
       }));
       
     } else if (timeframe === '30D') {
-      // 30D: HOURLY data (1h) - ~720 points
-      startDate.setDate(endDate.getDate() - 30);
+      // 1 Week: HOURLY data (1h) - ~168 points
+      startDate.setDate(endDate.getDate() - 7);
       
       const startTimestamp = startDate.getTime();
       const endTimestamp = endDate.getTime();
@@ -62,7 +62,7 @@ export const getHistoricalData = async (req, res) => {
       .sort({ timestamp: 1 })
       .lean();
 
-      console.log(`Found ${hourlyData.length} hourly data points for 30D`);
+      console.log(`Found ${hourlyData.length} hourly data points for 1W`);
 
       data = hourlyData.map(item => ({
         time: Math.floor(item.timestamp / 1000),
@@ -73,12 +73,9 @@ export const getHistoricalData = async (req, res) => {
         value: item.close
       }));
       
-    } else if (timeframe === '90D' || timeframe === '180D') {
-      // 90D and 180D: 4-HOUR data - ~540 and ~1000 points
-      const daysMap = { '90D': 90, '180D': 180 };
-      const days = daysMap[timeframe];
-      
-      startDate.setDate(endDate.getDate() - days);
+    } else if (timeframe === '90D') {
+      // 1 Month: 4-HOUR data - ~180 points
+      startDate.setDate(endDate.getDate() - 30);
       
       const startTimestamp = startDate.getTime();
       const endTimestamp = endDate.getTime();
@@ -90,7 +87,32 @@ export const getHistoricalData = async (req, res) => {
       .sort({ timestamp: 1 })
       .lean();
 
-      console.log(`Found ${fourHourlyData.length} 4-hourly data points for ${timeframe}`);
+      console.log(`Found ${fourHourlyData.length} 4-hourly data points for 1M`);
+
+      data = fourHourlyData.map(item => ({
+        time: Math.floor(item.timestamp / 1000),
+        open: item.open,
+        high: item.high,
+        low: item.low,
+        close: item.close,
+        value: item.close
+      }));
+      
+    } else if (timeframe === '180D') {
+      // 3 Months: 4-HOUR data - ~540 points
+      startDate.setDate(endDate.getDate() - 90);
+      
+      const startTimestamp = startDate.getTime();
+      const endTimestamp = endDate.getTime();
+
+      const fourHourlyData = await ChartFourHourly.find({
+        coinId,
+        timestamp: { $gte: startTimestamp, $lte: endTimestamp }
+      })
+      .sort({ timestamp: 1 })
+      .lean();
+
+      console.log(`Found ${fourHourlyData.length} 4-hourly data points for 3M`);
 
       data = fourHourlyData.map(item => ({
         time: Math.floor(item.timestamp / 1000),

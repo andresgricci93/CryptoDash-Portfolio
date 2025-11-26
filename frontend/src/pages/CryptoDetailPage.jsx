@@ -126,7 +126,7 @@ const CryptoDetailPage = () => {
           className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-6 group"
         >
           <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-          <span>Back to Overview</span>
+          <span>Back to Dashboard</span>
         </button>
 
         <div className="flex items-start justify-between gap-4 mb-8 bg-gray-800/50 border border-gray-700 rounded-lg p-6">
@@ -143,14 +143,17 @@ const CryptoDetailPage = () => {
               <span className="text-gray-400 uppercase text-lg">{staticData?.symbol}</span>
               
               {/* Contador Live */}
-              {liveData && (
+           
                 <div className="mt-2 flex items-center gap-2">
-                  <div className="text-2xl font-bold text-green-400">
-                    {getCurrencySymbol(selectedCurrency)}{" "}{convertPrice(liveData.price).toFixed(2)}
+                  <div className={`text-2xl font-bold transition-colors duration-300 ${
+                    liveData ? 'text-green-400' : 'text-gray-300'
+                  }`}>
+                    {getCurrencySymbol(selectedCurrency)}{" "}
+                    {convertPrice(liveData?.price || dynamicData.current_price).toFixed(2)}
                   </div>
 
                 </div>
-              )}
+            
             </div>
           </div>
 
@@ -266,7 +269,7 @@ const CryptoDetailPage = () => {
           </div>
 
           {/* NOTES */}
-          <div className="w-1/3 min-h-[472px] bg-gray-800/50 border border-gray-700 rounded-lg p-6">
+          <div className=" w-1/3 min-h-[472px] h-max bg-gray-800/50 border border-gray-700 rounded-lg p-6">
             <div className="flex items-center gap-2 mb-4">
               <h2 className="text-xl font-semibold text-white">
                 Notes ({cryptoNotes.length})
@@ -333,7 +336,7 @@ const CryptoDetailPage = () => {
         )}
 
         {staticData?.links && (
-          <div className="mb-8 bg-gray-800/50 border border-gray-700 rounded-lg p-6">
+          <div className="mb-8 border border-gray-700 bg-gray-800/50 rounded-lg p-6">
             <h2 className="text-2xl font-semibold mb-4 text-white">Links</h2>
             <div className="flex flex-wrap gap-3">
               
@@ -449,7 +452,7 @@ const CryptoDetailPage = () => {
           )}
 
           {staticData?.metadata?.block_time_in_minutes && (
-            <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+            <div className="bg-gray-800/50  border border-gray-700 rounded-lg p-4">
               <span className="text-gray-400 text-sm">Block Time</span>
               <p className="text-white font-semibold mt-1">{staticData.metadata.block_time_in_minutes} min</p>
             </div>

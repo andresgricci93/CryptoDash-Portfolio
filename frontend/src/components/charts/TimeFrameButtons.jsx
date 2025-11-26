@@ -3,11 +3,9 @@ import { Radio } from 'lucide-react';
 
 
 const timeFrames = [
-  { label: '7D', value: '7D' },
-  { label: '30D', value: '30D' },
-  { label: '90D', value: '90D' },
-  { label: '180D', value: '180D' },
-  { label: '1YR', value: '1YR' },
+  { label: '1W', value: '30D' },
+  { label: '1M', value: '90D' },
+  { label: '1Y', value: '1YR' },
   { label: 'Live', value: 'LIVE', icon: Radio }, 
 ];
 

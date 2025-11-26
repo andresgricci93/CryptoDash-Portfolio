@@ -15,6 +15,6 @@ router.post('/populate/all', verifyToken, populateChartDataAll);
 
 // Debug and test endpoints (protected)
 router.get('/debug-hourly/:coinId', verifyToken, debugHourly);
-router.post('/test/:coinId', verifyToken, testSingleCrypto);
+router.post('/test/:coinId', testSingleCrypto);
 
 export default router;

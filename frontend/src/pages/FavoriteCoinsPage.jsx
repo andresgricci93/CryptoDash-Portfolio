@@ -10,7 +10,7 @@ import { useFavoritePageStore } from '../store/favoritePageStore.js';
 import AIReportForm from '../components/favorites/AIReportForm';
 import { useQuery } from '@tanstack/react-query';
 import { fetchCryptos, fetchFavoritesDetails } from '../api/cryptos.js';
-import MarkdownRenderer from '../components/common/MarkdownRenderer.jsx';
+import MarkdownRenderer from '../components/common/MarkdownRenderer';
 
 
 const tabs = [

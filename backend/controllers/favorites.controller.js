@@ -1,7 +1,8 @@
 import { User } from "../models/user.model.js";
 import { Crypto } from "../models/crypto.model.js";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-
+import { getCurrentPrices } from '../services/cryptoPrices.service.js';
+import { getLatestCryptoNews, formatNewsForPrompt } from '../services/cryptoNews.service.js';
 
 export const addToFavorites = async (req,res) => {
 
@@ -176,8 +177,19 @@ export const generateProsAndCons = async (req, res) => {
     const cryptos = user.favoriteCoins;
     const prompt = `Analyze at least 3 pros and cons of these cryptocurrencies: ${cryptos.join(', ')}. 
                   Provide specific advantages and disadvantages for each coin.
-                  Format your response as plain text without markdown formatting (no ** or other symbols).
-                  Use simple text structure with clear headings and bullet points using - instead of *.`;
+                  
+                  FORMAT RULES:
+                  - Use Bold Title: for section headers (no bullet before them)
+                  - Use - bullets only for list items under each section
+                  - Use bold for key terms
+                  
+                  Example structure:
+                  Bitcoin (BTC):
+                  Pros:
+                  - First bullet point
+                  - Second bullet point
+                  Cons:
+                  - First bullet point`;
 
     // Headers for streaming
     res.writeHead(200, {
@@ -221,14 +233,18 @@ export const generateFacts = async (req, res) => {
     const cryptos = user.favoriteCoins;
     const prompt = `Create a collection of fascinating facts and curiosities about: ${cryptos.join(', ')}.
 
-    For each cryptocurrency, provide:
-    - 2-3 historical facts or origin stories
-    - Unique technical innovations or features
-    - Surprising market statistics or milestones
-    - Lesser-known trivia that would surprise crypto enthusiasts
+        For each cryptocurrency, provide:
+        - 2-3 historical facts or origin stories
+        - Unique technical innovations or features
+        - Surprising market statistics or milestones
+        - Lesser-known trivia that would surprise crypto enthusiasts
 
-    Write in plain text format without asterisks or special formatting.
-    Make it educational but entertaining to read.`;
+        FORMAT RULES:
+        - Use Bold Title: for section headers (no bullet before them)
+        - Use - bullets only for list items under each section
+        - Use bold for emphasis on key terms
+        
+        Make it educational but entertaining to read.`;
 
     // Headers for streaming
     res.writeHead(200, {
@@ -269,58 +285,71 @@ export const generateAIReport = async (req, res) => {
       });
     }
 
-    // Format allocations for the prompt
-    const portfolioDescription = allocations.map(a => 
-      `${a.cryptoSymbol.toUpperCase()}: ${a.amount} ${currency} (${a.cryptoAmount} ${a.cryptoSymbol.toUpperCase()})`
-    ).join(', ');
+    const cryptoIds = allocations.map(a => a.cryptoId); 
+      const [prices, news] = await Promise.all([
+        getCurrentPrices(cryptoIds),
+        getLatestCryptoNews(10)
+      ]);
 
-    const prompt = `
-      CryptoAI analyzed your responses and generated the following investment analysis:
+      const pricesContext = JSON.stringify(prices, null, 2);
+      const newsContext = formatNewsForPrompt(news);
 
+      // Format allocations for the prompt
+      const portfolioDescription = allocations.map(a => 
+        `${a.cryptoSymbol.toUpperCase()}: ${a.amount} ${currency} (${a.cryptoAmount} ${a.cryptoSymbol.toUpperCase()})`
+      ).join(', ');
+
+      const prompt = `
+      REAL-TIME MARKET DATA:
+      ${pricesContext}
+      
+      RECENT MARKET NEWS (Last 24-48h):
+      ${newsContext}
+    
       PORTFOLIO DATA:
       ${portfolioDescription}
       Total Investment: ${totalAmount} ${currency}
-
+    
       INVESTOR PARAMETERS:
       Investment Strategy: ${strategy}
       Risk Profile: ${riskProfile}
-
-      Provide a technical analysis structured as follows:
-
+    
+      Generate technical investment analysis:
+    
       1. PORTFOLIO ANALYSIS
-      Overall balance and diversification metrics
-      Risk exposure quantification for ${riskProfile} profile
-      Asset correlation coefficients
-
+      - Diversification metrics and balance assessment
+      - Risk exposure quantification for ${riskProfile} profile
+      - Asset correlation coefficients
+      - Current price deviation from portfolio entry points
+    
       2. STRATEGIC RECOMMENDATIONS
-      Allocation adjustments for ${riskProfile} alignment
-      Rebalancing thresholds and triggers
-      Entry/exit points with supporting rationale
-
+      - Allocation adjustments aligned with ${riskProfile}
+      - Rebalancing thresholds and triggers
+      - Entry/exit points with technical rationale
+      - News-driven tactical considerations
+    
       3. RISK ASSESSMENT
-      Individual asset risk factors
-      Aggregate portfolio risk score (1-10 scale)
-      Risk mitigation protocols
-
+      - Individual asset risk factors based on current volatility
+      - Aggregate portfolio risk score (1-10)
+      - News sentiment impact analysis
+      - Risk mitigation protocols
+    
       4. MARKET OUTLOOK
-      6-month price trajectory estimates per asset
-      Market conditions affecting portfolio performance
-      Identified opportunities and threat vectors
-
+      - 6-month price trajectory estimates per asset
+      - Current market conditions affecting portfolio
+      - News-correlated opportunities and threats
+    
       5. ACTION ITEMS
-      Immediate optimization steps
-      3-6 month tactical adjustments
-      Long-term strategic considerations
-
-      FORMATTING REQUIREMENTS:
-      - Use plain text only
-      - No asterisks or markdown symbols
-      - Use dashes (-) for bullet points
-      - Keep sentences concise and technical
-      - Avoid conversational phrases
-      - Do not start with "As a professional advisor" or similar
-
-    `
+      - Immediate optimization steps
+      - 3-6 month tactical adjustments
+      - Long-term strategic considerations
+    
+      FORMATTING:
+      - Use ## for main sections, ### for subsections
+      - Use - bullets ONLY for list items, not headers
+      - Technical, concise language
+      - Reference specific prices and news data when relevant
+    `;
 
     // Headers for streaming
     res.writeHead(200, {

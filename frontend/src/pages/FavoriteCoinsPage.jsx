@@ -10,12 +10,15 @@ import { useFavoritePageStore } from '../store/favoritePageStore.js';
 import AIReportForm from '../components/favorites/AIReportForm';
 import { useQuery } from '@tanstack/react-query';
 import { fetchCryptos, fetchFavoritesDetails } from '../api/cryptos.js';
+import MarkdownRenderer from '../components/common/MarkdownRenderer.jsx';
+
 
 const tabs = [
   { id: 'pros&cons', label: 'Pros & Cons', icon: Diff },
   { id: 'facts', label: 'Facts', icon: View },
   { id: 'reports', label: 'AI Reports', icon: Brain }
 ];
+
 
 const FavoriteCoinsPage = () => {
   const {
@@ -275,7 +278,7 @@ const FavoriteCoinsPage = () => {
               {prosAndConsResponse && (
                 <div className="mt-6">
                   <div className="p-4 bg-gray-900 rounded-lg mb-4">
-                    <pre className="whitespace-pre-wrap text-gray-200">{prosAndConsResponse || ""}</pre>
+                    <MarkdownRenderer content={prosAndConsResponse} className="text-gray-200" />
                   </div>
                   
                   <div className="flex justify-end">
@@ -337,7 +340,7 @@ const FavoriteCoinsPage = () => {
               {factsResponse && (
                 <div className="mt-6">
                   <div className="p-4 bg-gray-900 rounded-lg mb-4">
-                    <pre className="whitespace-pre-wrap text-gray-200">{factsResponse}</pre>
+                    <MarkdownRenderer content={factsResponse} className="text-gray-200" />
                   </div>
                   
                   <div className="flex justify-end">
@@ -373,7 +376,7 @@ const FavoriteCoinsPage = () => {
               {reportsResponse && (
                 <div className="mt-6">
                   <div className="p-4 bg-gray-900 rounded-lg mb-4">
-                    <pre className="whitespace-pre-wrap text-gray-200">{reportsResponse}</pre>
+                  <MarkdownRenderer content={reportsResponse} className="text-gray-200" />
                   </div>
                   
                   <div className="flex justify-end">

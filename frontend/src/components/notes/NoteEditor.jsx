@@ -85,41 +85,41 @@ const NoteEditor = ({ editingNote, onCancelEdit }) => {
       content: '<p>Hello World!</p>',
     })
    
+    
 
-useEffect(() => {
-  
-    if (editingNote) {
-        console.log("Objeto completo editingNote:", editingNote);
-        console.log("Propiedades:", Object.keys(editingNote));
-      setTitle(editingNote.title);
-      
-      const noteTags = editingNote.tags || [];
-      setTags(noteTags.map(tag => {
+    useEffect(() => {
 
-        if (typeof tag === 'object' && tag.color) {
-          return tag; 
-        } else {
+      if (editingNote) {
+        
+        setTitle(editingNote.title);
+        
+        const noteTags = editingNote.tags || [];
+        setTags(noteTags.map(tag => {
 
-          return {
-            text: typeof tag === 'string' ? tag : tag.text,
-            color: getRandomColor()
-          };
+          if (typeof tag === 'object' && tag.color) {
+            return tag; 
+          } else {
+
+            return {
+              text: typeof tag === 'string' ? tag : tag.text,
+              color: getRandomColor()
+            };
+          }
+        }));
+        
+        if (editor) {
+          editor.commands.setContent(editingNote.htmlContent);
         }
-      }));
-      
-      if (editor) {
-        editor.commands.setContent(editingNote.htmlContent);
+      } else {
+        
+        setTitle('');
+        setTags([]);
+        
+        if (editor) {
+          editor.commands.setContent('<p>Write something...</p>');
+        }
       }
-    } else {
-      
-      setTitle('');
-      setTags([]);
-      
-      if (editor) {
-        editor.commands.setContent('<p>Write something...</p>');
-      }
-    }
-}, [editingNote, editor]);
+    }, [editingNote, editor]);
 
   // Horizontal scroll with mouse wheel for tags
   useEffect(() => {
@@ -472,7 +472,6 @@ useEffect(() => {
                   </span>
                 ))}
                 
-                {/* Input real */}
                 <input 
                   type="text"
                   value={inputTag}

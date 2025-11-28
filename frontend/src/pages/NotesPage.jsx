@@ -3,14 +3,26 @@ import NoteEditor from '@components/notes/NoteEditor.jsx'
 import Header from '../components/common/Header';
 import NoteList from '../components/notes/NoteList.jsx';
 import ChatAI from '../components/chat/ChatAI.jsx'
-
+import { useLocation } from 'react-router-dom';
 
 const NotesPage = () => {
 
+  const location = useLocation();
+  
    const [savedNotes, setSavedNotes] = useState([]);
    const [searchTerm, setSearchTerm] = useState('');
 
    const [editingNote, setEditingNote] = useState(null);
+
+
+
+  useEffect(() => {
+    if (location.state?.editingNote) {
+    setEditingNote(location.state.editingNote);
+    // Clear state to avoid persistance on reload
+    window.history.replaceState({}, document.title)
+    }
+  },[location.state]);
 
   const handleEditNote = (noteData) => {
     setEditingNote(noteData)

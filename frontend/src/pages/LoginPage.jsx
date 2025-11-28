@@ -1,17 +1,28 @@
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import { motion } from "framer-motion";
 import Input from '../components/Input.jsx';
 import { Link } from 'react-router-dom';
 import { Mail,Lock,Loader } from "lucide-react";
 import { useAuthStore } from '../store/authStore.js';
+import { useSearchParams } from 'react-router-dom';
+
 
 const LoginPage = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const {login, isLoading, error} = useAuthStore();
-  
+  const [searchParams] = useSearchParams();
 
+  
+  useEffect(() => {
+    const company = searchParams.get('company');
+    if (company) {
+      localStorage.setItem('invitedCompany', company)
+    }
+  },[searchParams])
+
+  const invitedCompany = searchParams.get('company') || localStorage.getItem('invitedCompany');
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -28,7 +39,7 @@ const LoginPage = () => {
     >
     <div className="p-8">
       <h2 className='text-3xl font-bold mb-6 text-center bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text'>
-       Welcome Back
+       {invitedCompany ? `Welcome, ${invitedCompany}`: 'Welcome back'}
       </h2>
       <form onSubmit={handleLogin}
       >

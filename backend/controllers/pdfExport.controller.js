@@ -2,6 +2,8 @@ import puppeteer from 'puppeteer';
 import { Note } from '../models/note.model.js';
 import { Document, Packer, Paragraph, TextRun, HeadingLevel } from 'docx';
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import htmlPdf from 'html-pdf-node';
+
 
 
 export const exportToPDF = async (req, res) => {
@@ -57,19 +59,10 @@ export const exportToPDF = async (req, res) => {
       </html>
     `;
 
-    const browser = await puppeteer.launch({ 
-      headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-    const page = await browser.newPage();
-    await page.setContent(htmlTemplate);
+    const options = { format: 'A4' };
+    const file = { content: htmlTemplate };
     
-    const pdfBuffer = await page.pdf({
-      format: 'A4',
-      printBackground: true
-    });
-    
-    await browser.close();
+    const pdfBuffer = await htmlPdf.generatePdf(file, options);
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="${note.title}.pdf"`);
@@ -220,20 +213,10 @@ export const exportSummaryToPDF = async (req, res) => {
       </html>
     `;
 
-    const browser = await puppeteer.launch({ 
-      headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-
-    const page = await browser.newPage();
-    await page.setContent(htmlTemplate);
+    const options = { format: 'A4' };
+    const file = { content: htmlTemplate };
     
-    const pdfBuffer = await page.pdf({
-      format: 'A4',
-      printBackground: true
-    });
-    
-    await browser.close();
+    const pdfBuffer = await htmlPdf.generatePdf(file, options);
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="${title}.pdf"`);

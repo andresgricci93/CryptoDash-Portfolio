@@ -57,7 +57,10 @@ export const exportToPDF = async (req, res) => {
       </html>
     `;
 
-    const browser = await puppeteer.launch({ headless: true });
+    const browser = await puppeteer.launch({ 
+      headless: 'new',
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
     const page = await browser.newPage();
     await page.setContent(htmlTemplate);
     
@@ -168,7 +171,7 @@ Content: ${note.textContent}
   - Keep it concise but informative
 `;
 
-    const googleai = new GoogleGenerativeAI(process.env.VITE_GOOGLE_AI_API_KEY);
+    const googleai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const gemini = googleai.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
     
     const result = await gemini.generateContent(prompt);
@@ -217,7 +220,11 @@ export const exportSummaryToPDF = async (req, res) => {
       </html>
     `;
 
-    const browser = await puppeteer.launch({ headless: true });
+    const browser = await puppeteer.launch({ 
+      headless: 'new',
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+
     const page = await browser.newPage();
     await page.setContent(htmlTemplate);
     

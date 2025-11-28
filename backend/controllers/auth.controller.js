@@ -7,6 +7,13 @@ import crypto from "crypto";
 
 export const signup = async (req,res) => {
  
+    if (process.env.REGISTRATION_ENABLED !== 'true') {
+      return res.status(403).json({
+        success: false,
+        message: "Registration is currently closed"
+      });
+    }
+
     const { email,password,name } = req.body;
     
        try {

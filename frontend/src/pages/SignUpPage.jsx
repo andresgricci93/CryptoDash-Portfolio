@@ -5,6 +5,7 @@ import { useAuthStore } from "../store/authStore";
 import { Lock, Mail, User,Loader } from "lucide-react";
 import { Link,useNavigate } from "react-router-dom";
 import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
+import toast from "react-hot-toast";
 //signup commit 
 
 const SignUpPage = () => {
@@ -22,7 +23,7 @@ const SignUpPage = () => {
         await signup(email, password, name);
         navigate("/verify-email");
        } catch (error) {
-        console.log("error");
+        toast.error("Registration is currently closed. Please contact the administrator for demo access.")
        }
    }
 

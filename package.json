@@ -22,6 +22,7 @@
     "docx": "^9.5.1",
     "dotenv": "^17.2.0",
     "express": "^5.1.0",
+    "html-pdf-node": "^1.0.8",
     "jimp": "^1.6.0",
     "jsonwebtoken": "^9.0.2",
     "jspdf": "^3.0.3",

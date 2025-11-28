@@ -65,7 +65,7 @@ const NoteDetailPage = () => {
    const handleExportPDF = async () => {
         setPdfLoading(true); 
         try {
-            const response = await fetch(`http://localhost:5000/api/export/pdf/${noteId}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/export/pdf/${noteId}`, {
             credentials: 'include' 
             });
             
@@ -97,7 +97,7 @@ const NoteDetailPage = () => {
       setWordLoading(true);
       
       try {
-        const response = await fetch(`http://localhost:5000/api/export/word/${noteId}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/export/word/${noteId}`, {
           credentials: 'include'
         });
         
@@ -129,7 +129,7 @@ const NoteDetailPage = () => {
       setSummaryLoading(true);
       
       try {
-        const response = await fetch(`http://localhost:5000/api/ai-summary/${noteId}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/ai-summary/${noteId}`, {
           credentials: 'include'
         });
         
@@ -151,7 +151,7 @@ const NoteDetailPage = () => {
 
      const handleSummaryExportPDF = async (summaryText) => {
       try {
-        const response = await fetch(`http://localhost:5000/api/export/summary-pdf`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/export/summary-pdf`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -185,7 +185,7 @@ const NoteDetailPage = () => {
 
 const handleSummaryExportWord = async (summaryText) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/export/summary-word`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/export/summary-word`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -39,18 +39,13 @@ const OverviewPage = () => {
   
   useEffect(() => {
     if (cryptos && cryptos.length > 0) {
-      console.log('========== TODAS LAS CRYPTOS ==========');
-      console.log('Total cryptos:', cryptos.length);
-      console.log('Primera crypto (ejemplo):', cryptos[0]);
-      console.log('Todas las cryptos:', cryptos);
-      
+
  
       const cryptoMap = cryptos.map(c => ({
         coinId: c.coinId || c.id,
         symbol: c.symbol,
         name: c.name
       }));
-      console.log('Mapeo para WebSocket:', cryptoMap);
     }
   }, [cryptos]);
 

@@ -221,7 +221,7 @@ const handleConfirmChangePassword = async () => {
            <div className="flex gap-3 justify-end">
             <Button
                 onClick={onClose}
-                variant="secondary"
+                variant="transparent"
             >
                 {cancelText}
             </Button>

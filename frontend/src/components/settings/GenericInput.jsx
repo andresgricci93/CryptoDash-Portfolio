@@ -12,7 +12,7 @@ const GenericInput = ({
     const getBorderColor = () => {
         if (validationState === "valid") return "border-green-500 focus:border-green-500 focus:ring-green-500";
         if (validationState === "error") return "border-red-500 focus:border-red-500 focus:ring-red-500";
-        return "border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500";
+        return "border-gray-600";
     };
 
     const getMessage = () => {
@@ -38,13 +38,13 @@ const GenericInput = ({
             )}
             <div className="relative">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <Icon className="size-5 text-gray-400"/>
+                    <Icon className="size-5 text-white"/>
                 </div>
                 <input 
                     {...props}
                     type={type}
                     onBlur={onBlur}
-                    className={`w-full pl-10 pr-3 py-2 bg-gray-700 text-white rounded-lg border ${getBorderColor()} focus:ring-1 transition duration-200 ${
+                    className={`w-full pl-10 pr-3 py-2 bg-gray-800 text-white rounded-lg border ${getBorderColor()} focus:ring-1 transition duration-200 ${
                         disabled ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
                     disabled={disabled}

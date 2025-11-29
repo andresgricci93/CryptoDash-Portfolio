@@ -100,7 +100,7 @@ const handleSubmit = async (e) => {
               </div>      
           </div>
           <div className="flex gap-3 mt-6">
-            <Button onClick={onClose} variant="secondary" className="flex-1">
+            <Button onClick={onClose} variant="transparent" className="flex-1">
               Cancel
             </Button>
             <Button onClick={handleSubmit} disabled={isLoading} className="flex-1">

@@ -21,6 +21,7 @@ import Button from '../components/common/Button';
 import { ArrowLeft, Loader } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import CryptoAISummaryModal from '../components/modals/CryptoAISummaryModal';
+import LoadingDots from '../components/common/LoadingDots.jsx';
 import toast from 'react-hot-toast';
 
 const NoteDetailPage = () => {
@@ -244,7 +245,7 @@ const handleSummaryExportWord = async (summaryText) => {
     }
   }, [note, editor]);
 
-  if (loading) return <div className="text-white text-center py-20">Loading note...</div>;
+  if (loading) return <LoadingDots text="Loading note..." />
   if (!note) return null;
 
   return (
@@ -253,13 +254,13 @@ const handleSummaryExportWord = async (summaryText) => {
       
       <main className='max-w-4xl mx-auto py-6 px-4'>
         <div className='flex justify-between'>
-         <Link 
-            to="/notes"
-            className="flex items-center text-white transition-colors"
-            >
-           <ArrowLeft className="w-4 h-4 mr-2" />
-           Back to Notes
-         </Link>
+          <button 
+            onClick={() => navigate('/notes')}
+            className="flex items-center gap-2 mb-0 text-gray-400 hover:text-white transition-colors mb-6 group"
+          >
+            <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+            <span>Back to Notes</span>
+          </button>
           <div className="text-gray-400 text-sm mb-4">
            <p>Created: {new Date(note.createdAt).toLocaleDateString()}</p>
            <p>Last updated: {new Date(note.updatedAt).toLocaleDateString()}</p>

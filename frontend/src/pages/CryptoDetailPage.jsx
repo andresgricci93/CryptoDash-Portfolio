@@ -17,6 +17,8 @@ import TradingViewChart from '../components/charts/TradingViewCharts.jsx';
 import { useQuery } from '@tanstack/react-query';
 import { useLivePrice } from '../hooks/useLivePrice.js';
 import { fetchCryptoDynamic, fetchCryptoStatic } from '../api/cryptos.js';
+import LoadingDots from '../components/common/LoadingDots.jsx';
+
 
 const CryptoDetailPage = () => {
   const { id } = useParams();
@@ -107,7 +109,7 @@ const CryptoDetailPage = () => {
   const isLoading = isLoadingDynamic || isLoadingStatic;
   const error = errorDynamic || errorStatic;
   
-  if (isLoading) return <div className="flex items-center justify-center h-screen text-white">Loading crypto details...</div>;
+  if (isLoading) return <LoadingDots text="Loading crypto details..." />
   if (error) return <div className="flex items-center justify-center h-screen text-red-500">Error: {error.message}</div>;
   if (!staticData || !dynamicData) return <div className="flex items-center justify-center h-screen text-white">No data available</div>;
 

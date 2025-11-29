@@ -44,6 +44,7 @@
     "react-markdown": "^10.1.0",
     "react-router-dom": "^7.6.3",
     "recharts": "^3.0.2",
+    "three": "^0.181.2",
     "tiptap": "^1.32.2",
     "zustand": "^5.0.7"
   },

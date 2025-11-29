@@ -15,7 +15,8 @@ const Button = ({
     success: 'bg-green-500 text-white hover:bg-green-600 border-green-500',
     danger: 'bg-red-500 text-white hover:bg-red-600 border-red-500',
     dangerGhost: 'bg-transparent text-red-400 hover:bg-red-500 hover:text-white border-red-400 hover:border-red-500',
-    settingsCard: 'bg-transparent hover:bg-white hover:text-black border border-gray-600 hover:border-white text-gray-100' 
+    settingsCard: 'bg-transparent hover:bg-white hover:text-black border border-gray-600 hover:border-white text-gray-100',
+    transparent: 'bg-transparent border-transparent px-4 py-2 text-gray-300 hover:text-white transition-colors'
   };
 
   return (

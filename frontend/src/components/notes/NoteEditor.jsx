@@ -42,7 +42,7 @@ import toast from 'react-hot-toast';
 
 const NoteEditor = ({ editingNote, onCancelEdit }) => {
   
-  const { createNote, updateNote } = useNotesStore();
+  const { createNote, updateNote,clearEditingNote } = useNotesStore();
 
   const [activeFormats, setActiveFormats] = useState({
       bold: false,
@@ -196,9 +196,9 @@ const NoteEditor = ({ editingNote, onCancelEdit }) => {
           return tagColors[newIndex];
         };
 
-                const handleCreateNote = async () => {
+        const handleCreateNote = async () => {
             if (!title.trim() || !editor.getText().trim()) {
-              alert("Title and content are required");
+              toast.error('Title and content are required');
               return;
             }
 
@@ -215,17 +215,18 @@ const NoteEditor = ({ editingNote, onCancelEdit }) => {
               setTitle('');
               setTags([]);
               editor.commands.setContent('<p>Write something...</p>');
+              clearEditingNote();
             } catch (error) {
               console.error('Error creating the note:', error);
               toast.error('Failed to create note');
             } finally {
               setIsSaving(false);
             }
-        };
+         };
 
       const handleUpdateNote = async () => {
         if (!title.trim() || !editor.getText().trim()) {
-           alert("Title and content are required");
+           toast.error('Title and content are required');
            return;
         }
           const noteData = {
@@ -238,7 +239,7 @@ const NoteEditor = ({ editingNote, onCancelEdit }) => {
           try {
             await updateNote(editingNote._id, noteData);
             toast.success('Note updated successfully!');
-            onCancelEdit();
+            clearEditingNote();
           } catch (error) {
             console.error("Error updating note:", error);
             toast.error('Failed to update note');

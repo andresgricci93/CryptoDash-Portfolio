@@ -4,15 +4,16 @@ import Header from '../components/common/Header';
 import NoteList from '../components/notes/NoteList.jsx';
 import ChatAI from '../components/chat/ChatAI.jsx'
 import { useLocation } from 'react-router-dom';
+import { useNotesStore } from '../store/notesStore.js';
+
 
 const NotesPage = () => {
 
   const location = useLocation();
   
-   const [savedNotes, setSavedNotes] = useState([]);
-   const [searchTerm, setSearchTerm] = useState('');
 
-   const [editingNote, setEditingNote] = useState(null);
+
+   const {editingNote, setEditingNote,clearEditingNote} = useNotesStore();
 
 
 
@@ -22,14 +23,14 @@ const NotesPage = () => {
     // Clear state to avoid persistance on reload
     window.history.replaceState({}, document.title)
     }
-  },[location.state]);
+  },[location.state,setEditingNote]);
 
   const handleEditNote = (noteData) => {
     setEditingNote(noteData)
   }
   
   const handleCancelEdit = () => {
-    setEditingNote(null);
+    clearEditingNote();
   }
 
 

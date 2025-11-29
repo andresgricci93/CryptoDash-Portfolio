@@ -12,7 +12,10 @@ export const useNotesStore = create((set, get) => ({
   searchTerm: "",
   page: 0,
   hasMore: true,
+  editingNote: null,
 
+  setEditingNote: (note) => set({editingNote:note}),
+  clearEditingNote: () => set({editingNote:null}),
  
 createNote: async (noteData) => {
     set({ error: null });

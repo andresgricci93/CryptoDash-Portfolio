@@ -9,34 +9,38 @@ import { getNotesCountByCrypto } from '../../utils/noteHelpers.js';
 import { useNavigate } from 'react-router-dom';
 import { Pencil, Eye } from 'lucide-react';
 import toast from "react-hot-toast";
+import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+
+
+
+const fetchFavorites = async () => {
+  const response = await axios.get(`${import.meta.env.VITE_API_URL}/favorites/details`);
+  return response.data.data;
+};
 
 
 const NoteList = ({ onEditNote }) => {
 
-  const [favoriteCryptos, setFavoriteCryptos] = useState([]);
-  const [loadingFavorites, setLoadingFavorites] = useState(true);
+
   const { notes, getAllNotes, isLoading, deleteNote,searchTerm,setSearchTerm,getFilteredNotes } = useNotesStore();
   const { associateNoteWithCrypto } = useNotesStore();
   const navigate = useNavigate();
   const noteCounts = getNotesCountByCrypto(notes);
 
 
-  useEffect(() => {
-    const fetchFavoritesWithData = async () => {
-      try {
-        await getAllNotes();
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/favorites/details`);
-        setFavoriteCryptos(response.data.data);
-      } catch (error) {
-        console.error('Error fetching favorites:', error);
-      } finally {
-        setLoadingFavorites(false);
-      }
-    };
+  const { 
+    data: favoriteCryptos = [], 
+    isLoading: loadingFavorites 
+  } = useQuery({
+    queryKey: ['favorites-details'],
+    queryFn: fetchFavorites,
+    staleTime: 5 * 60 * 1000, // 5 min
+  });
 
-    fetchFavoritesWithData();
-  }, []);
+  useEffect(() => {
+    getAllNotes();
+  }, [getAllNotes]);
 
 
       const [noteToDelete, setNoteToDelete] = useState(null);
@@ -117,7 +121,7 @@ const NoteList = ({ onEditNote }) => {
           fullWidth={true}
           onChange={(e) => {setSearchTerm(e.target.value)}}
         />
-      {isLoading ? (
+      {isLoading && notes.length === 0 ? (
         <div>Loading...</div>
       ) : (
         <>

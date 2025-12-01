@@ -58,9 +58,9 @@ const FavoriteCoinsPage = () => {
     queryFn: fetchFavoritesDetails,
     // Prevents query execution when favoriteIds is undefined or empty
     enabled: favoriteIds?.length > 0,
-    staleTime: 3 * 60 * 1000,        // 3 min
+    staleTime: 10 * 60 * 1000,        // 10 min
     gcTime: 2 * 60 * 60 * 1000,       
-    refetchInterval: 3 * 60 * 1000,   // 3 min
+    refetchInterval: 10 * 60 * 1000,   // 10 min
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
@@ -73,9 +73,9 @@ const FavoriteCoinsPage = () => {
   } = useQuery({
     queryKey: ['cryptos'],
     queryFn: fetchCryptos,
-    staleTime: 3 * 60 * 1000,         // 3 min
+    staleTime: 10 * 60 * 1000,         // 10 min
     gcTime: 2 * 60 * 60 * 1000,       
-    refetchInterval: 3 * 60 * 1000,   // 3 min   
+    refetchInterval: 10 * 60 * 1000,   // 10 min   
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: false,
     refetchOnMount: false,

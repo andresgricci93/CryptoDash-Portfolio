@@ -197,6 +197,7 @@ const NoteEditor = ({ editingNote, onCancelEdit }) => {
         };
 
         const handleCreateNote = async () => {
+
             if (!title.trim() || !editor.getText().trim()) {
               toast.error('Title and content are required');
               return;
@@ -208,7 +209,9 @@ const NoteEditor = ({ editingNote, onCancelEdit }) => {
               textContent: editor.getText(),
               tags: tags
             };
+
             setIsSaving(true);
+
             try {
               await createNote(noteData);
               toast.success('Note created successfully!');
@@ -259,7 +262,7 @@ const NoteEditor = ({ editingNote, onCancelEdit }) => {
               placeholder='Title of your note...'
               value={title || ''}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full p-2 mb-4 bg-white text-black rounded placeholder-gray-400"
+              className="w-full p-2 mb-4 bg-white text-black rounded outline-none placeholder-gray-400"
               />
              {/* Toolbar */}
          

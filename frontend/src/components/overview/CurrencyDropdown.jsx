@@ -24,7 +24,7 @@ const CurrencyDropdown = () => {
     <select 
       value={selectedCurrency}
       onChange={handleCurrencyChange}
-      className="bg-gray-700 text-white px-3 py-3 text-base rounded border border-gray-600 focus:border-green-500"
+      className="bg-gray-700 outline-none text-white px-3 py-3 text-base rounded border border-gray-600"
     >
       {availableCurrencies.map(currency => (
         <option key={currency.code} value={currency.code}>

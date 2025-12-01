@@ -12,6 +12,7 @@ import Button from '../common/Button.jsx';
 
 
 const AIReportForm = ({ onGenerateReport, isGenerating }) => {
+  
   const { availableCurrencies, currencyRates } = useCurrencyStore();
 
   const [cryptoAllocations, setCryptoAllocations] = useState([]);

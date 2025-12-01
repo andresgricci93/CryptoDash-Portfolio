@@ -34,7 +34,7 @@ const OverviewPage = () => {
     refetchInterval: 10 * 60 * 1000, // 10 min 
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: false,
-    refetchOnMount: false, 
+    refetchOnMount: 'always', 
   })
   
   useEffect(() => {
@@ -127,14 +127,14 @@ const OverviewPage = () => {
                   fullWidth={true}
                 />
               </div>
-              <div className="flex gap-2">
+              <div className="flex outline-none gap-2">
                 <OrderByPrice onSort={handleSort} />
                 <OrderByMarketCap onSort={handleSort} />
-                <CurrencyDropdown />
+                <CurrencyDropdown className="outline-none"/>
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 outline-none sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
             {filteredAndSortedCryptos.map(crypto => (          
               <CryptoCard 
                 key={crypto.coinId || crypto.id} 

@@ -63,7 +63,7 @@ const FavoriteCoinsPage = () => {
     refetchInterval: 10 * 60 * 1000,   // 10 min
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnMount: 'always',
   });
 
   const { 
@@ -78,7 +78,7 @@ const FavoriteCoinsPage = () => {
     refetchInterval: 10 * 60 * 1000,   // 10 min   
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnMount: 'always',
   });
 
   

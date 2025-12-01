@@ -40,8 +40,8 @@ const CryptoDetailPage = () => {
   } = useQuery({
     queryKey: ['crypto-dynamic', id],
     queryFn: () => fetchCryptoDynamic(id),
-    staleTime: 1 * 60 * 1000,        
-    refetchInterval: 2 * 60 * 1000,  
+    staleTime: 3 * 60 * 1000,        // 3 min
+    refetchInterval: 3 * 60 * 1000,   // 3 min  
   });
   
   const { 

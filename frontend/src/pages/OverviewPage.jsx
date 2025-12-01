@@ -29,9 +29,9 @@ const OverviewPage = () => {
   const { data: cryptos = [], isLoading, error } = useQuery({
     queryKey:['cryptos'],
     queryFn: fetchCryptos,
-    staleTime: 30 * 60 * 1000,   
+    staleTime: 3 * 60 * 1000,      // 3 min
     gcTime: 2 * 60 * 60 * 1000, 
-    refetchInterval: 5 * 60 * 1000, 
+    refetchInterval: 3 * 60 * 1000, // 3 min 
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: false,
     refetchOnMount: false, 
@@ -86,7 +86,7 @@ const OverviewPage = () => {
   if (isLoading) {
     return (
       <div className='flex-1 relative z-10'>
-        <Header title="Overview" />
+        <Header  />
         <div className="flex items-center justify-center" style={{ height: 'calc(100vh - 80px)' }}>
           <motion.div
             className='w-16 h-16 border-4 border-t-4 border-t-white border-gray-700 rounded-full'
@@ -101,7 +101,7 @@ const OverviewPage = () => {
   if (error) {
     return (
       <div className='flex-1 relative z-10'>
-        <Header title="Overview" />
+        <Header  />
         <div className="flex items-center justify-center" style={{ height: 'calc(100vh - 80px)' }}>
           <div className="text-red-500 text-xl">
             Error loading cryptos: {error.message}
@@ -113,7 +113,7 @@ const OverviewPage = () => {
 
   return (
     <div className='flex-1 relative z-10'>
-      <Header title="Overview" />
+      <Header/>
       <main className='w-full py-6 px-4 lg:px-8 xl:px-12 2xl:px-24'>
         <div className="w-[80%] max-w-full mx-auto">
           <div className="mb-6">

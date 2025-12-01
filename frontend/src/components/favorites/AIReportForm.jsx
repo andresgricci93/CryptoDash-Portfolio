@@ -236,7 +236,7 @@ const AIReportForm = ({ onGenerateReport, isGenerating }) => {
             />                
           </div>
           {cryptoAmount && selectedCrypto && (
-            <span className="text-green-400 text-sm truncate whitespace-nowrap">
+            <span className="text-white text-sm truncate whitespace-nowrap">
               ≈ {cryptoAmount} {selectedCrypto.symbol.toUpperCase()}
             </span>
           )}
@@ -315,7 +315,7 @@ const AIReportForm = ({ onGenerateReport, isGenerating }) => {
           value={strategy}
           onChange={(e) => setStrategy(e.target.value)}
           placeholder="Describe your investment approach (e.g., long-term holding, DCA, swing trading...)"
-          className="w-full p-3 bg-gray-700 text-white rounded border border-gray-600 focus:border-green-500 focus:outline-none resize-none"
+          className="w-full p-3 bg-gray-700 text-white rounded border border-gray-600 focus:border-white focus:outline-none resize-none"
           rows={4}
         />
       </div>
@@ -326,7 +326,7 @@ const AIReportForm = ({ onGenerateReport, isGenerating }) => {
           <select
             value={riskProfile}
             onChange={(e) => setRiskProfile(e.target.value)}
-            className="w-1/5 p-2 bg-gray-700 text-white rounded border border-gray-600 focus:border-green-500 focus:outline-none"
+            className="w-1/5 p-2 bg-gray-700 text-white rounded border border-gray-600 focus:border-white focus:outline-none"
           >
             <option value="">Select risk level</option>
             <option value="conservative">Conservative</option>

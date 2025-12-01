@@ -7,7 +7,6 @@ import LoadingSpinner from "./components/LoadingSpinner.jsx";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { useAuthStore } from './store/authStore.js';
 import { Toaster } from "react-hot-toast";
-import AuthLayout from "./components/layouts/AuthLayout.jsx";
 import SignUpPage from "./pages/SignUpPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import EmailVerificationPage from "./pages/EmailVerificationPage.jsx";
@@ -16,7 +15,7 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage.jsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
 import { useFavoritesStore } from './store/favStore.js';
 import { useCurrencyStore } from "./store/currencyStore.js";
-
+import FloatingLines from './components/common/FloatingLines.jsx'
 
 const store = useFavoritesStore.getState();
 
@@ -54,6 +53,7 @@ function App() {
   const { loadUserCurrency } = useCurrencyStore();
   const { isAuthenticated, isCheckingAuth, checkAuth } = useAuthStore();
   const { fetchRatesIfNeeded } = useCurrencyStore();
+  const [isLoadingUserData, setIsLoadingUserData] = useState(false); 
   const [isInitialized, setIsInitialized] = useState(false);
 
 useEffect(() => {
@@ -70,23 +70,36 @@ useEffect(() => {
   useEffect(() => {
     if (isAuthenticated) {
       const loadUserData = async () => {
+        setIsLoadingUserData(true);
         await loadUserCurrency();
         await fetchRatesIfNeeded();
         await loadFavorites();
+        setIsLoadingUserData(false);
       };
       
       loadUserData();
     }
   }, [isAuthenticated]);
   
-  if (isCheckingAuth || !isInitialized) return <LoadingSpinner />
+  if (isCheckingAuth || !isInitialized || isLoadingUserData) return <LoadingSpinner />
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br 
-    from-gray-900 via-green-900 to-emerald-900 flex items-center
-     relative w-full justify-center">
-
+    <div className="min-h-screen bg-gray-900 flex items-center relative w-full justify-center">
+       
+       {!isAuthenticated && (
+        <div className="fixed inset-0 z-0">
+          <FloatingLines 
+            linesGradient={['#1F2937', '#1F2937', '#1F2937', '#1F2937']}
+            enabledWaves={['middle']}
+            lineCount={[4, 6, 4]}
+            animationSpeed={0.8}
+            interactive={true}
+            parallax={true}
+            parallaxStrength={0.15}
+          />
+        </div>
+      )}
       
      <Routes>
       <Route path="/" element={
@@ -103,31 +116,21 @@ useEffect(() => {
        } />
        <Route path="/signup" element={
         <RedirectAuthenticatedUser>
-          <AuthLayout>
            <SignUpPage />
-          </AuthLayout>
         </RedirectAuthenticatedUser>
       } />
        <Route path="/login" element={
-        <RedirectAuthenticatedUser>
-          <AuthLayout>
+        <RedirectAuthenticatedUser>       
           <LoginPage />
-         </AuthLayout>
         </RedirectAuthenticatedUser>
 
        } />
        <Route path="/verify-email" element={
-          <AuthLayout>
             <EmailVerificationPage />
-          </AuthLayout>
-    
       } />
-       <Route path="/forgot-password" element={
-        
+       <Route path="/forgot-password" element={ 
         <RedirectAuthenticatedUser>
-          <AuthLayout>
            <ForgotPasswordPage />
-          </AuthLayout>
         </RedirectAuthenticatedUser>      
       } />
       <Route
@@ -135,9 +138,7 @@ useEffect(() => {
        element={
 
         <RedirectAuthenticatedUser>
-          <AuthLayout>
            <ResetPasswordPage />   
-          </AuthLayout>
         </RedirectAuthenticatedUser>
        }
        />

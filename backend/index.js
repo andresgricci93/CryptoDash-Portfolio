@@ -60,11 +60,37 @@ const server = app.listen(PORT, () => {
         await connectDB();
         console.log('✅ MongoDB connected');
         
-         const { initialize: initializeChromaDB } = await import('./services/chromadb.service.js');
+        const { initialize: initializeChromaDB } = await import('./services/chromadb.service.js');
         await initializeChromaDB();
         console.log('✅ ChromaDB initialized');
+        
+        // ============================================================
+        // CRON JOBS
+        // ============================================================
+        
+        // Update crypto prices every 5 minutes
+        cron.schedule('*/5 * * * *', async () => {
+            console.log('Cron: Updating crypto prices...');
+            try {
+                await fetchAndCacheCryptos();
+            } catch (error) {
+                console.error('Cron error (prices):', error.message);
+            }
+        });
+        console.log(' Cron: Crypto prices (every 5 min)');
+        
+        // Update chart data every 6 hours
+        cron.schedule('0 */6 * * *', async () => {
+            console.log('Cron: Updating chart data...');
+            try {
+                await incrementalChartUpdate();
+            } catch (error) {
+                console.error('Cron error (charts):', error.message);
+            }
+        });
+        console.log('Cron: Chart data (every 6 hours)');
+        
     } catch (error) {
         console.error('Service initialization error:', error.message);
-
     }
 })();

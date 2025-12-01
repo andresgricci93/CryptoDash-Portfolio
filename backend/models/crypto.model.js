@@ -12,6 +12,16 @@ const cryptoSchema = new mongoose.Schema({
     market_cap:Number,
     price_change_percentage_24h: Number,
     image: String,
+    high_24h: Number,
+    low_24h: Number,
+    ath: Number,
+    ath_date: Date,
+    atl: Number,
+    atl_date: Date,
+    circulating_supply: Number,
+    total_supply: Number,
+    max_supply: Number,
+    total_volume: Number,
     lastUpdated: {
         type: Date,
         default: Date.now

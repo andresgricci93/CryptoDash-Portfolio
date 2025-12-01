@@ -8,7 +8,9 @@ export const fetchAndCacheCryptos = async () => {
   try {
     console.log('Fetching crypto data from CoinGecko...');
     
-    const response = await axios.get(getMarketsURL());
+    const response = await axios.get(getMarketsURL(), {
+      params: { x_cg_demo_api_key: process.env.COINGECKO_API_KEY }
+    });
     
     const cryptoUpdates = response.data.map(crypto => ({
       updateOne: {

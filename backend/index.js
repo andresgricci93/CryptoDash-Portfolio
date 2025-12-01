@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from 'cookie-parser';
+import cron from 'node-cron';
 import { connectDB } from './db/connectDB.js';
 import cryptosRoutes from './routes/cryptos.route.js';
 import authRoutes from "./routes/auth.route.js";
@@ -12,6 +13,8 @@ import profileRoutes from './routes/profile.route.js';
 import exportRoutes from './routes/pdfExport.route.js';
 import aiRoutes from './routes/ai.route.js';
 import chartDataRoutes from './routes/chartData.route.js';
+import { fetchAndCacheCryptos } from './controllers/cryptos.controller.js';
+import { incrementalChartUpdate } from './controllers/chartDB.controller.js';
 
 dotenv.config();
 

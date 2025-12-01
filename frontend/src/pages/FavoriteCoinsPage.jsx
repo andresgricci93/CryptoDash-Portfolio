@@ -58,9 +58,9 @@ const FavoriteCoinsPage = () => {
     queryFn: fetchFavoritesDetails,
     // Prevents query execution when favoriteIds is undefined or empty
     enabled: favoriteIds?.length > 0,
-    staleTime: 30 * 60 * 1000,       
+    staleTime: 3 * 60 * 1000,        // 3 min
     gcTime: 2 * 60 * 60 * 1000,       
-    refetchInterval: 5 * 60 * 1000,   
+    refetchInterval: 3 * 60 * 1000,   // 3 min
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
@@ -73,9 +73,9 @@ const FavoriteCoinsPage = () => {
   } = useQuery({
     queryKey: ['cryptos'],
     queryFn: fetchCryptos,
-    staleTime: 30 * 60 * 1000,      
+    staleTime: 3 * 60 * 1000,         // 3 min
     gcTime: 2 * 60 * 60 * 1000,       
-    refetchInterval: 5 * 60 * 1000,   
+    refetchInterval: 3 * 60 * 1000,   // 3 min   
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
@@ -272,7 +272,7 @@ const FavoriteCoinsPage = () => {
                     : 'bg-slate-900 hover:bg-white hover:text-black'
                 }`}
               >
-                {prosAndConsLoading ? 'Generating...' : 'Generate with CryptoAI'}
+                {prosAndConsLoading ? 'Generating...' : 'Generate with CryptoDash AI'}
               </button>
               
               {prosAndConsResponse && (
@@ -322,7 +322,7 @@ const FavoriteCoinsPage = () => {
                 ))}
               </p>
               <p className='text-gray-300'>
-                Click the button below so that CryptoAI can generate curiosities and specific facts about your favorite coins.
+                Click the button below so that CryptoDash AI can generate curiosities and specific facts about your favorite coins.
               </p>
               
               <button 
@@ -334,7 +334,7 @@ const FavoriteCoinsPage = () => {
                     : 'bg-slate-900 hover:bg-white hover:text-black'
                 }`}
               >
-                {factsLoading ? 'Generating...' : 'Generate with CryptoAI'}
+                {factsLoading ? 'Generating...' : 'Generate with CryptoDash AI'}
               </button>
               
               {factsResponse && (
@@ -364,7 +364,7 @@ const FavoriteCoinsPage = () => {
             <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
               <h3 className="text-xl font-semibold mb-4">AI Report</h3>
               <p className="text-gray-300">
-                CryptoAI analyzes your responses to generate personalized portfolio insights and predictions tailored to your investment profile. Our advanced AI provides comprehensive risk assessments and strategic recommendations for managing your portfolio risk, all aligned with your specific financial goals and risk tolerance.
+                CryptoDash AI analyzes your responses to generate personalized portfolio insights and predictions tailored to your investment profile. Our advanced AI provides comprehensive risk assessments and strategic recommendations for managing your portfolio risk, all aligned with your specific financial goals and risk tolerance.
               </p>
                 
               <AIReportForm 

@@ -5,7 +5,7 @@ const CryptoDropdown = ({ value, onChange }) => {
     <select
       value={value}
       onChange={onChange}
-      className="w-48 p-2 bg-gray-700 text-white text-sm rounded border border-gray-600 focus:border-green-500 focus:outline-none"
+      className="w-48 p-2 bg-gray-700 text-white text-sm rounded border border-gray-600 focus:border-white focus:outline-none"
     >
       <option value="">Select crypto</option>
       {TOP_CRYPTOS.map(crypto => (

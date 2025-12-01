@@ -14,10 +14,7 @@ export const getHistoricalData = async (req, res) => {
     const { coinId } = req.params;
     const { timeframe } = req.query;
 
-    console.log('=== DEBUG getHistoricalData ===');
-    console.log('coinId:', coinId);
-    console.log('timeframe:', timeframe);
-    console.log(`Fetching ${timeframe} data for ${coinId}`);
+
 
     let data = [];
     let endDate = new Date();
@@ -750,4 +747,108 @@ export const testSingleCrypto = async (req, res) => {
       error: error.message
     });
   }
+};
+
+// ============================================================
+// INCREMENTAL UPDATE - Fast cron job (runs every 6 hours)
+// Only fetches recent data, uses bulkWrite for efficiency
+// ============================================================
+
+const fetchBinanceRecent = async (symbol, interval, limit) => {
+  try {
+    const url = `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`;
+    const response = await axios.get(url);
+    return response.data.map(candle => ({
+      timestamp: candle[0],
+      open: parseFloat(candle[1]),
+      high: parseFloat(candle[2]),
+      low: parseFloat(candle[3]),
+      close: parseFloat(candle[4])
+    }));
+  } catch (error) {
+    return [];
+  }
+};
+
+export const incrementalChartUpdate = async () => {
+  console.log(' Starting incremental chart update...');
+  
+  const cryptos = await Crypto.find()
+    .sort({ market_cap: -1 })
+    .limit(160)
+    .select('coinId')
+    .lean();
+  
+  let stats = { hourly: 0, fourHourly: 0, daily: 0, skipped: 0 };
+  
+  for (const crypto of cryptos) {
+    const symbol = COINGECKO_TO_BINANCE[crypto.coinId];
+    
+    if (!symbol) {
+      stats.skipped++;
+      continue;
+    }
+    
+    try {
+      // Hourly: last 48 hours (48 points)
+      const hourlyData = await fetchBinanceRecent(symbol, '1h', 48);
+      if (hourlyData.length > 0) {
+        const hourlyOps = hourlyData.map(d => ({
+          updateOne: {
+            filter: { coinId: crypto.coinId, timestamp: d.timestamp },
+            update: { ...d, coinId: crypto.coinId, volume: 0, lastUpdated: new Date() },
+            upsert: true
+          }
+        }));
+        await ChartHourly.bulkWrite(hourlyOps);
+        stats.hourly += hourlyData.length;
+      }
+      
+      // 4-Hourly: last 7 days (42 points)
+      const fourHourlyData = await fetchBinanceRecent(symbol, '4h', 42);
+      if (fourHourlyData.length > 0) {
+        const fourHourlyOps = fourHourlyData.map(d => ({
+          updateOne: {
+            filter: { coinId: crypto.coinId, timestamp: d.timestamp },
+            update: { ...d, coinId: crypto.coinId, volume: 0, lastUpdated: new Date() },
+            upsert: true
+          }
+        }));
+        await ChartFourHourly.bulkWrite(fourHourlyOps);
+        stats.fourHourly += fourHourlyData.length;
+      }
+      
+      // Daily: last 14 days (14 points)
+      const dailyData = await fetchBinanceRecent(symbol, '1d', 14);
+      if (dailyData.length > 0) {
+        const dailyOps = dailyData.map(d => ({
+          updateOne: {
+            filter: { coinId: crypto.coinId, date: new Date(d.timestamp).toISOString().split('T')[0] },
+            update: { 
+              coinId: crypto.coinId,
+              date: new Date(d.timestamp).toISOString().split('T')[0],
+              open: d.open,
+              high: d.high,
+              low: d.low,
+              close: d.close,
+              volume: 0,
+              lastUpdated: new Date()
+            },
+            upsert: true
+          }
+        }));
+        await ChartDaily.bulkWrite(dailyOps);
+        stats.daily += dailyData.length;
+      }
+      
+      // Small delay between cryptos (100ms)
+      await delay(100);
+      
+    } catch (error) {
+      console.error(`Error updating ${crypto.coinId}:`, error.message);
+    }
+  }
+  
+  console.log(`✅ Incremental update complete:`, stats);
+  return stats;
 };

@@ -1,6 +1,7 @@
 const Button = ({ 
   children, 
   onClick, 
+  href,
   variant = 'primary',
   disabled = false,
   className = '',
@@ -18,6 +19,23 @@ const Button = ({
     settingsCard: 'bg-transparent hover:bg-white hover:text-black border border-gray-600 hover:border-white text-gray-100',
     transparent: 'bg-transparent border-transparent px-4 py-2 text-gray-300 hover:text-white transition-colors'
   };
+
+  const combinedStyles = `${baseStyles} ${variants[variant]} ${className} ${
+    disabled ? 'opacity-50 cursor-not-allowed' : ''
+  }`;
+
+  // If it has an href, render a link <a>
+  if (href) {
+    return (
+      <a 
+        href={href}
+        className={combinedStyles}
+        {...props}
+      >
+        {children}
+      </a>
+    );
+  }
 
   return (
     <button 

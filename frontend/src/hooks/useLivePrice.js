@@ -3,6 +3,7 @@ import { coinIdToBinanceSymbol } from '../utils/coinIdToBinance';
 import { fetchBinanceKlines } from '../api/binanceLiveChart';
 
 export const useLivePrice = (coinId, symbol, isEnabled = false) => {
+  
   const [liveData, setLiveData] = useState(null);
   const [liveHistory, setLiveHistory] = useState([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);

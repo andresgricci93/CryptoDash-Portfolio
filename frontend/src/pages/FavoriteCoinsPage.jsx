@@ -87,6 +87,7 @@ const FavoriteCoinsPage = () => {
   }, []);
 
   const handleProsAndCons = async () => {
+    
     setProsAndConsLoading(true);
     setProsAndConsResponse(""); 
 

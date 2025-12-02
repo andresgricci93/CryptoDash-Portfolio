@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useCurrencyStore } from '../../store/currencyStore'; 
-import CurrencyDropdownFavorites from './CurrencyDropdownFavorites';
+import Dropdown from '../common/Dropdown';
 import CryptoDropdown from './CryptoDropdown';
 import AmountInput from './AmountInput';
 import AddButton from './AddButton';
 import toast from 'react-hot-toast';
-import { TOP_CRYPTOS } from '../../utils/topCryptos';
+import { CHART_COLORS, RISK_PROFILES, TOP_CRYPTOS } from '../../utils/constants';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import Button from '../common/Button.jsx';
 
@@ -64,6 +64,11 @@ const AIReportForm = ({ onGenerateReport, isGenerating }) => {
       
       onGenerateReport(reportData);
     }
+
+    const currencyOptions = availableCurrencies.map(c => ({
+      value: c.code,
+      label: `${c.symbol} ${c.code}`
+    }));
 
   const handleAddCrypto = () => {
     if (!selectedCryptoId || !selectedCrypto) {
@@ -206,14 +211,15 @@ const AIReportForm = ({ onGenerateReport, isGenerating }) => {
         <label className="text-white text-md font-medium mb-2 mt-2 block">
           In which fiat currency would you like to see the value of your crypto assets?
         </label>
-        <CurrencyDropdownFavorites 
+        <Dropdown 
           value={localSelectedCurrency}
-          onChange={(e) => setLocalSelectedCurrency(e.target.value)}
-          currencies={availableCurrencies}
+          onChange={(val) => setLocalSelectedCurrency(val)}
+          options={currencyOptions}
+          placeholder="Select currency"
         />
       </div>
 
-      {/* --- Crypto section --- */}
+
       <div>
         <label className="text-white text-md font-medium mb-2 block">
           What cryptocurrencies are in your portfolio?
@@ -224,11 +230,16 @@ const AIReportForm = ({ onGenerateReport, isGenerating }) => {
           </span>
         </div>
 
-        {/* Inputs arriba */}
+   
         <div className="flex flex-wrap gap-3 items-center">
-          <CryptoDropdown 
+          <Dropdown
             value={selectedCryptoId}
-            onChange={(e) => setSelectedCryptoId(e.target.value)}
+            onChange={(val) => setSelectedCryptoId(val)}
+            options={TOP_CRYPTOS.map(c => ({ 
+              value: c.id, 
+              label: c.symbol.toUpperCase() 
+            }))}
+            placeholder="Select crypto"
           />
           <div className="w-32">
             <AmountInput 
@@ -324,16 +335,16 @@ const AIReportForm = ({ onGenerateReport, isGenerating }) => {
           <label className="text-white text-md font-medium mb-2 block">
             Your Risk Profile
           </label>
-          <select
+          <Dropdown
             value={riskProfile}
-            onChange={(e) => setRiskProfile(e.target.value)}
-            className="w-1/5 p-2 bg-gray-700 text-white rounded border border-gray-600 focus:border-white focus:outline-none"
-          >
-            <option value="">Select risk level</option>
-            <option value="conservative">Conservative</option>
-            <option value="moderate">Moderate</option>
-            <option value="aggressive">Aggressive</option>
-          </select>
+            onChange={(val) => setRiskProfile(val)}
+            options={[
+              { value: 'conservative', label: 'Conservative' },
+              { value: 'moderate', label: 'Moderate' },
+              { value: 'aggressive', label: 'Aggressive' }
+            ]}
+            placeholder="Select risk level"
+          />
         </div>
         <div className="mt-6 flex justify-center w-1/5">
           <Button

@@ -1,4 +1,4 @@
-import { TOP_CRYPTOS } from '../../utils/topCryptos';
+import {TOP_CRYPTOS} from "../../utils/constants.js"
 
 const CryptoDropdown = ({ value, onChange }) => {
   return (

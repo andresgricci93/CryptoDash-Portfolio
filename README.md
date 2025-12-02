@@ -4,6 +4,11 @@
 
 A comprehensive cryptocurrency management dashboard with AI-powered insights, real-time price tracking, and personalized analysis powered with AI and RAG.
 
+
+[![Live Demo](https://img.shields.io/badge/Live_Demo-crypto--dash.xyz-2ea44f?style=for-the-badge)](https://crypto-dash.xyz)
+
+ ⚠️ Registrations limited due to API call restrictions (free tier).
+
 # CryptoDash Architecture 
 ![Animazione](https://github.com/user-attachments/assets/d19a86e7-b4ca-4384-abaf-623b970d8798)
 

@@ -21,6 +21,12 @@ A comprehensive cryptocurrency management dashboard with AI-powered insights, re
 - Multi-currency support (USD, EUR, GBP, and more)
 - Sort and filter by price, market cap, and more
 
+<img width="1974" height="945" alt="image" src="https://github.com/user-attachments/assets/0b7cc79c-63c4-41b3-a699-dd66bda273fb" />
+
+<img width="1971" height="945" alt="image" src="https://github.com/user-attachments/assets/62bfd353-a960-4069-bb59-b02842cfc02a" />
+
+
+
 ### 🤖 Advanced AI Assistant
 - Real-time Price Queries: Ask for current crypto prices instantly
 - Latest News Integration: Get up-to-date cryptocurrency news
@@ -29,18 +35,33 @@ A comprehensive cryptocurrency management dashboard with AI-powered insights, re
 - Time-Aware: AI knows the current date and time (no hallucinations)
 - Investment Planning: Study trends and plan your next moves with precision
 
+<img width="1880" height="947" alt="image" src="https://github.com/user-attachments/assets/cb135152-075a-4850-b5c3-a72abec8a8cf" />
+
+
 ### 📝 Smart Notes System
 - Create detailed notes for any cryptocurrency
 - AI-Powered Summaries: Generate automatic summaries of your notes
 - Export to PDF/Word: Download your notes in multiple formats
-- Semantic search through all your notes
-- Link unlimited amount of notes to multiple cryptocurrencies
+- Rich text editor with formatting toolbar
+- Link notes to multiple cryptocurrencies via Drag & Drop
+- Tag system with color coding
+
+
+<img width="1379" height="878" alt="image" src="https://github.com/user-attachments/assets/6a816825-15f9-490c-aeb8-b98fcb1891a4" />
+
+
 
 ### ⭐️ Favorites Management
 - Save and track your favorite coins
 - AI-Generated Pros & Cons: Analyze advantages and disadvantages of your favorites
 - Facts & Curiosities: Discover interesting facts about your selected cryptos
 - Personalized AI Reports: Get portfolio insights based on your investment profile
+
+
+<img width="1133" height="937" alt="image" src="https://github.com/user-attachments/assets/dd774345-626f-4556-b28b-b7f4c41f80ee" />
+
+<img width="1134" height="825" alt="image" src="https://github.com/user-attachments/assets/ddc81dd2-2999-43f6-9b55-0d989a172d12" />
+
 
 ### 💎 Detailed Coin Information
 - Comprehensive coin detail pages
@@ -49,6 +70,10 @@ A comprehensive cryptocurrency management dashboard with AI-powered insights, re
 - Historical price charts and market statistics
 - Real-time market data and rankings
 
+
+<img width="1965" height="934" alt="image" src="https://github.com/user-attachments/assets/9a17a0b3-2578-42b5-8875-af68d8470c26" />
+
+
 ### 🔐 Advanced Security Features
 - Have I Been Pwned Integration: Check if your password has been compromised
 - Smart Security Check: Real-time password vulnerability detection
@@ -56,10 +81,21 @@ A comprehensive cryptocurrency management dashboard with AI-powered insights, re
 - JWT-based authentication with secure cookies
 - Email verification system
 
+
+<img width="1975" height="940" alt="image" src="https://github.com/user-attachments/assets/a22ed16c-3dab-4298-b6ae-fc82582c3fe3" />
+
+
+
 ### 📄 Document Generation
 - Export notes to PDF with professional formatting
 - Export notes to Word documents
 - AI-powered note summaries before export
+
+
+<img width="1283" height="876" alt="image" src="https://github.com/user-attachments/assets/99a09fdc-a7fd-46d4-98fe-6b2d4914dbc0" />
+
+
+
 
 ### 🎨 Modern User Experience
 - Beautiful, responsive UI built with React and Tailwind CSS

@@ -44,11 +44,6 @@ const NoteEditor = ({ editingNote, onCancelEdit }) => {
   
   const { createNote, updateNote,clearEditingNote } = useNotesStore();
 
-  const [activeFormats, setActiveFormats] = useState({
-      bold: false,
-      italic: false,
-      heading: false
-    });
   const [title,setTitle] = useState(''); 
   const [tags,setTags] = useState([]);
   const [inputTag,setInputTag] = useState('');
@@ -270,9 +265,7 @@ const NoteEditor = ({ editingNote, onCancelEdit }) => {
                 {/* Text formatting */}
                 <button 
                   onClick={toggleBold}
-                  className={`p-2 rounded hover:bg-gray-500 ${
-                    editor?.isActive('bold') ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
-                  }`}
+                  className="p-2 rounded hover:bg-gray-500 bg-gray-600 text-white"
                   title="Bold"
                 >
                   <BoldIcon size={16} />
@@ -280,9 +273,7 @@ const NoteEditor = ({ editingNote, onCancelEdit }) => {
                 
                 <button 
                   onClick={toggleItalic}
-                  className={`p-2 rounded hover:bg-gray-500 ${
-                    editor?.isActive('italic') ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
-                  }`}
+                  className="p-2 rounded hover:bg-gray-500 bg-gray-600 text-white"
                   title="Italic"
                 >
                   <ItalicIcon size={16} />
@@ -290,9 +281,7 @@ const NoteEditor = ({ editingNote, onCancelEdit }) => {
                 
                 <button 
                   onClick={toggleUnderline}
-                  className={`p-2 rounded hover:bg-gray-500 ${
-                    editor?.isActive('underline') ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
-                  }`}
+                  className="p-2 rounded hover:bg-gray-500 bg-gray-600 text-white"
                   title="Underline"
                 >
                   <UnderlineIcon size={16} />
@@ -300,9 +289,7 @@ const NoteEditor = ({ editingNote, onCancelEdit }) => {
                 
                 <button 
                   onClick={toggleStrike}
-                  className={`p-2 rounded hover:bg-gray-500 ${
-                    editor?.isActive('strike') ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
-                  }`}
+                  className="p-2 rounded hover:bg-gray-500 bg-gray-600 text-white"
                   title="Strikethrough"
                 >
                   <StrikethroughIcon size={16} />
@@ -313,9 +300,7 @@ const NoteEditor = ({ editingNote, onCancelEdit }) => {
                 {/* Headings */}
                 <button 
                   onClick={() => addHeading(1)}
-                  className={`p-2 rounded hover:bg-gray-500 ${
-                    editor?.isActive('heading', { level: 1 }) ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
-                  }`}
+                  className="p-2 rounded hover:bg-gray-500 bg-gray-600 text-white"
                   title="Heading 1"
                 >
                   <Heading1 size={16} />
@@ -323,9 +308,7 @@ const NoteEditor = ({ editingNote, onCancelEdit }) => {
                 
                 <button 
                   onClick={() => addHeading(2)}
-                  className={`p-2 rounded hover:bg-gray-500 ${
-                    editor?.isActive('heading', { level: 2 }) ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
-                  }`}
+                  className="p-2 rounded hover:bg-gray-500 bg-gray-600 text-white"
                   title="Heading 2"
                 >
                   <Heading2 size={16} />
@@ -333,9 +316,7 @@ const NoteEditor = ({ editingNote, onCancelEdit }) => {
                 
                 <button 
                   onClick={() => addHeading(3)}
-                  className={`p-2 rounded hover:bg-gray-500 ${
-                    editor?.isActive('heading', { level: 3 }) ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
-                  }`}
+                  className="p-2 rounded hover:bg-gray-500 bg-gray-600 text-white"
                   title="Heading 3"
                 >
                   <Heading3 size={16} />
@@ -346,9 +327,7 @@ const NoteEditor = ({ editingNote, onCancelEdit }) => {
                 {/* Lists */}
                 <button 
                   onClick={toggleBulletList}
-                  className={`p-2 rounded hover:bg-gray-500 ${
-                    editor?.isActive('bulletList') ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
-                  }`}
+                  className="p-2 rounded hover:bg-gray-500 bg-gray-600 text-white"
                   title="Bullet List"
                 >
                   <List size={16} />
@@ -356,9 +335,7 @@ const NoteEditor = ({ editingNote, onCancelEdit }) => {
                 
                 <button 
                   onClick={toggleOrderedList}
-                  className={`p-2 rounded hover:bg-gray-500 ${
-                    editor?.isActive('orderedList') ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
-                  }`}
+                  className="p-2 rounded hover:bg-gray-500 bg-gray-600 text-white"
                   title="Numbered List"
                 >
                   <ListOrdered size={16} />
@@ -366,9 +343,7 @@ const NoteEditor = ({ editingNote, onCancelEdit }) => {
                 
                 <button 
                   onClick={toggleBlockquote}
-                  className={`p-2 rounded hover:bg-gray-500 ${
-                    editor?.isActive('blockquote') ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
-                  }`}
+                  className="p-2 rounded hover:bg-gray-500 bg-gray-600 text-white"
                   title="Quote"
                 >
                   <Quote size={16} />
@@ -376,9 +351,7 @@ const NoteEditor = ({ editingNote, onCancelEdit }) => {
                 
                 <button 
                   onClick={toggleHighlight}
-                  className={`p-2 rounded hover:bg-gray-500 ${
-                    editor?.isActive('highlight') ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
-                  }`}
+                  className="p-2 rounded hover:bg-gray-500 bg-gray-600 text-white"
                   title="Highlight"
                 >
                   <Highlighter size={16} />
@@ -389,9 +362,7 @@ const NoteEditor = ({ editingNote, onCancelEdit }) => {
                 {/* Text Alignment */}
                 <button 
                   onClick={() => setTextAlign('left')}
-                  className={`p-2 rounded hover:bg-gray-500 ${
-                    editor?.isActive({ textAlign: 'left' }) ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
-                  }`}
+                  className="p-2 rounded hover:bg-gray-500 bg-gray-600 text-white"
                   title="Align Left"
                 >
                   <AlignLeft size={16} />
@@ -399,9 +370,7 @@ const NoteEditor = ({ editingNote, onCancelEdit }) => {
                 
                 <button 
                   onClick={() => setTextAlign('center')}
-                  className={`p-2 rounded hover:bg-gray-500 ${
-                    editor?.isActive({ textAlign: 'center' }) ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
-                  }`}
+                  className="p-2 rounded hover:bg-gray-500 bg-gray-600 text-white"
                   title="Align Center"
                 >
                   <AlignCenter size={16} />
@@ -409,9 +378,7 @@ const NoteEditor = ({ editingNote, onCancelEdit }) => {
                 
                 <button 
                   onClick={() => setTextAlign('right')}
-                  className={`p-2 rounded hover:bg-gray-500 ${
-                    editor?.isActive({ textAlign: 'right' }) ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
-                  }`}
+                  className="p-2 rounded hover:bg-gray-500 bg-gray-600 text-white"
                   title="Align Right"
                 >
                   <AlignRight size={16} />
@@ -419,9 +386,7 @@ const NoteEditor = ({ editingNote, onCancelEdit }) => {
                 
                 <button 
                   onClick={() => setTextAlign('justify')}
-                  className={`p-2 rounded hover:bg-gray-500 ${
-                    editor?.isActive({ textAlign: 'justify' }) ? 'bg-gray-900 text-white' : 'bg-gray-600 text-white'
-                  }`}
+                  className="p-2 rounded hover:bg-gray-500 bg-gray-600 text-white"
                   title="Justify"
                 >
                   <AlignJustify size={16} />

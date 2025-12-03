@@ -38,14 +38,14 @@
     "framer-motion": "^12.23.12",
     "lightweight-charts": "^5.0.9",
     "lucide-react": "^0.525.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
     "react-hot-toast": "^2.5.2",
     "react-markdown": "^10.1.0",
     "react-router-dom": "^7.6.3",
     "recharts": "^3.0.2",
     "three": "^0.181.2",
-    "tiptap": "^1.32.2",
+    "tiptap": "^0.15.0",
     "zustand": "^5.0.7"
   },
   "devDependencies": {

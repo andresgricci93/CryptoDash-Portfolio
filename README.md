@@ -31,7 +31,7 @@ A comprehensive cryptocurrency management dashboard with AI-powered insights, re
 - Real-time Price Queries: Ask for current crypto prices instantly
 - Latest News Integration: Get up-to-date cryptocurrency news
 - Semantic Memory: AI remembers your notes using RAG (Retrieval-Augmented Generation)
-- Short & Long-term Memory: Conversations are remembered for context-aware responses
+- Short & Long-term Memory: Conversations are remembered for context-aware responses (work in progress)
 - Time-Aware: AI knows the current date and time (no hallucinations)
 - Investment Planning: Study trends and plan your next moves with precision
 

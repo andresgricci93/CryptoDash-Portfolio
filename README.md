@@ -109,7 +109,8 @@ A comprehensive cryptocurrency management dashboard with AI-powered insights, re
 
 Before you begin, ensure you have:
 
-- **Node.js** v18 or higher installed ([Download here](https://nodejs.org/))
+- **Node.js** v20 or higher installed ([Download here](https://nodejs.org/))
+- **pnpm** v10 or higher (`npm install -g pnpm`)
 - **MongoDB** account (free tier works) - [Sign up at MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
 - **Google Gemini API** key - [Get it here](https://ai.google.dev/)
 - **Mailtrap** account for email testing - [Sign up here](https://mailtrap.io/)
@@ -129,7 +130,7 @@ cd CryptoDashboard-Portfolio
 
 ```bash
 # Install backend dependencies
-npm install
+pnpm install
 
 # Create environment file from example
 cp .env.example .env
@@ -159,7 +160,7 @@ LOG_LEVEL=info
 cd frontend
 
 # Install frontend dependencies
-npm install
+pnpm install --ignore-workspace
 
 # Create environment file from example
 cp .env.example .env
@@ -181,7 +182,7 @@ You'll need **two terminal windows** open:
 
 ```bash
 # From project root
-npm run dev
+pnpm run dev
 ```
 
 The backend will start on `http://localhost:5000`
@@ -191,7 +192,7 @@ The backend will start on `http://localhost:5000`
 ```bash
 # From project root
 cd frontend
-npm run dev
+pnpm run dev
 ```
 
 The frontend will start on `http://localhost:5173`
@@ -293,16 +294,16 @@ CryptoDashboard-Portfolio/
 ### Backend
 
 ```bash
-npm run dev          # Start development server with nodemon
-npm start            # Start production server
+pnpm run dev          # Start development server with nodemon
+pnpm start            # Start production server
 ```
 
 ### Frontend
 
 ```bash
-npm run dev          # Start Vite development server
-npm run build        # Build for production
-npm run preview      # Preview production build
+pnpm run dev          # Start Vite development server
+pnpm run build        # Build for production
+pnpm run preview      # Preview production build
 ```
 
 ---

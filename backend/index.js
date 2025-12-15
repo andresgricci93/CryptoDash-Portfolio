@@ -68,8 +68,8 @@ const server = app.listen(PORT, () => {
         // CRON JOBS
         // ============================================================
         
-        // Update crypto prices every 5 minutes
-        cron.schedule('*/5 * * * *', async () => {
+        // Update crypto prices every 2 hours
+        cron.schedule('0 */2 * * *', async () => {
             console.log('Cron: Updating crypto prices...');
             try {
                 await fetchAndCacheCryptos();
@@ -77,7 +77,7 @@ const server = app.listen(PORT, () => {
                 console.error('Cron error (prices):', error.message);
             }
         });
-        console.log(' Cron: Crypto prices (every 5 min)');
+        console.log(' Cron: Crypto prices (every 2 hours)');
         
         // Update chart data every 6 hours
         cron.schedule('0 */6 * * *', async () => {

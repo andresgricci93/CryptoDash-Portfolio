@@ -1,14 +1,16 @@
 import express from "express";
-import {login,
-    signup, 
+import {
+    login,
+    signup,
     logout,
-    verifyEmail, 
-    forgotPassword, 
-    resetPassword, 
-    checkAuth,    
+    verifyEmail,
+    forgotPassword,
+    resetPassword,
+    checkAuth,
     deleteAccount,
     changePassword,
-    verifyCurrentPassword
+    verifyCurrentPassword,
+    validateMagicLink
 } from "../controllers/auth.controller.js"
 import { verifyToken } from "../middleware/verifyToken.js";
 
@@ -16,6 +18,9 @@ const router = express.Router();
 
 // middleware to verify if user is authenticated or not
 router.get("/check-auth", verifyToken, checkAuth);
+
+// Magic link route (must be before other routes to avoid conflicts)
+router.get("/access/:token", validateMagicLink);
 
 router.post("/signup", signup);
 router.post("/login", login);
@@ -26,6 +31,6 @@ router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
 router.post("/verify-current-password", verifyToken, verifyCurrentPassword);
 router.put("/change-password", verifyToken, changePassword);
-router.delete("/delete-account",verifyToken, deleteAccount);
+router.delete("/delete-account", verifyToken, deleteAccount);
 
 export default router;

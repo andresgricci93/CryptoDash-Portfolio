@@ -22,25 +22,25 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 
-const allowedOrigins = process.env.NODE_ENV === 'production' 
-  ? [
-      process.env.FRONTEND_URL,
-      'https://cryptodashboard-portfolio-frontend.onrender.com',
-      'https://crypto-dash.xyz',
-      'https://www.crypto-dash.xyz'
-    ].filter(Boolean) 
-  : ["http://localhost:5173", "http://127.0.0.1:5173"];
+const allowedOrigins = process.env.NODE_ENV === 'production'
+    ? [
+        process.env.FRONTEND_URL,
+        'https://cryptodashboard-portfolio-frontend.onrender.com',
+        'https://crypto-dash.xyz',
+        'https://www.crypto-dash.xyz'
+    ].filter(Boolean)
+    : ["http://localhost:5173", "http://127.0.0.1:5173"];
 
 app.use(cors({
-  origin: allowedOrigins,
-  credentials: true
+    origin: allowedOrigins,
+    credentials: true
 }));
 
 app.use(express.json());
 app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
-app.use('/api', cryptosRoutes); 
+app.use('/api', cryptosRoutes);
 app.use('/api', favoritesRoutes);
 app.use('/api', notesRoutes)
 app.use('/api', currenciesRoutes);
@@ -59,15 +59,15 @@ const server = app.listen(PORT, () => {
     try {
         await connectDB();
         console.log('✅ MongoDB connected');
-        
+
         const { initialize: initializeChromaDB } = await import('./services/chromadb.service.js');
         await initializeChromaDB();
         console.log('✅ ChromaDB initialized');
-        
+
         // ============================================================
         // CRON JOBS
         // ============================================================
-        
+
         // Update crypto prices every 2 hours
         cron.schedule('0 */2 * * *', async () => {
             console.log('Cron: Updating crypto prices...');
@@ -78,7 +78,7 @@ const server = app.listen(PORT, () => {
             }
         });
         console.log(' Cron: Crypto prices (every 2 hours)');
-        
+
         // Update chart data every 6 hours
         cron.schedule('0 */6 * * *', async () => {
             console.log('Cron: Updating chart data...');
@@ -89,7 +89,7 @@ const server = app.listen(PORT, () => {
             }
         });
         console.log('Cron: Chart data (every 6 hours)');
-        
+
     } catch (error) {
         console.error('Service initialization error:', error.message);
     }

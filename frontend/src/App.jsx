@@ -1,10 +1,10 @@
 
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 
 import LoadingSpinner from "./components/LoadingSpinner.jsx";
 
 
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useParams, useNavigate } from "react-router-dom";
 import { useAuthStore } from './store/authStore.js';
 import { Toaster } from "react-hot-toast";
 import SignUpPage from "./pages/SignUpPage.jsx";
@@ -22,48 +22,84 @@ const store = useFavoritesStore.getState();
 
 // protect routes that require authentication
 
-const ProtectedRoute = ({children}) => {
-  const {isAuthenticated, user} = useAuthStore();
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated, user } = useAuthStore();
 
-  if(!isAuthenticated) {
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />
   }
 
-  if(user && !user?.isVerified) {
+  if (user && !user?.isVerified) {
     return <Navigate to="/verify-email" replace />
   }
-//comm
+  //comm
   return children;
 }
 
 // redirect authenticated users to the homepage
-const RedirectAuthenticatedUser = ({children}) => {
+const RedirectAuthenticatedUser = ({ children }) => {
 
-   const {isAuthenticated, user} = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
 
-   if (isAuthenticated && user.isVerified) {
-     return <Navigate to="/" replace />
-   }
-   return children;
+  if (isAuthenticated && user.isVerified) {
+    return <Navigate to="/" replace />
+  }
+  return children;
 }
 
+
+const MagicLinkRedirect = () => {
+  const { token } = useParams();
+  const { validateMagicLink, isAuthenticated, error } = useAuthStore();
+  const navigate = useNavigate();
+  const [isValidating, setIsValidating] = useState(true);
+
+  useEffect(() => {
+    const handleMagicLink = async () => {
+      try {
+        await validateMagicLink(token);
+
+      } catch (err) {
+        console.error('Magic link validation failed:', err);
+
+      } finally {
+        setIsValidating(false);
+      }
+    };
+
+    handleMagicLink();
+  }, [token]);
+
+  useEffect(() => {
+    if (!isValidating) {
+      if (isAuthenticated) {
+        navigate('/dashboard', { replace: true });
+      } else if (error) {
+        navigate('/login', { replace: true });
+      }
+    }
+  }, [isValidating, isAuthenticated, error, navigate]);
+
+  return <LoadingSpinner />;
+};
+
 function App() {
-  
+
   const { loadFavorites } = useFavoritesStore();
   const { loadUserCurrency } = useCurrencyStore();
   const { isAuthenticated, isCheckingAuth, checkAuth } = useAuthStore();
   const { fetchRatesIfNeeded } = useCurrencyStore();
-  const [isLoadingUserData, setIsLoadingUserData] = useState(false); 
+  const [isLoadingUserData, setIsLoadingUserData] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
-useEffect(() => {
+  useEffect(() => {
 
     const initialize = async () => {
-      
+
       await checkAuth();
       setIsInitialized(true);
     };
-    
+
     initialize();
   }, []);
 
@@ -76,20 +112,20 @@ useEffect(() => {
         await loadFavorites();
         setIsLoadingUserData(false);
       };
-      
+
       loadUserData();
     }
   }, [isAuthenticated]);
-  
+
   if (isCheckingAuth || !isInitialized || isLoadingUserData) return <LoadingSpinner />
 
 
   return (
     <div className="min-h-screen bg-gray-900 flex items-center relative w-full justify-center">
-       
-       {!isAuthenticated && (
+
+      {!isAuthenticated && (
         <div className="fixed inset-0 z-0">
-          <FloatingLines 
+          <FloatingLines
             linesGradient={['#1F2937', '#1F2937', '#1F2937', '#1F2937']}
             enabledWaves={['middle']}
             lineCount={[4, 6, 4]}
@@ -100,50 +136,51 @@ useEffect(() => {
           />
         </div>
       )}
-      
-     <Routes>
-      <Route path="/" element={
-         <ProtectedRoute>
-           <Navigate to="/dashboard" replace />
-         </ProtectedRoute>
-       } />
-       
 
-       <Route path="/*" element={
-        <ProtectedRoute>
-         <Dashboard />
-        </ProtectedRoute>
-       } />
-       <Route path="/signup" element={
-        <RedirectAuthenticatedUser>
-           <SignUpPage />
-        </RedirectAuthenticatedUser>
-      } />
-       <Route path="/login" element={
-        <RedirectAuthenticatedUser>       
-          <LoginPage />
-        </RedirectAuthenticatedUser>
+      <Routes>
+        <Route path="/" element={
+          <ProtectedRoute>
+            <Navigate to="/dashboard" replace />
+          </ProtectedRoute>
+        } />
 
-       } />
-       <Route path="/verify-email" element={
-            <EmailVerificationPage />
-      } />
-       <Route path="/forgot-password" element={ 
-        <RedirectAuthenticatedUser>
-           <ForgotPasswordPage />
-        </RedirectAuthenticatedUser>      
-      } />
-      <Route
-       path="/reset-password/:token"
-       element={
 
-        <RedirectAuthenticatedUser>
-           <ResetPasswordPage />   
-        </RedirectAuthenticatedUser>
-       }
-       />
-     </Routes>
-     <Toaster />
+        <Route path="/*" element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/signup" element={
+          <RedirectAuthenticatedUser>
+            <SignUpPage />
+          </RedirectAuthenticatedUser>
+        } />
+        <Route path="/login" element={
+          <RedirectAuthenticatedUser>
+            <LoginPage />
+          </RedirectAuthenticatedUser>
+
+        } />
+        <Route path="/access/:token" element={<MagicLinkRedirect />} />
+        <Route path="/verify-email" element={
+          <EmailVerificationPage />
+        } />
+        <Route path="/forgot-password" element={
+          <RedirectAuthenticatedUser>
+            <ForgotPasswordPage />
+          </RedirectAuthenticatedUser>
+        } />
+        <Route
+          path="/reset-password/:token"
+          element={
+
+            <RedirectAuthenticatedUser>
+              <ResetPasswordPage />
+            </RedirectAuthenticatedUser>
+          }
+        />
+      </Routes>
+      <Toaster />
     </div>
   )
 }

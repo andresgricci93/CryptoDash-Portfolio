@@ -35,6 +35,7 @@ A comprehensive cryptocurrency management dashboard with AI-powered insights, re
 - Investment Planning: Study trends and plan your next moves with precision
 
 <img width="1880" height="947" alt="image" src="https://github.com/user-attachments/assets/cb135152-075a-4850-b5c3-a72abec8a8cf" />
+<img width="2067" height="935" alt="image" src="https://github.com/user-attachments/assets/b82493bb-7a2d-4a4c-af05-83ec7b632d64" />
 
 
 ### 📝 Smart Notes System

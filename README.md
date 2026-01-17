@@ -57,6 +57,7 @@ A comprehensive cryptocurrency management dashboard with AI-powered insights, re
 - Facts & Curiosities: Discover interesting facts about your selected cryptos
 - Personalized AI Reports: Get portfolio insights based on your investment profile
 
+<img width="1902" height="945" alt="image" src="https://github.com/user-attachments/assets/2de6614a-0a04-43d8-9772-64a567cf5fb7" />
 
 <img width="1133" height="937" alt="image" src="https://github.com/user-attachments/assets/dd774345-626f-4556-b28b-b7f4c41f80ee" />
 

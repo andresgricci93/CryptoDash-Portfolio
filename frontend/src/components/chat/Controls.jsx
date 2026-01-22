@@ -1,5 +1,5 @@
 import {useState} from "react";
-
+import toast from 'react-hot-toast';
 
 const Controls = ({onSend}) => {
 
@@ -12,6 +12,17 @@ const Controls = ({onSend}) => {
 
     const handleContentSend = () => {
         if (content.length > 0) {
+          if (content.trim().length < 3) {
+            toast.error('Message Too short! Less than 3 characters not allowed... Instead of "hi" for example, try "hi, can you help me with...', {
+              duration: 3000,
+              icon: '✍️',
+              position: 'bottom-center',
+              style: {
+                marginBottom: '80px'  
+              }
+            });
+            return;
+          }
           onSend(content);
           setContent("");
         }

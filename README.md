@@ -30,8 +30,9 @@ A comprehensive cryptocurrency management dashboard with AI-powered insights, re
 - Real-time Price Queries: Ask for current crypto prices instantly
 - Latest News Integration: Get up-to-date cryptocurrency news
 - Semantic Memory: AI remembers your notes using RAG (Retrieval-Augmented Generation)
-- Short & Long-term Memory: Conversations are remembered for context-aware responses (work in progress)
-- Time-Aware: AI knows the current date and time (no hallucinations)
+- Context-aware conversations using RAG
+- Time-aware responses based on server-side timestamps
+- Conversational memory design (work in progress) with summarized context
 - Investment Planning: Study trends and plan your next moves with precision
 
 
@@ -351,6 +352,34 @@ FRONTEND_URL=https://your-frontend-domain.com
 - **Database**: MongoDB Atlas (already cloud-based)
 
 ---
+
+### 🧠 Design Decisions & Future Improvements
+
+One of the main challenges explored in this project is long-term conversational memory for AI systems.
+
+Rather than storing entire conversations indefinitely, the design focuses on a multi-level memory approach:
+
+- **Daily conversation summaries** to limit context size and cost
+- **Weekly consolidated summaries** generated from daily summaries
+- **Manually pinned notes** for critical or long-term information
+- **Controlled forgetting**, allowing irrelevant details to expire over time
+
+This approach aims to balance relevance, scalability and cost, mimicking how human memory works rather than accumulating raw chat history.
+
+The full memory consolidation pipeline was intentionally not implemented in the MVP to keep the focus on core product value and avoid unnecessary complexity.
+
+### 📰 Market News Ticker (Planned)
+
+A horizontal news ticker is planned at the top of the dashboard, continuously scrolling key cryptocurrency headlines from right to left.
+
+Key aspects:
+- Real-time crypto market headlines
+- Lightweight, non-intrusive UI similar to financial TV tickers
+- Context-aware filtering based on tracked assets
+- Designed to provide quick situational awareness without disrupting the main workflow
+
+This approach prioritizes information density while keeping the interface clean and focused.
+
 
 ## 🙏 Acknowledgments
 

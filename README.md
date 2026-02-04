@@ -11,6 +11,21 @@ A comprehensive cryptocurrency management dashboard with AI-powered insights, re
 # CryptoDash Architecture 
 ![Animazione](https://github.com/user-attachments/assets/d19a86e7-b4ca-4384-abaf-623b970d8798)
 
+## 🧠 Architecture & Technical Documentation (DeepWiki)
+
+The project includes **auto-generated technical documentation** powered by **DeepWiki**, built directly from the codebase.
+
+It provides:
+- System and data-flow diagrams
+- Frontend and backend architecture overview
+- API request/response sequences
+- AI, RAG and summarization pipelines
+- Component-level implementation references
+
+👉 **Explore the full, always up-to-date documentation here:**  
+🔗 https://deepwiki.com/andresgricci93/CryptoDash-Portfolio
+
+
 
 ## ✨ Features
 

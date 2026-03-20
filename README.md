@@ -17,7 +17,7 @@ A comprehensive cryptocurrency management dashboard with AI-powered insights, re
 
 ### 📊 Real-time Crypto Tracking
 - Monitor 160+ cryptocurrencies with live price updates
-- Interactive price charts with historical data visualization
+- Interactive live price charts with real-time WebSocket updates
 - Multi-currency support (USD, EUR, GBP, and more)
 - Sort and filter by price, market cap, and more
 
@@ -67,7 +67,7 @@ A comprehensive cryptocurrency management dashboard with AI-powered insights, re
 - Comprehensive coin detail pages
 - Blockchain Information: Access technical details about each blockchain
 - Whitepaper Access: Read official whitepapers directly
-- Historical price charts and market statistics
+- Live price charts and market statistics
 - Real-time market data and rankings
 
 

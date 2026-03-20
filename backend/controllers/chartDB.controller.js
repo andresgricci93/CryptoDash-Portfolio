@@ -34,8 +34,6 @@ export const getHistoricalData = async (req, res) => {
       .sort({ timestamp: 1 })
       .lean();
       
-      console.log(`Found ${hourlyData.length} hourly data points for 1D`);
-
       data = hourlyData.map(item => ({
         time: Math.floor(item.timestamp / 1000),
         open: item.open,
@@ -46,7 +44,6 @@ export const getHistoricalData = async (req, res) => {
       }));
       
     } else if (timeframe === '30D') {
-      // 1 Week: HOURLY data (1h) - ~168 points
       startDate.setDate(endDate.getDate() - 7);
       
       const startTimestamp = startDate.getTime();
@@ -58,8 +55,6 @@ export const getHistoricalData = async (req, res) => {
       })
       .sort({ timestamp: 1 })
       .lean();
-
-      console.log(`Found ${hourlyData.length} hourly data points for 1W`);
 
       data = hourlyData.map(item => ({
         time: Math.floor(item.timestamp / 1000),
@@ -84,8 +79,6 @@ export const getHistoricalData = async (req, res) => {
       .sort({ timestamp: 1 })
       .lean();
 
-      console.log(`Found ${fourHourlyData.length} 4-hourly data points for 1M`);
-
       data = fourHourlyData.map(item => ({
         time: Math.floor(item.timestamp / 1000),
         open: item.open,
@@ -109,8 +102,6 @@ export const getHistoricalData = async (req, res) => {
       .sort({ timestamp: 1 })
       .lean();
 
-      console.log(`Found ${fourHourlyData.length} 4-hourly data points for 3M`);
-
       data = fourHourlyData.map(item => ({
         time: Math.floor(item.timestamp / 1000),
         open: item.open,
@@ -133,8 +124,6 @@ export const getHistoricalData = async (req, res) => {
       })
       .sort({ date: 1 })
       .lean();
-
-      console.log(`Found ${dailyData.length} data points for 1YR`);
 
       data = dailyData.map(item => ({
         time: item.date,

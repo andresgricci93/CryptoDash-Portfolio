@@ -14,7 +14,6 @@ import exportRoutes from './routes/pdfExport.route.js';
 import aiRoutes from './routes/ai.route.js';
 import chartDataRoutes from './routes/chartData.route.js';
 import { fetchAndCacheCryptos } from './controllers/cryptos.controller.js';
-import { incrementalChartUpdate } from './controllers/chartDB.controller.js';
 
 dotenv.config();
 
@@ -78,17 +77,6 @@ const server = app.listen(PORT, () => {
             }
         });
         console.log(' Cron: Crypto prices (every 2 hours)');
-
-        // Update chart data every 6 hours
-        cron.schedule('0 */6 * * *', async () => {
-            console.log('Cron: Updating chart data...');
-            try {
-                await incrementalChartUpdate();
-            } catch (error) {
-                console.error('Cron error (charts):', error.message);
-            }
-        });
-        console.log('Cron: Chart data (every 6 hours)');
 
     } catch (error) {
         console.error('Service initialization error:', error.message);

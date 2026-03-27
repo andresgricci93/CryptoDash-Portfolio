@@ -43,12 +43,15 @@ It provides:
 
 ### 🤖 Advanced AI Assistant
 - Real-time Price Queries: Ask for current crypto prices instantly
-- Latest News Integration: Get up-to-date cryptocurrency news
+- Latest News Integration: Get up-to-date cryptocurrency news via RSS (CoinTelegraph)
 - Semantic Memory: AI remembers your notes using RAG (Retrieval-Augmented Generation)
 - Context-aware conversations using RAG
+- Smart Intent Detection: Automatically scopes responses to prices-only, news-only, or full context depending on the query
 - Time-aware responses based on server-side timestamps
 - Conversational memory design (work in progress) with summarized context
 - Investment Planning: Study trends and plan your next moves with precision
+- **LLM Fallback**: If Gemini hits its rate limit (429), the same prompt is automatically re-sent to Groq (Llama 3.3 70B) so the user never sees a failure
+- Rate-limit UI: Cooldown timer in the chat input when the AI provider throttles requests
 
 
 <img width="2067" height="935" alt="image" src="https://github.com/user-attachments/assets/b82493bb-7a2d-4a4c-af05-83ec7b632d64" />
@@ -163,6 +166,9 @@ GEMINI_API_KEY=your_gemini_api_key_here
 MAILTRAP_TOKEN=your_mailtrap_token
 MAILTRAP_ENDPOINT=https://send.api.mailtrap.io/
 
+# Optional — LLM fallback (used automatically when Gemini returns 429)
+GROQ_API_KEY=your_groq_api_key_here
+
 # Optional Configuration
 PORT=5000
 NODE_ENV=development
@@ -246,6 +252,14 @@ Open your browser and go to: **http://localhost:5173**
 3. Get your API Token from the integration settings
 4. Copy `Token` to `MAILTRAP_TOKEN`
 5. Copy `Endpoint` to `MAILTRAP_ENDPOINT`
+
+### Groq API (Optional — LLM Fallback)
+
+1. Sign up at [Groq Console](https://console.groq.com/)
+2. Create an API key
+3. Paste into `GROQ_API_KEY` in `.env`
+
+> When set, Groq acts as an automatic fallback: if Gemini returns a 429 (rate limit), the same prompt is transparently re-sent to Groq so the user gets a response without noticing the switch.
 
 ---
 
@@ -400,6 +414,7 @@ This approach prioritizes information density while keeping the interface clean 
 
 - [CoinGecko API](https://www.coingecko.com/) for cryptocurrency data
 - [Google Gemini](https://ai.google.dev/) for AI capabilities
+- [Groq](https://groq.com/) for LLM fallback inference
 - [ChromaDB](https://www.trychroma.com/) for vector database
 - [MongoDB](https://www.mongodb.com/) for data storage
 - [Mailtrap](https://mailtrap.io/) for email testing

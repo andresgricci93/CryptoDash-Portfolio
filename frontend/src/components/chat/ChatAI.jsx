@@ -1,13 +1,27 @@
-import { useState } from 'react';
-import ChatMessages from "./ChatMessages.jsx";
-import Controls from "./Controls";
-import { useChatStore } from "../../store/chatStore.js"
+import { useEffect, useState } from 'react';
+import ChatMessages from './ChatMessages.jsx';
+import Controls from './Controls';
+import { useChatStore } from '../../store/chatStore.js';
+import { parseRetryDelayMs } from '../../utils/parseRetryDelayMs.js';
 
-
+const formatChatErrorForUser = (body) => {
+  if (!body || typeof body !== 'object') {
+    return "Sorry, I couldn't process your request. Please try again.";
+  }
+  const { status, retryDelay, message, code } = body;
+  if (code === 'RATE_LIMIT' || status === 429) {
+    const wait = retryDelay
+      ? ` Wait before sending again (the provider suggested ~${retryDelay}; free tier often needs longer).`
+      : ' Wait a minute before trying again (free tier quota).';
+    return `The AI service is rate-limited.${wait}`;
+  }
+  return message || "Sorry, I couldn't process your request. Please try again.";
+};
 
 const ChatAI = () => {
+  const [sendBlockedUntil, setSendBlockedUntil] = useState(0);
+  const [, bumpCooldownTick] = useState(0);
 
-   
   const { 
     messages, 
     isStreaming, 
@@ -17,8 +31,22 @@ const ChatAI = () => {
     getContextMessages 
   } = useChatStore();
 
+  useEffect(() => {
+    if (sendBlockedUntil <= Date.now()) return undefined;
+    const intervalId = setInterval(() => {
+      bumpCooldownTick((tick) => tick + 1);
+      if (Date.now() >= sendBlockedUntil) {
+        clearInterval(intervalId);
+      }
+    }, 500);
+    return () => clearInterval(intervalId);
+  }, [sendBlockedUntil]);
+
+  const cooldownSeconds =
+    sendBlockedUntil > Date.now() ? Math.ceil((sendBlockedUntil - Date.now()) / 1000) : 0;
+
   const handleContentSend = async (content) => {
-    if (!content.trim() || isStreaming) return;
+    if (!content.trim() || isStreaming || Date.now() < sendBlockedUntil) return;
     
     
     addMessage({ content, role: 'user' });
@@ -42,7 +70,18 @@ const ChatAI = () => {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        let errBody = {};
+        try {
+          errBody = await response.json();
+        } catch {
+          /* non-JSON error body */
+        }
+        if (errBody.code === 'RATE_LIMIT' || errBody.status === 429) {
+          setSendBlockedUntil(Date.now() + parseRetryDelayMs(errBody.retryDelay));
+        }
+        updateLastMessage(formatChatErrorForUser(errBody));
+        setIsStreaming(false);
+        return;
       }
 
       const reader = response.body.getReader();
@@ -68,10 +107,18 @@ const ChatAI = () => {
 
             try {
               const parsed = JSON.parse(data);
-              
+
+              if (parsed.type === 'error') {
+                if (parsed.code === 'RATE_LIMIT' || parsed.status === 429) {
+                  setSendBlockedUntil(Date.now() + parseRetryDelayMs(parsed.retryDelay));
+                }
+                updateLastMessage(formatChatErrorForUser(parsed));
+                setIsStreaming(false);
+                return;
+              }
+
               if (parsed.type === 'text') {
                 assistantMessage += parsed.text;
-
                 updateLastMessage(assistantMessage);
               }
             } catch (err) {
@@ -82,7 +129,11 @@ const ChatAI = () => {
       }
     } catch (error) {
       console.error('Error:', error);
-      updateLastMessage("Sorry, I couldn't process your request. Please try again.");
+      updateLastMessage(
+        error?.message?.includes('Failed to fetch')
+          ? 'Could not reach the server. Check your connection and try again.'
+          : "Sorry, I couldn't process your request. Please try again."
+      );
       setIsStreaming(false);
     }
   };
@@ -98,7 +149,11 @@ const ChatAI = () => {
         />
       </div>
       <ChatMessages messages={messages} />
-      <Controls onSend={handleContentSend} disabled={isStreaming} />
+      <Controls
+        onSend={handleContentSend}
+        disabled={isStreaming || cooldownSeconds > 0}
+        cooldownSeconds={cooldownSeconds}
+      />
     </div>
   );
 }

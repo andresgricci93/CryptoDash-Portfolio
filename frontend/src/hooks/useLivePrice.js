@@ -1,75 +1,71 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { coinIdToBinanceSymbol } from '../utils/coinIdToBinance';
 import { fetchBinanceKlines } from '../api/binanceLiveChart';
 
 export const useLivePrice = (coinId, symbol, isEnabled = false) => {
-  
   const [liveData, setLiveData] = useState(null);
   const [liveHistory, setLiveHistory] = useState([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState(null);
   const wsRef = useRef(null);
-  const hasInitialized = useRef(false);
-  const currentCoinRef = useRef(null);
+  const cancelledRef = useRef(false);
+
+  const closeWs = useCallback(() => {
+    const ws = wsRef.current;
+    if (!ws) return;
+    ws.onopen = null;
+    ws.onmessage = null;
+    ws.onerror = null;
+    ws.onclose = null;
+    ws.close();
+    wsRef.current = null;
+  }, []);
 
   useEffect(() => {
-    const coinKey = `${coinId}-${symbol}`;
-    
+    cancelledRef.current = false;
+
     if (!isEnabled || !coinId || !symbol) {
-      if (wsRef.current) {
-        wsRef.current.close();
-        wsRef.current = null;
-        setIsConnected(false);
-        setLiveData(null);
-        setLiveHistory([]);
-        hasInitialized.current = false;
-        currentCoinRef.current = null;
-      }
+      closeWs();
+      setIsConnected(false);
+      setLiveData(null);
+      setLiveHistory([]);
       return;
-    }
-
-
-    if (hasInitialized.current && currentCoinRef.current === coinKey) {
-      return;
-    }
-
-    if (wsRef.current) {
-      wsRef.current.close();
-      wsRef.current = null;
     }
 
     const binanceSymbol = coinIdToBinanceSymbol(coinId, symbol);
-    
+
     if (!binanceSymbol) {
       setError(`Live price not available for ${coinId}`);
-      console.warn(`No Binance WebSocket support for ${coinId}`);
       return;
     }
 
+    closeWs();
+
     const initializeLiveMode = async () => {
       try {
-        // 1. Fetch 240 historical points (4 hours)
         setIsLoadingHistory(true);
         const historical = await fetchBinanceKlines(binanceSymbol, '1m', 240);
+        if (cancelledRef.current) return;
         setLiveHistory(historical);
         setIsLoadingHistory(false);
 
-        // 2. Connect WebSocket after loading historical data
         const wsUrl = `wss://stream.binance.com:9443/ws/${binanceSymbol.toLowerCase()}@ticker`;
         const ws = new WebSocket(wsUrl);
 
         ws.onopen = () => {
+          if (cancelledRef.current) { ws.close(); return; }
           setIsConnected(true);
           setError(null);
         };
 
         ws.onmessage = (event) => {
+          if (cancelledRef.current) return;
           try {
             const data = JSON.parse(event.data);
             const now = Math.floor(Date.now() / 1000);
-            
-            const pricePoint = {
+
+            setLiveData({
               time: now,
               value: parseFloat(data.c),
               price: parseFloat(data.c),
@@ -79,40 +75,31 @@ export const useLivePrice = (coinId, symbol, isEnabled = false) => {
               low24h: parseFloat(data.l),
               volume24h: parseFloat(data.v),
               timestamp: Date.now(),
-            };
-            
-            setLiveData(pricePoint);
-            
-            // Add to history
+            });
+
             setLiveHistory(prev => {
               const updated = [...prev, { time: now, value: parseFloat(data.c) }];
-              // Keep last 300 points (5 hours)
-              if (updated.length > 300) {
-                return updated.slice(-300);
-              }
-              return updated;
+              return updated.length > 300 ? updated.slice(-300) : updated;
             });
-            
           } catch (err) {
             console.error('Error parsing WebSocket data:', err);
           }
         };
 
-        ws.onerror = (err) => {
-          console.error('WebSocket error:', err);
+        ws.onerror = () => {
+          if (cancelledRef.current) return;
           setError('Connection error');
           setIsConnected(false);
         };
 
         ws.onclose = () => {
+          if (cancelledRef.current) return;
           setIsConnected(false);
         };
 
         wsRef.current = ws;
-        hasInitialized.current = true;
-        currentCoinRef.current = coinKey;
-
       } catch (err) {
+        if (cancelledRef.current) return;
         console.error('Error initializing live mode:', err);
         setError('Failed to load historical data');
         setIsLoadingHistory(false);
@@ -122,12 +109,11 @@ export const useLivePrice = (coinId, symbol, isEnabled = false) => {
     initializeLiveMode();
 
     return () => {
-      if (wsRef.current) {
-        wsRef.current.close();
-        wsRef.current = null;
-      }
+      cancelledRef.current = true;
+      closeWs();
+      setIsConnected(false);
     };
-  }, [coinId, symbol, isEnabled]);
+  }, [coinId, symbol, isEnabled, closeWs]);
 
   return { liveData, liveHistory, isLoadingHistory, isConnected, error };
 };

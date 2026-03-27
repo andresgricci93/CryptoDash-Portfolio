@@ -2,12 +2,9 @@ import { useEffect, useRef, useReducer } from 'react';
 import { createChart, AreaSeries } from 'lightweight-charts';
 import { useCurrencyStore } from '../../store/currencyStore';
 import LiveIndicator from './TimeFrameButtons';
-import { useLivePrice } from '../../hooks/useLivePrice';
-
 
 const initialState = {
   phase: 'NEEDS_CHART',
-  liveVersion: 0,
 };
 
 function chartReducer(state, action) {
@@ -22,20 +19,15 @@ function chartReducer(state, action) {
 }
 
 
-
-
-
-const TradingViewChart = ({coinId, symbol}) => {
+const TradingViewChart = ({ liveData, liveHistory, isConnected, liveError }) => {
   const { convertPrice } = useCurrencyStore();
 
   const chartContainerRef = useRef(null);
   const chartRef = useRef(null);
   const seriesRef = useRef(null);
-  
-  const [state, dispatch] = useReducer(chartReducer, initialState);
-  const { phase, liveVersion } = state;
 
-  const { liveData, liveHistory, isConnected, error: liveError } = useLivePrice(coinId, symbol, true);
+  const [state, dispatch] = useReducer(chartReducer, initialState);
+  const { phase } = state;
 
   // ========== MAIN USEEFFECT - PHASE-BASED CHART LIFECYCLE ==========
   useEffect(() => {
@@ -127,7 +119,7 @@ const TradingViewChart = ({coinId, symbol}) => {
       }
     }
 
-  }, [phase, liveVersion, liveHistory, liveData, convertPrice]);
+  }, [phase, liveHistory, liveData, convertPrice]);
 
   // ========== CLEANUP ON UNMOUNT ONLY ==========
   useEffect(() => {

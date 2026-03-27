@@ -66,11 +66,8 @@ const searchRelevantNotes = async (query, userId, limit = 5) => {
  * @param {string} userQuery - Original user question
  * @returns {string} Formatted context for LLM
  */
-const buildContextForGemini = (relevantNotes, userQuery, conversationHistory = [], priceData = '', newsData = '') => {
-
-    // Inject current date/time into prompt to establish temporal context
-    // Without this, the LLM may hallucinate dates or misinterpret "today", "yesterday", etc.
-    // This ensures accurate calculations when user asks about recent notes or timeframes
+const buildContextForGemini = (relevantNotes, userQuery, conversationHistory = [], priceData = '', newsData = '', options = {}) => {
+    const { marketOnly = false } = options;
 
     const now = new Date();
     const dateStr = now.toLocaleDateString('en-US', { 
@@ -87,10 +84,60 @@ const buildContextForGemini = (relevantNotes, userQuery, conversationHistory = [
       hour12: true,
       timeZone: 'Europe/Rome'
     });
-  
 
+    let conversationContext = '';
+    if (conversationHistory.length > 0) {
+      conversationContext = '\n\nPREVIOUS CONVERSATION:\n';
+      conversationHistory.forEach(msg => {
+        const role = msg.role === 'user' ? 'User' : 'Assistant';
+        conversationContext += `${role}: ${msg.content}\n`;
+      });
+      conversationContext += '\n';
+    }
 
-    // If no relevant notes, return empty context
+    if (marketOnly) {
+      const includePrices = options.includePrices !== false;
+      const includeNews = options.includeNews !== false;
+      const scopeLine =
+        includePrices && !includeNews
+          ? 'SCOPE: PRICES ONLY — The user did not ask for news. Do NOT summarize, mention, or invent news headlines. Answer only with price data below.'
+          : !includePrices && includeNews
+            ? 'SCOPE: NEWS ONLY — The user did not ask for prices. Do NOT lead with or list crypto prices unless the question explicitly asks for them.'
+            : 'SCOPE: Prices and/or news as provided below — use only the sections that appear.';
+
+      return `SYSTEM CONTEXT - READ CAREFULLY:
+          ===========================================
+          TODAY'S DATE: ${dateStr}
+          CURRENT TIME: ${timeStr}
+          MODE: MARKET_SNAPSHOT_ONLY
+
+          ${scopeLine}
+          Personal notes were NOT loaded for this turn on purpose.
+
+          STRICT RULES FOR THIS RESPONSE:
+          - Use ONLY the sections included below (prices and/or news). Never fabricate content for a missing section.
+          - Do NOT mention the user's personal notes, saved notes, knowledge base, or "your notes".
+          - If a section below is empty, say briefly that it is unavailable; do not fill with notes or external guesses.
+
+          ===========================================
+          ${conversationContext}
+          ===========================================
+
+          User Question: "${userQuery}"
+
+          ${priceData ? `\nCURRENT CRYPTO PRICES:\n${priceData}\n` : ''}
+
+          ${newsData ? `\nLATEST CRYPTO NEWS:\n${newsData}\n` : ''}
+
+          Instructions:
+          1. If CURRENT CRYPTO PRICES is present, present prices directly and confidently (never say you lack real-time access).
+          2. If LATEST CRYPTO NEWS is present, summarize with [Read full article](URL) links.
+          3. If data says "cached from X min ago", mention freshness briefly.
+          4. Be concise. No GIFs unless the user explicitly asks for something playful.
+
+          Please provide a helpful response:`.trim();
+    }
+
     if (!relevantNotes || relevantNotes.length === 0) {
 
       return `Current Date & Time: ${dateStr}, ${timeStr}
@@ -111,19 +158,7 @@ const buildContextForGemini = (relevantNotes, userQuery, conversationHistory = [
       ${note.tags.length > 0 ? `Tags: ${note.tags.join(', ')}` : ''}
           `.trim();
         }).join('\n\n');
-    
 
-      let conversationContext = '';
-      if (conversationHistory.length > 0) {
-        conversationContext = '\n\nPREVIOUS CONVERSATION:\n';
-        conversationHistory.forEach(msg => {
-          const role = msg.role === 'user' ? 'User' : 'Assistant';
-          conversationContext += `${role}: ${msg.content}\n`;
-        });
-        conversationContext += '\n';
-      }
-
-        // Build full prompt
         const prompt = `SYSTEM CONTEXT - READ CAREFULLY:
           ===========================================
           TODAY'S DATE: ${dateStr}

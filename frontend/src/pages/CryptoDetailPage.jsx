@@ -20,6 +20,7 @@ import { fetchCryptoDynamic, fetchCryptoStatic } from '../api/cryptos.js';
 import LoadingDots from '../components/common/LoadingDots.jsx';
 
 
+
 const CryptoDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -55,7 +56,7 @@ const CryptoDetailPage = () => {
     cacheTime: 24 * 60 * 60 * 1000,  
   });
 
-  const { liveData, isConnected } = useLivePrice(id, staticData?.symbol, true);
+  const { liveData, liveHistory, isConnected, error: liveError } = useLivePrice(id, staticData?.symbol, true);
 
 
   useEffect(() => {
@@ -267,7 +268,12 @@ const CryptoDetailPage = () => {
         <div className='flex flex-row gap-8 mb-8'>
           {/* CHART */}
           <div className="w-2/3 border border-gray-700 rounded-lg">
-           <TradingViewChart coinId={id} symbol={staticData?.symbol} />
+           <TradingViewChart
+             liveData={liveData}
+             liveHistory={liveHistory}
+             isConnected={isConnected}
+             liveError={liveError}
+           />
           </div>
 
           {/* NOTES */}

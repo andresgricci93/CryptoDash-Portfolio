@@ -1,12 +1,77 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import {detectCryptoMentions, getCurrentPrices} from "../../backend/services/cryptoPrices.service.js"
-import { getLatestCryptoNews, formatNewsForPrompt } from '../services/cryptoNews.service.js';
-import { addMessage, getTodayHistory } from '../services/memory.service.js';
+import Groq from "groq-sdk";
+import { detectCryptoMentions, getCurrentPrices } from "../services/cryptoPrices.service.js";
+import { getLatestCryptoNews, formatNewsForPrompt } from "../services/cryptoNews.service.js";
+import { shouldOmitNotesRAG, getMarketSnapshotSections } from "../services/chatIntent.service.js";
+import { addMessage, getTodayHistory } from "../services/memory.service.js";
+import { formatGeminiChatErrorPayload, httpStatusFromGeminiPayload } from "../utils/geminiError.util.js";
 import dotenv from 'dotenv';
 dotenv.config();
 
-
 const googleai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const groq = process.env.GROQ_API_KEY
+  ? new Groq({ apiKey: process.env.GROQ_API_KEY })
+  : null;
+
+const GROQ_MODEL = 'llama-3.3-70b-versatile';
+
+// ---------------------------------------------------------------------------
+// Streaming helpers — keep the SSE wire format in one place
+// ---------------------------------------------------------------------------
+
+const sseHeaders = (req) => ({
+  'Content-Type': 'text/event-stream',
+  'Cache-Control': 'no-cache',
+  'Connection': 'keep-alive',
+  'Access-Control-Allow-Origin': req.headers.origin || 'http://localhost:5173',
+  'Access-Control-Allow-Credentials': 'true'
+});
+
+const writeMetadata = (res, relevantNotes) => {
+  res.write(`data: ${JSON.stringify({
+    type: 'metadata',
+    notesUsed: relevantNotes.length,
+    noteTitles: relevantNotes.map(n => ({
+      title: n.title,
+      similarity: `${(n.similarity * 100).toFixed(0)}%`
+    }))
+  })}\n\n`);
+};
+
+/**
+ * Stream Gemini response. Returns the full text or throws on failure.
+ */
+const streamGemini = async (prompt, res) => {
+  const model = googleai.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
+  const result = await model.generateContentStream(prompt);
+  let full = '';
+  for await (const chunk of result.stream) {
+    const text = chunk.text();
+    full += text;
+    res.write(`data: ${JSON.stringify({ type: 'text', text })}\n\n`);
+  }
+  return full;
+};
+
+/**
+ * Stream Groq (OpenAI-compatible) response. Returns the full text or throws.
+ */
+const streamGroq = async (prompt, res) => {
+  const completion = await groq.chat.completions.create({
+    model: GROQ_MODEL,
+    messages: [{ role: 'user', content: prompt }],
+    stream: true,
+  });
+  let full = '';
+  for await (const chunk of completion) {
+    const text = chunk.choices[0]?.delta?.content || '';
+    if (text) {
+      full += text;
+      res.write(`data: ${JSON.stringify({ type: 'text', text })}\n\n`);
+    }
+  }
+  return full;
+};
 
 
 
@@ -90,81 +155,111 @@ export const chat = async (req, res) => {
       });
     }
 
-    // Save user message to today's conversation
     await addMessage(userId, 'user', message);
 
-    
-    // Get today's conversation history from DB (short-term memory)
     const conversationHistory = await getTodayHistory(userId);
-
     const { searchRelevantNotes, buildContextForGemini } = await import('../services/rag.service.js');
 
-    const relevantNotes = await searchRelevantNotes(message, userId, limit);
-   
+    const marketOnly = shouldOmitNotesRAG(message);
+    const relevantNotes = marketOnly
+      ? []
+      : await searchRelevantNotes(message, userId, limit);
+
+    const snapshotSections = marketOnly
+      ? getMarketSnapshotSections(message)
+      : { includePrices: true, includeNews: true };
+
     let priceData = '';
-    const detectedCryptos = detectCryptoMentions(message);
-    const cryptosToFetch = detectedCryptos.length > 0 ? detectedCryptos : ['bitcoin', 'ethereum', 'solana'];
-    const { data: prices, isCached: pricesCached, cachedAt: pricesCachedAt } = await getCurrentPrices(cryptosToFetch);
+    if (!marketOnly || snapshotSections.includePrices) {
+      const detectedCryptos = detectCryptoMentions(message);
+      const cryptosToFetch = detectedCryptos.length > 0 ? detectedCryptos : ['bitcoin', 'ethereum', 'solana'];
+      const { data: prices, isCached: pricesCached, cachedAt: pricesCachedAt } = await getCurrentPrices(cryptosToFetch);
 
-    if (prices) {
-      const priceAge = pricesCached && pricesCachedAt ? ` (cached from ${Math.round((Date.now() - pricesCachedAt) / 60000)} min ago)` : '';
-      priceData = Object.entries(prices).map(([crypto, data]) =>
-        `${crypto.toUpperCase()}: $${data.usd.toLocaleString()} (24h: ${data.usd_24h_change?.toFixed(2)}%)`
-      ).join(' | ') + priceAge;
+      if (prices) {
+        const priceAge = pricesCached && pricesCachedAt
+          ? ` (cached from ${Math.round((Date.now() - pricesCachedAt) / 60000)} min ago)`
+          : '';
+        priceData = Object.entries(prices).map(([crypto, d]) =>
+          `${crypto.toUpperCase()}: $${d.usd.toLocaleString()} (24h: ${d.usd_24h_change?.toFixed(2)}%)`
+        ).join(' | ') + priceAge;
+      }
     }
 
-    const { items: newsItems, isCached, cachedAt } = await getLatestCryptoNews(3);
-    const newsAge = isCached && cachedAt ? `\n(News cached from ${Math.round((Date.now() - cachedAt) / 60000)} min ago)` : '';
-    const newsData = formatNewsForPrompt(newsItems) + newsAge;
+    let newsData = '';
+    if (!marketOnly || snapshotSections.includeNews) {
+      const { items: newsItems, isCached, cachedAt } = await getLatestCryptoNews(3);
+      const newsAge = isCached && cachedAt
+        ? `\n(News cached from ${Math.round((Date.now() - cachedAt) / 60000)} min ago)`
+        : '';
+      newsData = formatNewsForPrompt(newsItems) + newsAge;
+    }
 
-    const prompt = buildContextForGemini(relevantNotes, message, conversationHistory, priceData, newsData);
-
-    const model = googleai.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
-    const result = await model.generateContentStream(prompt);
-
-    res.writeHead(200, {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
-      'Access-Control-Allow-Origin': req.headers.origin || 'http://localhost:5173',
-      'Access-Control-Allow-Credentials': 'true'
+    const prompt = buildContextForGemini(relevantNotes, message, conversationHistory, priceData, newsData, {
+      marketOnly,
+      includePrices: snapshotSections.includePrices,
+      includeNews: snapshotSections.includeNews
     });
-    
-    res.write(`data: ${JSON.stringify({ 
-      type: 'metadata',
-      notesUsed: relevantNotes.length,
-      noteTitles: relevantNotes.map(note => ({
-        title: note.title,
-        similarity: `${(note.similarity * 100).toFixed(0)}%`
-      }))
-    })}\n\n`);
 
-    // Collect assistant response chunks
+    // --- Try Gemini, fallback to Groq on failure -------------------------
+
     let assistantResponse = '';
-    for await (const chunk of result.stream) {
-      const chunkText = chunk.text();
-      assistantResponse += chunkText;
-      res.write(`data: ${JSON.stringify({ type: 'text', text: chunkText })}\n\n`);
+    let usedProvider = 'gemini';
+
+    try {
+      if (!res.headersSent) {
+        res.writeHead(200, sseHeaders(req));
+        writeMetadata(res, relevantNotes);
+      }
+      assistantResponse = await streamGemini(prompt, res);
+    } catch (geminiError) {
+      const geminiStatus = geminiError?.status ?? geminiError?.statusCode ?? 0;
+      const isRateLimit = geminiStatus === 429 || geminiError?.message?.includes('429');
+
+      console.error(
+        `[AI] Gemini failed (status ${geminiStatus}${isRateLimit ? ' — rate-limited' : ''}):`,
+        geminiError.message
+      );
+
+      if (groq) {
+        console.log(`[AI] Falling back to Groq (${GROQ_MODEL})…`);
+        usedProvider = 'groq';
+
+        try {
+          if (!res.headersSent) {
+            res.writeHead(200, sseHeaders(req));
+            writeMetadata(res, relevantNotes);
+          }
+          assistantResponse = await streamGroq(prompt, res);
+        } catch (groqError) {
+          console.error('[AI] Groq fallback also failed:', groqError.message);
+          throw groqError;
+        }
+      } else {
+        throw geminiError;
+      }
     }
 
-    // Save assistant response to today's conversation
     await addMessage(userId, 'assistant', assistantResponse);
+
+    if (usedProvider !== 'gemini') {
+      console.log(`[AI] Response served via ${usedProvider}`);
+    }
 
     res.write(`data: [DONE]\n\n`);
     res.end();
 
   } catch (error) {
-    console.error('Error in chat:', error);
-    
+    console.error('[AI] All providers failed:', error.message);
+    const payload = formatGeminiChatErrorPayload(error);
+
     if (!res.headersSent) {
-      return res.status(500).json({
+      return res.status(httpStatusFromGeminiPayload(payload)).json({
         success: false,
-        message: 'Error generating chat response',
-        error: error.message
+        ...payload
       });
     }
-    
-    res.write(`data: ${JSON.stringify({ type: 'error', message: error.message })}\n\n`);
+
+    res.write(`data: ${JSON.stringify({ type: 'error', ...payload })}\n\n`);
     res.end();
   }
 };

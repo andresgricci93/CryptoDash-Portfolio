@@ -1,8 +1,5 @@
 import axios from 'axios';
 
-/**
- * Supported cryptocurrencies with their aliases
- */
 const SUPPORTED_CRYPTOS = [
   { id: 'bitcoin', keywords: ['bitcoin', 'btc'] },
   { id: 'ethereum', keywords: ['ethereum', 'eth', 'ether'] },
@@ -11,43 +8,52 @@ const SUPPORTED_CRYPTOS = [
   { id: 'polkadot', keywords: ['polkadot', 'dot'] },
 ];
 
-/**
- * Get current prices for specific cryptocurrencies
- * @param {Array} cryptoIds - Array of crypto IDs like ['bitcoin', 'ethereum']
- * @returns {Promise<Object>} Price data
- */
+let priceCache = new Map();
+const CACHE_TTL = 5 * 60 * 1000;
+
 export const getCurrentPrices = async (cryptoIds = ['bitcoin', 'ethereum']) => {
+  const cacheKey = cryptoIds.sort().join(',');
+  const cached = priceCache.get(cacheKey);
+  const now = Date.now();
+
+  if (cached && (now - cached.fetchedAt) < CACHE_TTL) {
+    return { data: cached.data, isCached: true, cachedAt: cached.fetchedAt };
+  }
+
   try {
     const ids = cryptoIds.join(',');
+    const apiKey = process.env.COINGECKO_API_KEY;
+    const headers = apiKey ? { 'x-cg-demo-api-key': apiKey } : {};
+
     const response = await axios.get(
-      `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true&include_market_cap=true`
+      `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true&include_market_cap=true`,
+      { headers }
     );
-    
-    return response.data;
+
+    if (response.data && Object.keys(response.data).length > 0) {
+      priceCache.set(cacheKey, { data: response.data, fetchedAt: now });
+      return { data: response.data, isCached: false, cachedAt: now };
+    }
   } catch (error) {
-    console.error('Error fetching crypto prices:', error.message);
-    return null;
+    console.error('[Prices] CoinGecko fetch failed:', error.message);
   }
+
+  if (cached) {
+    return { data: cached.data, isCached: true, cachedAt: cached.fetchedAt };
+  }
+
+  return { data: null, isCached: false, cachedAt: null };
 };
 
-/**
- * Detect crypto mentions in user query
- * @param {string} query - User's question
- * @returns {Array} Array of detected crypto IDs
- */
 export const detectCryptoMentions = (query) => {
   const lowerQuery = query.toLowerCase();
   const detected = new Set();
-  
+
   SUPPORTED_CRYPTOS.forEach(crypto => {
-    const hasMatch = crypto.keywords.some(keyword => 
-      lowerQuery.includes(keyword)
-    );
-    
-    if (hasMatch) {
+    if (crypto.keywords.some(keyword => lowerQuery.includes(keyword))) {
       detected.add(crypto.id);
     }
   });
-  
+
   return Array.from(detected);
 };

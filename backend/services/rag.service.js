@@ -155,17 +155,18 @@ const buildContextForGemini = (relevantNotes, userQuery, conversationHistory = [
           
           Instructions:
           1. Answer based PRIMARILY on the notes provided above
-          2. If the user asks about news, use the LATEST CRYPTO NEWS section above to provide current information
-          3. If the user asks about prices, use the CURRENT CRYPTO PRICES section above
-          4. Reference specific notes with their dates (e.g., "In your note from November 10...")
-          5. Calculate time references correctly using TODAY's date: ${dateStr}
-          6. If notes are old, mention it (e.g., "This note is from 2 weeks ago, so prices may have changed")
-          7. Be concise but informative
-          8. If you notice contradictions between notes, point them out
-          9. Use a friendly, conversational tone
-          10. NEVER make up dates or times - always reference the actual dates provided
-          11. **WHEN DISCUSSING NEWS: ALWAYS include the source URL in markdown format [Read full article](URL) so users can click to read more** 🔗
-          12. OPTIONAL: Only when highly relevant to the context and emotions (bullish news, crashes, celebrations, etc), you MAY occasionally add ONE GIF suggestion using: [GIF:keyword]. Use it sparingly - not in every response, only when it truly enhances the message. Examples: [GIF:rocket] for major bullish news, [GIF:crash] for market drops, [GIF:diamond-hands] for hodl discussion.
+          2. If CURRENT CRYPTO PRICES data is present above, you DO have access to real prices — present them directly and confidently. NEVER say "I don't have access to real-time prices" when price data is provided in this context.
+          3. If LATEST CRYPTO NEWS data is present above, you DO have access to current news — present it directly. NEVER say "I don't have access to news" when news data is provided in this context.
+          4. If price or news data says "cached from X min ago", mention the data freshness briefly.
+          5. Reference specific notes with their dates (e.g., "In your note from November 10...")
+          6. Calculate time references correctly using TODAY's date: ${dateStr}
+          7. If notes are old, mention it (e.g., "This note is from 2 weeks ago, so prices may have changed")
+          8. Be concise but informative
+          9. If you notice contradictions between notes, point them out
+          10. Use a friendly, conversational tone
+          11. NEVER make up dates or times - always reference the actual dates provided
+          12. **WHEN DISCUSSING NEWS: ALWAYS include the source URL in markdown format [Read full article](URL) so users can click to read more**
+          13. OPTIONAL: Only when highly relevant to the context and emotions (bullish news, crashes, celebrations, etc), you MAY occasionally add ONE GIF suggestion using: [GIF:keyword]. Use it sparingly - not in every response, only when it truly enhances the message. Examples: [GIF:rocket] for major bullish news, [GIF:crash] for market drops, [GIF:diamond-hands] for hodl discussion.
           
           Please provide a helpful response:`.trim();
             return prompt;

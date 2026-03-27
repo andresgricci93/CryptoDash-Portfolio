@@ -103,21 +103,19 @@ export const chat = async (req, res) => {
    
     let priceData = '';
     const detectedCryptos = detectCryptoMentions(message);
-    
-    if (detectedCryptos.length > 0) {
-      const prices = await getCurrentPrices(detectedCryptos);
-      
-      if (prices) {
-        priceData = Object.entries(prices).map(([crypto, data]) => 
-          `${crypto.toUpperCase()}: $${data.usd.toLocaleString()} (24h: ${data.usd_24h_change?.toFixed(2)}%)`
-        ).join(' | ');
+    const cryptosToFetch = detectedCryptos.length > 0 ? detectedCryptos : ['bitcoin', 'ethereum', 'solana'];
+    const { data: prices, isCached: pricesCached, cachedAt: pricesCachedAt } = await getCurrentPrices(cryptosToFetch);
 
-      }
+    if (prices) {
+      const priceAge = pricesCached && pricesCachedAt ? ` (cached from ${Math.round((Date.now() - pricesCachedAt) / 60000)} min ago)` : '';
+      priceData = Object.entries(prices).map(([crypto, data]) =>
+        `${crypto.toUpperCase()}: $${data.usd.toLocaleString()} (24h: ${data.usd_24h_change?.toFixed(2)}%)`
+      ).join(' | ') + priceAge;
     }
 
-    // Fetch latest crypto news
-    const newsItems = await getLatestCryptoNews(3);
-    const newsData = formatNewsForPrompt(newsItems);
+    const { items: newsItems, isCached, cachedAt } = await getLatestCryptoNews(3);
+    const newsAge = isCached && cachedAt ? `\n(News cached from ${Math.round((Date.now() - cachedAt) / 60000)} min ago)` : '';
+    const newsData = formatNewsForPrompt(newsItems) + newsAge;
 
     const prompt = buildContextForGemini(relevantNotes, message, conversationHistory, priceData, newsData);
 

@@ -105,37 +105,35 @@ const buildContextForGemini = (relevantNotes, userQuery, conversationHistory = [
             ? 'SCOPE: NEWS ONLY — The user did not ask for prices. Do NOT lead with or list crypto prices unless the question explicitly asks for them.'
             : 'SCOPE: Prices and/or news as provided below — use only the sections that appear.';
 
-      return `SYSTEM CONTEXT - READ CAREFULLY:
-          ===========================================
-          TODAY'S DATE: ${dateStr}
-          CURRENT TIME: ${timeStr}
-          MODE: MARKET_SNAPSHOT_ONLY
+      const priceInstructions = includePrices
+        ? '- Present the crypto prices directly and confidently. Never say you lack real-time access.'
+        : '- The user did NOT ask for prices. Do NOT list, mention, or invent any price data.';
 
-          ${scopeLine}
-          Personal notes were NOT loaded for this turn on purpose.
+      const newsInstructions = includeNews
+        ? '- Summarize each headline briefly and include a [Read full article](URL) link.'
+        : '- The user did NOT ask for news. Do NOT summarize, mention, or invent any news headlines.';
 
-          STRICT RULES FOR THIS RESPONSE:
-          - Use ONLY the sections included below (prices and/or news). Never fabricate content for a missing section.
-          - Do NOT mention the user's personal notes, saved notes, knowledge base, or "your notes".
-          - If a section below is empty, say briefly that it is unavailable; do not fill with notes or external guesses.
+      return `SYSTEM CONTEXT:
+TODAY'S DATE: ${dateStr}
+CURRENT TIME: ${timeStr}
+MODE: MARKET_SNAPSHOT_ONLY
 
-          ===========================================
-          ${conversationContext}
-          ===========================================
+${scopeLine}
 
-          User Question: "${userQuery}"
+RULES:
+- Respond ONLY using the data sections provided below. Nothing else.
+- Do NOT mention personal notes, saved notes, or knowledge base.
+- If a data section is missing from this prompt, it means it was intentionally excluded — do NOT fill it in or say it is unavailable.
+- If data says "cached from X min ago", mention freshness briefly.
+- Be concise.
+${priceInstructions}
+${newsInstructions}
 
-          ${priceData ? `\nCURRENT CRYPTO PRICES:\n${priceData}\n` : ''}
+User Question: "${userQuery}"
+${priceData ? `\nCURRENT CRYPTO PRICES:\n${priceData}` : ''}
+${newsData ? `\nLATEST CRYPTO NEWS:\n${newsData}` : ''}
 
-          ${newsData ? `\nLATEST CRYPTO NEWS:\n${newsData}\n` : ''}
-
-          Instructions:
-          1. If CURRENT CRYPTO PRICES is present, present prices directly and confidently (never say you lack real-time access).
-          2. If LATEST CRYPTO NEWS is present, summarize with [Read full article](URL) links.
-          3. If data says "cached from X min ago", mention freshness briefly.
-          4. Be concise. No GIFs unless the user explicitly asks for something playful.
-
-          Please provide a helpful response:`.trim();
+Respond now:`.trim();
     }
 
     if (!relevantNotes || relevantNotes.length === 0) {

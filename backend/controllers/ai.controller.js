@@ -13,7 +13,8 @@ const groq = process.env.GROQ_API_KEY
   ? new Groq({ apiKey: process.env.GROQ_API_KEY })
   : null;
 
-const GROQ_MODEL = 'llama-3.3-70b-versatile';
+const GROQ_MODEL = 'llama-3.1-8b-instant';
+const GROQ_MAX_HISTORY = 4;
 
 // ---------------------------------------------------------------------------
 // Streaming helpers — keep the SSE wire format in one place
@@ -194,7 +195,9 @@ export const chat = async (req, res) => {
       newsData = formatNewsForPrompt(newsItems) + newsAge;
     }
 
-    const prompt = buildContextForGemini(relevantNotes, message, conversationHistory, priceData, newsData, {
+    const historyForPrompt = marketOnly ? [] : conversationHistory;
+
+    const prompt = buildContextForGemini(relevantNotes, message, historyForPrompt, priceData, newsData, {
       marketOnly,
       includePrices: snapshotSections.includePrices,
       includeNews: snapshotSections.includeNews
@@ -224,12 +227,18 @@ export const chat = async (req, res) => {
         console.log(`[AI] Falling back to Groq (${GROQ_MODEL})…`);
         usedProvider = 'groq';
 
+        const trimmedHistory = conversationHistory.slice(-GROQ_MAX_HISTORY);
+        const compactPrompt = buildContextForGemini(
+          relevantNotes, message, trimmedHistory, priceData, newsData,
+          { marketOnly, includePrices: snapshotSections.includePrices, includeNews: snapshotSections.includeNews }
+        );
+
         try {
           if (!res.headersSent) {
             res.writeHead(200, sseHeaders(req));
             writeMetadata(res, relevantNotes);
           }
-          assistantResponse = await streamGroq(prompt, res);
+          assistantResponse = await streamGroq(compactPrompt, res);
         } catch (groqError) {
           console.error('[AI] Groq fallback also failed:', groqError.message);
           throw groqError;

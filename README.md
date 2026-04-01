@@ -46,20 +46,14 @@ It provides:
 - Latest News Integration: Get up-to-date cryptocurrency news via RSS (CoinTelegraph)
 - Semantic Memory: AI remembers your notes using RAG (Retrieval-Augmented Generation)
 - Context-aware conversations using RAG
-- Smart Intent Detection: Automatically scopes responses to prices-only, news-only, or full context depending on the query
+-Smart intent detection: The backend classifies each chat message with lightweight rules (no LLM). If it looks like a market snapshot (prices/news style wording) and the user is not asking for personal notes, the assistant runs in market-only mode: no RAG over notes, no conversation history in the prompt, and strict system text so the model must not mention saved notes. Within that mode, separate price vs news regex intents decide whether to attach the CoinGecko price block, the RSS news block, or both—so a “prices only” question does not get news filler and vice versa. For normal questions or anything that references my notes / the knowledge base, the full pipeline runs: semantic note search, same-day chat history, and both price and news sections when fetched.
 - Time-aware responses based on server-side timestamps
 - Conversational memory design (work in progress) with summarized context
 - Investment Planning: Study trends and plan your next moves with precision
 - **LLM Fallback**: If Gemini hits its rate limit (429), the same prompt is automatically re-sent to Groq (Llama 3.3 70B) so the user never sees a failure
 - Rate-limit UI: Cooldown timer in the chat input when the AI provider throttles requests
 
-**Chat intent harness (backend)** — scoped rules for what the model sees and in which currency prices are formatted:
 
-- **`preferredCurrencyChat`** (User model): chat-only fiat preference, separate from the dashboard currency dropdown. Defaults to **USD** until the user sets it via **strict English phrases** (e.g. *“I want to change to Mexican peso”*, *“switch to EUR”*). Supports the same ISO codes and English names as the dashboard fiat list.
-- **Persistence**: matching messages update `preferredCurrencyChat` before the turn is processed, so price context in the prompt uses the new code immediately.
-- **`chatPreferenceGate`**: broad-tier detection uses **all supported dashboard fiats** (codes + English aliases), not only EUR/GBP/USD.
-- **Generic price queries**: if the user asks for prices without naming specific assets (keywords in `chatIntent`), the backend loads **favorite coins** from `favoriteCoins` for the CoinGecko snapshot; otherwise it uses mentioned tickers, or falls back to a small default set.
-- **Layout**: `backend/services/chatIntent/` (market vs. notes RAG scope, generic price intent), `backend/utils/chat/<module>/` (fiat extraction from text, chat display currency resolution, formatted price block for the AI prompt).
 
 
 <img width="2067" height="935" alt="image" src="https://github.com/user-attachments/assets/b82493bb-7a2d-4a4c-af05-83ec7b632d64" />

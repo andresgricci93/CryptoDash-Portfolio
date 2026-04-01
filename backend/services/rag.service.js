@@ -106,7 +106,8 @@ const buildContextForGemini = (relevantNotes, userQuery, conversationHistory = [
             : 'SCOPE: Prices and/or news as provided below — use only the sections that appear.';
 
       const priceInstructions = includePrices
-        ? '- Present the crypto prices directly and confidently. Never say you lack real-time access.'
+        ? `- Present ONLY the crypto prices exactly as given in CURRENT CRYPTO PRICES (same symbols, amounts, currency codes, 24h %). Never say you lack real-time access.
+- Do NOT invent prices, do NOT convert to another currency, do NOT add coins that are not listed, do NOT round differently from the numbers shown.`
         : '- The user did NOT ask for prices. Do NOT list, mention, or invent any price data.';
 
       const newsInstructions = includeNews
@@ -188,7 +189,7 @@ Respond now:`.trim();
           
           Instructions:
           1. Answer based PRIMARILY on the notes provided above
-          2. If CURRENT CRYPTO PRICES data is present above, you DO have access to real prices — present them directly and confidently. NEVER say "I don't have access to real-time prices" when price data is provided in this context.
+          2. If CURRENT CRYPTO PRICES data is present above, you DO have access to real prices — repeat them exactly as shown (same amounts, currency labels, 24h %). NEVER say "I don't have access to real-time prices" when price data is provided. NEVER invent, estimate, convert to another currency, or add coins not listed.
           3. If LATEST CRYPTO NEWS data is present above, you DO have access to current news — present it directly. NEVER say "I don't have access to news" when news data is provided in this context.
           4. If price or news data says "cached from X min ago", mention the data freshness briefly.
           5. Reference specific notes with their dates (e.g., "In your note from November 10...")

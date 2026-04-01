@@ -12,13 +12,39 @@ export const getCurrencyName = (code) => {
   return names[code] || code;
 };
 
+const SYMBOLS = {
+  USD: '$',
+  EUR: '€',
+  GBP: '£',
+  JPY: '¥',
+  CAD: 'C$',
+  AUD: 'A$',
+  CHF: 'CHF',
+  CNY: '¥',
+  INR: '₹',
+  BRL: 'R$',
+  RUB: '₽',
+  KRW: '₩',
+  MXN: '$',
+  SGD: 'S$',
+  HKD: 'HK$',
+  NOK: 'kr',
+  SEK: 'kr',
+  DKK: 'kr',
+  PLN: 'zł',
+  TRY: '₺',
+  ZAR: 'R',
+  THB: '฿',
+  CZK: 'Kč',
+  ILS: '₪',
+  ARS: '$',
+};
+
+/** Dashboard dropdown + chat `preferredCurrencyChat` (must match Currency collection / rates API). */
+export const SUPPORTED_FIAT_CODES = new Set(Object.keys(SYMBOLS));
+
 export const getCurrencySymbol = (code) => {
-  const symbols = {
-    'USD': '$', 'EUR': '€', 'GBP': '£', 'JPY': '¥', 'CAD': 'C$', 'AUD': 'A$', 
-    'CHF': 'CHF', 'CNY': '¥', 'INR': '₹', 'BRL': 'R$', 'RUB': '₽', 'KRW': '₩',
-    'MXN': '$', 'SGD': 'S$', 'HKD': 'HK$', 'NOK': 'kr', 'SEK': 'kr', 'DKK': 'kr',
-    'PLN': 'zł', 'TRY': '₺', 'ZAR': 'R', 'THB': '฿', 'CZK': 'Kč', 'ILS': '₪',
-    'ARS': '$'
-  };
-  return symbols[code] || code;
+  if (!code) return '$';
+  const upper = String(code).toUpperCase();
+  return SYMBOLS[upper] || code;
 };

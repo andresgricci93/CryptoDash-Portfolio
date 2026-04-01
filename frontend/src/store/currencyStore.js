@@ -1,5 +1,6 @@
 import {create} from "zustand";
 import axios from "axios";
+import { convertUsdPrice } from '../utils/convertUsdPrice.js';
 
 const API_URL = import.meta.env.VITE_API_URL;
 axios.defaults.withCredentials = true;
@@ -107,11 +108,7 @@ export const useCurrencyStore = create((set,get) => ({
     },
     convertPrice: (usdPrice) => {
         const { selectedCurrency, currencyRates } = get();
-        
-        if (selectedCurrency === 'USD') return usdPrice;
-        
-        const rate = currencyRates?.find(r => r.code === selectedCurrency)?.rate;
-        return rate ? usdPrice * rate : usdPrice;
+        return convertUsdPrice(usdPrice, selectedCurrency, currencyRates);
     },
     formatPrice: (price) => {
         const { selectedCurrency, currencyRates } = get(); 

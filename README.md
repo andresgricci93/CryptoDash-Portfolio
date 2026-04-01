@@ -53,6 +53,14 @@ It provides:
 - **LLM Fallback**: If Gemini hits its rate limit (429), the same prompt is automatically re-sent to Groq (Llama 3.3 70B) so the user never sees a failure
 - Rate-limit UI: Cooldown timer in the chat input when the AI provider throttles requests
 
+**Chat intent harness (backend)** — scoped rules for what the model sees and in which currency prices are formatted:
+
+- **`preferredCurrencyChat`** (User model): chat-only fiat preference, separate from the dashboard currency dropdown. Defaults to **USD** until the user sets it via **strict English phrases** (e.g. *“I want to change to Mexican peso”*, *“switch to EUR”*). Supports the same ISO codes and English names as the dashboard fiat list.
+- **Persistence**: matching messages update `preferredCurrencyChat` before the turn is processed, so price context in the prompt uses the new code immediately.
+- **`chatPreferenceGate`**: broad-tier detection uses **all supported dashboard fiats** (codes + English aliases), not only EUR/GBP/USD.
+- **Generic price queries**: if the user asks for prices without naming specific assets (keywords in `chatIntent`), the backend loads **favorite coins** from `favoriteCoins` for the CoinGecko snapshot; otherwise it uses mentioned tickers, or falls back to a small default set.
+- **Layout**: `backend/services/chatIntent/` (market vs. notes RAG scope, generic price intent), `backend/utils/chat/<module>/` (fiat extraction from text, chat display currency resolution, formatted price block for the AI prompt).
+
 
 <img width="2067" height="935" alt="image" src="https://github.com/user-attachments/assets/b82493bb-7a2d-4a4c-af05-83ec7b632d64" />
 <img width="2044" height="946" alt="image" src="https://github.com/user-attachments/assets/7f574cb8-b73a-4764-b84f-a21bfdfb3d75" />

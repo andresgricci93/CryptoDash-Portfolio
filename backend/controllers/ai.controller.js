@@ -2,9 +2,20 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import Groq from "groq-sdk";
 import { detectCryptoMentions, getCurrentPrices } from "../services/cryptoPrices.service.js";
 import { getLatestCryptoNews, formatNewsForPrompt } from "../services/cryptoNews.service.js";
-import { shouldOmitNotesRAG, getMarketSnapshotSections } from "../services/chatIntent.service.js";
+import {
+  shouldOmitNotesRAG,
+  getMarketSnapshotSections,
+  shouldPreferFavoriteCoinsForPriceFetch,
+} from "../services/chatIntent/index.js";
 import { addMessage, getTodayHistory } from "../services/memory.service.js";
 import { formatGeminiChatErrorPayload, httpStatusFromGeminiPayload } from "../utils/geminiError.util.js";
+import {
+  formatPricesForAiPrompt,
+  resolveChatDisplayCurrency,
+  tryPersistChatFiatFromMessage,
+} from "../utils/chat/index.js";
+import { User } from "../models/user.model.js";
+import { Currency } from "../models/currency.model.js";
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -156,6 +167,24 @@ export const chat = async (req, res) => {
       });
     }
 
+    const userRow = await User.findById(userId)
+      .select('preferredCurrencyChat favoriteCoins')
+      .lean();
+
+    const persistedFiat = tryPersistChatFiatFromMessage(message);
+    if (persistedFiat) {
+      await User.updateOne({ _id: userId }, { $set: { preferredCurrencyChat: persistedFiat } });
+    }
+
+    const effectiveChatFiat = persistedFiat ?? userRow?.preferredCurrencyChat;
+    const displayCurrency = resolveChatDisplayCurrency(effectiveChatFiat);
+
+    let fxRate = 1;
+    if (displayCurrency !== 'USD') {
+      const cur = await Currency.findOne({ code: displayCurrency }).lean();
+      fxRate = cur?.rate ?? null;
+    }
+
     await addMessage(userId, 'user', message);
 
     const conversationHistory = await getTodayHistory(userId);
@@ -173,16 +202,26 @@ export const chat = async (req, res) => {
     let priceData = '';
     if (!marketOnly || snapshotSections.includePrices) {
       const detectedCryptos = detectCryptoMentions(message);
-      const cryptosToFetch = detectedCryptos.length > 0 ? detectedCryptos : ['bitcoin', 'ethereum', 'solana'];
+      const defaultSnapshot = ['bitcoin', 'ethereum', 'solana'];
+      let cryptosToFetch;
+      if (detectedCryptos.length > 0) {
+        cryptosToFetch = detectedCryptos;
+      } else if (
+        shouldPreferFavoriteCoinsForPriceFetch(message) &&
+        Array.isArray(userRow?.favoriteCoins) &&
+        userRow.favoriteCoins.length > 0
+      ) {
+        cryptosToFetch = [...userRow.favoriteCoins];
+      } else {
+        cryptosToFetch = defaultSnapshot;
+      }
       const { data: prices, isCached: pricesCached, cachedAt: pricesCachedAt } = await getCurrentPrices(cryptosToFetch);
 
       if (prices) {
         const priceAge = pricesCached && pricesCachedAt
           ? ` (cached from ${Math.round((Date.now() - pricesCachedAt) / 60000)} min ago)`
           : '';
-        priceData = Object.entries(prices).map(([crypto, d]) =>
-          `${crypto.toUpperCase()}: $${d.usd.toLocaleString()} (24h: ${d.usd_24h_change?.toFixed(2)}%)`
-        ).join(' | ') + priceAge;
+        priceData = formatPricesForAiPrompt(prices, displayCurrency, fxRate, priceAge);
       }
     }
 

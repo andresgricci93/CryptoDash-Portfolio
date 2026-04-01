@@ -42,6 +42,12 @@ const userSchema = new mongoose.Schema({
     default: 'USD',
     uppercase: true
     },
+    /** Chat-only fiat (same codes as dashboard dropdown). Null/invalid → chat uses USD. */
+    preferredCurrencyChat: {
+    type: String,
+    default: null,
+    uppercase: true
+    },
     resetPasswordToken: String,
     resetPasswordExpiresAt: Date,
     verificationToken: String,

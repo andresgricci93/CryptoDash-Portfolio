@@ -3,6 +3,8 @@
  * Market-only: skip RAG so the model never sees note content for that turn.
  */
 
+import { detectCryptoMentions } from '../cryptoPrices.service.js';
+
 const WANTS_NOTES_CONTEXT =
   /\b(my notes?|personal notes?|saved notes?|what (did|have) i (write|save|wrote)|in my note|from my note|note titled|compare.*\bnote|relat(e|ing) to (my|the) note|knowledge base|what i (have )?saved)\b/i;
 
@@ -26,4 +28,16 @@ export const getMarketSnapshotSections = (message) => {
   if (wantsPrices && !wantsNews) return { includePrices: true, includeNews: false };
   if (wantsNews && !wantsPrices) return { includePrices: false, includeNews: true };
   return { includePrices: true, includeNews: true };
+};
+
+/**
+ * Generic price request (user asked for prices) without naming specific assets in supported keywords.
+ * In that case the chat can fetch CoinGecko ids from the user's favorites instead of a hardcoded default list.
+ */
+export const shouldPreferFavoriteCoinsForPriceFetch = (message) => {
+  if (!message || typeof message !== 'string') return false;
+  const trimmed = message.trim();
+  if (!trimmed) return false;
+  if (detectCryptoMentions(trimmed).length > 0) return false;
+  return PRICE_INTENT.test(trimmed);
 };

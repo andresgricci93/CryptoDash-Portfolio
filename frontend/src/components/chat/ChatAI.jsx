@@ -63,10 +63,11 @@ const ChatAI = () => {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ 
-          message: content, 
+        body: JSON.stringify({
+          message: content,
           conversationHistory: getContextMessages(),
-          limit: 20 }),
+          limit: 20,
+        }),
       });
 
       if (!response.ok) {

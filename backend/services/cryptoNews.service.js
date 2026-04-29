@@ -47,7 +47,28 @@ export const getLatestCryptoNews = async (limit = 5) => {
 };
 
 export const formatNewsForPrompt = (newsItems) => {
-  if (!newsItems || newsItems.length === 0) return '';
+  if (newsItems == null) return '';
+
+  // Reject the wrapper object returned by getLatestCryptoNews so callers see a
+  // precise error instead of a vague "newsItems.map is not a function".
+  if (!Array.isArray(newsItems)) {
+    const receivedType = typeof newsItems;
+    const keys = receivedType === 'object' ? Object.keys(newsItems) : null;
+    const looksLikeWrapper = Array.isArray(keys) && keys.includes('items');
+
+    const err = new TypeError(
+      `formatNewsForPrompt expected an array of news items but received ${receivedType}` +
+      (keys ? ` with keys [${keys.join(', ')}]` : '') +
+      (looksLikeWrapper
+        ? '. Hint: getLatestCryptoNews() returns { items, isCached, cachedAt }; pass news.items instead of news.'
+        : '')
+    );
+    err.code = 'INVALID_NEWS_ITEMS';
+    err.received = { type: receivedType, keys };
+    throw err;
+  }
+
+  if (newsItems.length === 0) return '';
 
   return newsItems.map((item, index) => {
     const date = new Date(item.published * 1000).toLocaleString('en-US', {

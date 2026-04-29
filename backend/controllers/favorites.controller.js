@@ -3,6 +3,35 @@ import { Crypto } from "../models/crypto.model.js";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getCurrentPrices } from '../services/cryptoPrices.service.js';
 import { getLatestCryptoNews, formatNewsForPrompt } from '../services/cryptoNews.service.js';
+import logger from '../utils/logger.js';
+
+/**
+ * Build a structured payload for AI route failures so Render / MongoDB transport
+ * captures every dimension we typically want when triaging (request shape,
+ * upstream error code, stack head, streaming state).
+ */
+const buildAiErrorMeta = (route, req, error, extra = {}) => ({
+  route,
+  userId: req.userId ? String(req.userId) : null,
+  body: {
+    allocationsCount: Array.isArray(req.body?.allocations) ? req.body.allocations.length : null,
+    cryptoIds: Array.isArray(req.body?.allocations)
+      ? req.body.allocations.map(a => a?.cryptoId)
+      : null,
+    riskProfile: req.body?.riskProfile ?? null,
+    currency: req.body?.currency ?? null,
+    totalAmount: req.body?.totalAmount ?? null,
+    strategyLength: typeof req.body?.strategy === 'string' ? req.body.strategy.length : null
+  },
+  error: {
+    name: error?.name ?? null,
+    code: error?.code ?? null,
+    message: error?.message ?? String(error),
+    received: error?.received ?? null,
+    stackHead: error?.stack?.split('\n').slice(0, 6).join(' | ') ?? null
+  },
+  ...extra
+});
 
 export const addToFavorites = async (req,res) => {
 
@@ -211,7 +240,12 @@ export const generateProsAndCons = async (req, res) => {
     res.end();
 
   } catch (error) {
-    console.error('Pros & Cons streaming error:', error);
+    logger.error('Pros & Cons streaming error', buildAiErrorMeta('/pros-and-cons', req, error, {
+      headersSent: res.headersSent
+    }));
+    if (!res.headersSent) {
+      res.status(500);
+    }
     res.write("Error generating analysis...");
     res.end();
   }
@@ -266,7 +300,12 @@ export const generateFacts = async (req, res) => {
     res.end();
 
   } catch (error) {
-    console.error('Facts streaming error:', error);
+    logger.error('Facts streaming error', buildAiErrorMeta('/facts', req, error, {
+      headersSent: res.headersSent
+    }));
+    if (!res.headersSent) {
+      res.status(500);
+    }
     res.write("Error generating facts...");
     res.end();
   }
@@ -286,13 +325,13 @@ export const generateAIReport = async (req, res) => {
     }
 
     const cryptoIds = allocations.map(a => a.cryptoId); 
-      const [prices, news] = await Promise.all([
+      const [{ data: priceData }, { items: newsItems }] = await Promise.all([
         getCurrentPrices(cryptoIds),
         getLatestCryptoNews(10)
       ]);
 
-      const pricesContext = JSON.stringify(prices, null, 2);
-      const newsContext = formatNewsForPrompt(news);
+      const pricesContext = JSON.stringify(priceData ?? {}, null, 2);
+      const newsContext = formatNewsForPrompt(newsItems);
 
       // Format allocations for the prompt
       const portfolioDescription = allocations.map(a => 
@@ -371,7 +410,12 @@ export const generateAIReport = async (req, res) => {
     res.end();
 
   } catch (error) {
-    console.error('AI Report streaming error:', error);
+    logger.error('AI Report streaming error', buildAiErrorMeta('/ai-report', req, error, {
+      headersSent: res.headersSent
+    }));
+    if (!res.headersSent) {
+      res.status(500);
+    }
     res.write("Error generating report...");
     res.end();
   }

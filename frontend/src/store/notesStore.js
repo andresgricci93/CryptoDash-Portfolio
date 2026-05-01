@@ -136,5 +136,34 @@ associateNoteWithCrypto: async (noteId, cryptoId) => {
      set({ error: error.response?.data?.message });
      throw error;
   }
+},
+
+dissociateNoteFromCrypto: async (noteId, cryptoId) => {
+  try {
+    const response = await axios.post(`${API_URL}/dissociateNote`, {
+      noteId,
+      cryptoId
+    });
+    set(state => ({
+      notes: state.notes.map(note => note._id === noteId ? response.data.note : note),
+      error: null
+    }));
+    return response.data;
+  } catch (error) {
+    set({ error: error.response?.data?.message });
+    throw error;
+  }
+},
+
+dissociateAllNotesFromCrypto: async (cryptoId) => {
+  try {
+    const response = await axios.post(`${API_URL}/dissociateAllNotes`, {
+      cryptoId
+    });
+    return response.data;
+  } catch (error) {
+    set({ error: error.response?.data?.message });
+    throw error;
+  }
 }
 }));

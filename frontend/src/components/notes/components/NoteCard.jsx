@@ -1,11 +1,12 @@
 import { motion } from 'framer-motion';
-import { Eye, Pencil } from 'lucide-react';
+import { Eye, Pencil, Unlink } from 'lucide-react';
 
 const NoteCard = ({ 
   note, 
   onDelete, 
   onEdit, 
   onView,
+  onUnlink,
   onDragStart,
   onDragEnd,
   draggable = true  
@@ -36,7 +37,15 @@ const NoteCard = ({
         <Eye 
           onClick={() => onView(note._id)}
           size={13}
-          className='absolute bottom-4 right-9 cursor-pointer text-white hover:text-blue-300'
+          className='absolute bottom-4 right-14 cursor-pointer text-white hover:text-blue-300'
+        />
+      )}
+
+      {onUnlink && (
+        <Unlink
+          onClick={() => onUnlink(note._id)}
+          size={13}
+          className='absolute bottom-4 right-9 cursor-pointer text-white hover:text-red-400'
         />
       )}
 

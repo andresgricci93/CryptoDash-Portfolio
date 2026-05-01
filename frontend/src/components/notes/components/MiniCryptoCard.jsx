@@ -1,47 +1,28 @@
+import { useDroppable } from '@dnd-kit/react';
 import { useCurrencyStore } from '../../../store/currencyStore.js';
 import { Star } from 'lucide-react';
 import { formatNoteCount } from '../../../utils/noteHelpers.js';
+import { useNavigate } from 'react-router-dom';
 
-const MiniCryptoCard = ({ crypto, onNoteDrop, noteCount }) => {
-
+const MiniCryptoCard = ({ crypto, noteCount }) => {
   const { formatPrice } = useCurrencyStore();  
+  const navigate = useNavigate();
 
-   console.log('crypto properties:', {
-    id: crypto.id,
-    coinId: crypto.coinId,
-    name: crypto.name,
-    symbol: crypto.symbol
+  const { ref, isDropTarget } = useDroppable({
+    id: crypto.coinId,
+    data: { type: 'crypto', crypto }
   });
-
-  const handleDragOver = (e) => {
-    e.preventDefault(); 
-    e.currentTarget.style.backgroundColor = '#2d3748';
-  };
-
-  const handleDragLeave = (e) => {
-    e.currentTarget.style.backgroundColor = '#4a5568';
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    const noteId = e.dataTransfer.getData('noteId');
-    e.currentTarget.style.backgroundColor = '#4a5568'; 
-    
-    console.log('Dropped note:', noteId, 'on crypto:', crypto.coinId);
-    
-    if (onNoteDrop) {
-      onNoteDrop(noteId, crypto.coinId);
-    }
-  };
 
   return (
     <div 
-      className="bg-gray-700 rounded p-6 mb-2 relative flex items-center min-h-[60px]"
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
+      ref={ref}
+      onClick={() => navigate(`/crypto/${crypto.coinId}`)}
+      className={`rounded p-6 mb-2 relative flex items-center min-h-[60px] transition-colors duration-150 cursor-pointer ${
+        isDropTarget 
+          ? 'bg-gray-600 ring-2 ring-white' 
+          : 'bg-gray-700'
+      }`}
     >
-      {/* Estrella favorito - solo visual */}
       <Star 
         className="absolute top-4 right-6 w-3 h-3 text-yellow-400 fill-yellow-400" 
       />

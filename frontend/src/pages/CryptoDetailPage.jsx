@@ -4,12 +4,14 @@ import axios from 'axios';
 import Header from '../components/common/Header.jsx';
 import { useNotesStore } from '../store/notesStore.js';
 import toast from 'react-hot-toast';
-import {  ArrowLeft, XIcon} from 'lucide-react';
+import {  ArrowLeft, XIcon, Unlink} from 'lucide-react';
 import Button from '../components/common/Button.jsx';
 import NoteCard from '../components/notes/components/NoteCard.jsx';
 import SearchBar from '../components/common/Searchbar.jsx'; 
 import { AnimatePresence } from 'framer-motion'; 
 import DeleteModal from '../components/modals/DeleteModal.jsx';
+import RemoveAssociationModal from '../components/modals/RemoveAssociationModal.jsx';
+import RemoveAllAssociationsModal from '../components/modals/RemoveAllAssociationsModal.jsx';
 import {formatMarketCap, formatDate} from '../utils/formatters.js'
 import { TrendingUp, TrendingDown, ArrowUp, ArrowDown, Package, RefreshCw } from 'lucide-react';
 import { useCurrencyStore } from '../store/currencyStore';
@@ -29,8 +31,10 @@ const CryptoDetailPage = () => {
   const [loadingNotes, setLoadingNotes] = useState(true);
   const [noteSearchTerm, setNoteSearchTerm] = useState('');
   const [noteToDelete, setNoteToDelete] = useState(null);
+  const [noteToUnlink, setNoteToUnlink] = useState(null);
+  const [showRemoveAllModal, setShowRemoveAllModal] = useState(false);
 
-  const { getNotesByCrypto, deleteNote } = useNotesStore();
+  const { getNotesByCrypto, deleteNote, dissociateNoteFromCrypto, dissociateAllNotesFromCrypto } = useNotesStore();
   const { selectedCurrency, convertPrice, formatPrice } = useCurrencyStore();
   const getCurrencySymbol = useCurrencyStore(state => state.getCurrencySymbol);
 
@@ -104,6 +108,33 @@ const CryptoDetailPage = () => {
     } catch (error) {
       console.error('Error deleting note:', error);
       toast.error('Failed to delete note');
+    }
+  };
+
+  const handleUnlinkNote = (noteId) => {
+    setNoteToUnlink(noteId);
+  };
+
+  const handleConfirmUnlink = async () => {
+    try {
+      await dissociateNoteFromCrypto(noteToUnlink, id);
+      setCryptoNotes(prev => prev.filter(note => note._id !== noteToUnlink));
+      setNoteToUnlink(null);
+      toast.success('Note association removed');
+    } catch (error) {
+      console.error('Error dissociating note:', error);
+      toast.error('Failed to remove association');
+    }
+  };
+
+  const handleRemoveAllAssociations = async () => {
+    try {
+      await dissociateAllNotesFromCrypto(id);
+      setCryptoNotes([]);
+      toast.success('All associations removed');
+    } catch (error) {
+      console.error('Error removing all associations:', error);
+      toast.error('Failed to remove associations');
     }
   };
 
@@ -278,10 +309,20 @@ const CryptoDetailPage = () => {
 
           {/* NOTES */}
           <div className=" w-1/3 min-h-[472px] h-max bg-gray-800/50 border border-gray-700 rounded-lg p-6">
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-white">
                 Notes ({cryptoNotes.length})
               </h2>
+              {cryptoNotes.length > 0 && (
+                <Button
+                  onClick={() => setShowRemoveAllModal(true)}
+                  variant="dangerGhost"
+                  className="!px-3 !py-1.5 text-sm flex items-center gap-1.5"
+                >
+                  <Unlink size={12} />
+                  Remove All
+                </Button>
+              )}
             </div>
 
             <SearchBar 
@@ -310,6 +351,7 @@ const CryptoDetailPage = () => {
                       onDelete={handleDeleteNote}
                       onEdit={handleEditNote}
                       onView={handleViewNote}
+                      onUnlink={handleUnlinkNote}
                       draggable={false}
                     />
                   ))}
@@ -327,6 +369,26 @@ const CryptoDetailPage = () => {
                   description="This decision is permanent."
                   confirmText="Delete"
                   cancelText="Cancel"
+                />
+              )}
+            </AnimatePresence>
+
+            <AnimatePresence>
+              {noteToUnlink !== null && (
+                <RemoveAssociationModal
+                  isOpen={noteToUnlink !== null}
+                  onClose={() => setNoteToUnlink(null)}
+                  onConfirm={handleConfirmUnlink}
+                />
+              )}
+            </AnimatePresence>
+
+            <AnimatePresence>
+              {showRemoveAllModal && (
+                <RemoveAllAssociationsModal
+                  isOpen={showRemoveAllModal}
+                  onClose={() => setShowRemoveAllModal(false)}
+                  onConfirm={handleRemoveAllAssociations}
                 />
               )}
             </AnimatePresence>

@@ -248,6 +248,60 @@ try {
 
 }
 
+export const dissociateNoteFromCrypto = async (req, res) => {
+  const { noteId, cryptoId } = req.body;
+  const userId = req.userId;
+
+  try {
+    const note = await Note.findOneAndUpdate(
+      { _id: noteId, userId },
+      { $pull: { cryptoId: cryptoId } },
+      { new: true }
+    );
+
+    if (!note) {
+      return res.status(404).json({
+        success: false,
+        message: "Note not found or unauthorized"
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Note dissociated successfully",
+      note
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+export const dissociateAllNotesFromCrypto = async (req, res) => {
+  const { cryptoId } = req.body;
+  const userId = req.userId;
+
+  try {
+    const result = await Note.updateMany(
+      { userId, cryptoId: { $in: [cryptoId] } },
+      { $pull: { cryptoId: cryptoId } }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: `${result.modifiedCount} notes dissociated successfully`,
+      modifiedCount: result.modifiedCount
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
 export const deleteNote = async (req,res) => {
 
  const {noteId} = req.params;

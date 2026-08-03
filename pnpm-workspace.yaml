@@ -5,8 +5,9 @@ overrides:
   tar-fs: '>=2.1.4'
   nth-check: '>=2.0.1'
 
-ignoredBuiltDependencies:
+onlyBuiltDependencies:
   - core-js
+  - esbuild
   - protobufjs
   - puppeteer
   - sharp

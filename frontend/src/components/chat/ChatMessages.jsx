@@ -7,6 +7,20 @@ const WELCOME_MESSAGE = {
     content: "Hi, how can i assist you today? "
 }
 
+/** CoinTelegraph slugs use hyphens; LLMs sometimes emit underscores that 404. */
+const normalizeArticleHref = (href) => {
+  if (!href || typeof href !== 'string') return href;
+  try {
+    const url = new URL(href);
+    if (url.hostname.includes('cointelegraph.com')) {
+      url.pathname = url.pathname.replaceAll('_', '-');
+    }
+    return url.toString();
+  } catch {
+    return href;
+  }
+};
+
 const ChatMessages = ({ messages }) => {
     
     const messagesEndRef = useRef(null);
@@ -54,7 +68,7 @@ const ChatMessages = ({ messages }) => {
                   code: ({children}) => <code className="bg-gray-200 px-1 rounded">{children}</code>,
                   a: ({href, children}) => (
                     <a 
-                      href={href} 
+                      href={normalizeArticleHref(href)} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:text-blue-800 underline"

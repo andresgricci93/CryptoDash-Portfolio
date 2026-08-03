@@ -111,7 +111,8 @@ const buildContextForGemini = (relevantNotes, userQuery, conversationHistory = [
         : '- The user did NOT ask for prices. Do NOT list, mention, or invent any price data.';
 
       const newsInstructions = includeNews
-        ? '- Summarize each headline briefly and include a [Read full article](URL) link.'
+        ? `- Summarize each headline briefly and include a [Read full article](URL) link.
+- Copy each URL EXACTLY as given in LATEST CRYPTO NEWS (character-for-character). Do NOT replace hyphens (-) with underscores (_), alter the path, or invent URLs.`
         : '- The user did NOT ask for news. Do NOT summarize, mention, or invent any news headlines.';
 
       return `SYSTEM CONTEXT:
@@ -199,7 +200,7 @@ Respond now:`.trim();
           9. If you notice contradictions between notes, point them out
           10. Use a friendly, conversational tone
           11. NEVER make up dates or times - always reference the actual dates provided
-          12. **WHEN DISCUSSING NEWS: ALWAYS include the source URL in markdown format [Read full article](URL) so users can click to read more**
+          12. **WHEN DISCUSSING NEWS: ALWAYS include the source URL in markdown format [Read full article](URL) so users can click to read more. Copy each URL EXACTLY as provided — do NOT replace hyphens (-) with underscores (_) or alter the path.**
           13. OPTIONAL: Only when highly relevant to the context and emotions (bullish news, crashes, celebrations, etc), you MAY occasionally add ONE GIF suggestion using: [GIF:keyword]. Use it sparingly - not in every response, only when it truly enhances the message. Examples: [GIF:rocket] for major bullish news, [GIF:crash] for market drops, [GIF:diamond-hands] for hodl discussion.
           
           Please provide a helpful response:`.trim();

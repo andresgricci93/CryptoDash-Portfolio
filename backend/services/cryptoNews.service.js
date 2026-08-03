@@ -6,6 +6,23 @@ const RSS_URL = 'https://cointelegraph.com/rss';
 let newsCache = { data: [], fetchedAt: null };
 const CACHE_TTL = 30 * 60 * 1000;
 
+/**
+ * CoinTelegraph article slugs use hyphens. Some feeds/models emit underscores
+ * which 404 — normalize the pathname only.
+ */
+export const normalizeNewsUrl = (url) => {
+  if (!url || typeof url !== 'string') return url;
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname.includes('cointelegraph.com')) {
+      parsed.pathname = parsed.pathname.replaceAll('_', '-');
+    }
+    return parsed.toString();
+  } catch {
+    return url;
+  }
+};
+
 const fetchFreshNews = async (limit) => {
   const feed = await parser.parseURL(RSS_URL);
 
@@ -14,7 +31,7 @@ const fetchFreshNews = async (limit) => {
   return feed.items.slice(0, limit).map(item => ({
     title: item.title,
     source: 'CoinTelegraph',
-    url: item.link,
+    url: normalizeNewsUrl(item.link),
     body: item.contentSnippet || item.title,
     published: Math.floor(new Date(item.pubDate).getTime() / 1000),
     categories: item.categories?.join(', ') || ''

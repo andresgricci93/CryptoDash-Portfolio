@@ -5,9 +5,18 @@ overrides:
   tar-fs: '>=2.1.4'
   nth-check: '>=2.0.1'
 
+# pnpm 10
 onlyBuiltDependencies:
   - core-js
   - esbuild
   - protobufjs
   - puppeteer
   - sharp
+
+# pnpm 11+ (Render installs latest via npm i -g pnpm)
+allowBuilds:
+  core-js: true
+  esbuild: true
+  protobufjs: true
+  puppeteer: true
+  sharp: true

@@ -52,15 +52,25 @@ const writeMetadata = (res, relevantNotes) => {
 
 /**
  * Stream Gemini response. Returns the full text or throws on failure.
+ * On mid-stream failure the thrown error carries `partialText` with
+ * whatever was already sent to the client.
  */
 const streamGemini = async (prompt, res) => {
   const model = googleai.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
   const result = await model.generateContentStream(prompt);
+  // The SDK's companion `response` promise rejects too when the stream
+  // breaks; without a handler that unhandled rejection kills the process.
+  result.response?.catch?.(() => {});
   let full = '';
-  for await (const chunk of result.stream) {
-    const text = chunk.text();
-    full += text;
-    res.write(`data: ${JSON.stringify({ type: 'text', text })}\n\n`);
+  try {
+    for await (const chunk of result.stream) {
+      const text = chunk.text();
+      full += text;
+      res.write(`data: ${JSON.stringify({ type: 'text', text })}\n\n`);
+    }
+  } catch (error) {
+    error.partialText = full;
+    throw error;
   }
   return full;
 };
@@ -122,6 +132,7 @@ export const generateReport = async (req, res) => {
     
     const model = googleai.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
     const result = await model.generateContentStream(prompt);
+    result.response?.catch?.(() => {});
     
     // Stream response
     res.writeHead(200, {
@@ -256,13 +267,24 @@ export const chat = async (req, res) => {
     } catch (geminiError) {
       const geminiStatus = geminiError?.status ?? geminiError?.statusCode ?? 0;
       const isRateLimit = geminiStatus === 429 || geminiError?.message?.includes('429');
+      const partialText = geminiError?.partialText ?? '';
 
       console.error(
         `[AI] Gemini failed (status ${geminiStatus}${isRateLimit ? ' — rate-limited' : ''}):`,
         geminiError.message
       );
 
-      if (groq) {
+      if (partialText) {
+        // The user already saw part of the answer; falling back to Groq now
+        // would stream a duplicate. Keep the partial text and close cleanly.
+        usedProvider = 'gemini (interrupted)';
+        assistantResponse = partialText;
+        res.write(`data: ${JSON.stringify({
+          type: 'error',
+          code: 'STREAM_INTERRUPTED',
+          message: 'The response was interrupted. Please try again.'
+        })}\n\n`);
+      } else if (groq) {
         console.log(`[AI] Falling back to Groq (${GROQ_MODEL})…`);
         usedProvider = 'groq';
 

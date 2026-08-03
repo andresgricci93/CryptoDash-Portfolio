@@ -17,6 +17,12 @@ import { fetchAndCacheCryptos } from './controllers/cryptos.controller.js';
 
 dotenv.config();
 
+// Safety net: SDK internals (e.g. Gemini streaming) can reject promises we
+// never get a handle on; without this, one bad stream restarts the instance.
+process.on('unhandledRejection', (reason) => {
+    console.error('[process] Unhandled rejection (kept alive):', reason?.message || reason);
+});
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 

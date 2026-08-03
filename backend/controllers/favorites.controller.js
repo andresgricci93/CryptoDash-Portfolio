@@ -231,6 +231,7 @@ export const generateProsAndCons = async (req, res) => {
     const gemini = googleai.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
     
     const result = await gemini.generateContentStream(prompt);
+    result.response?.catch?.(() => {});
     
     for await (const chunk of result.stream) {
       const chunkText = chunk.text();
@@ -291,6 +292,7 @@ export const generateFacts = async (req, res) => {
     const gemini = googleai.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
     
     const result = await gemini.generateContentStream(prompt);
+    result.response?.catch?.(() => {});
     
     for await (const chunk of result.stream) {
       const chunkText = chunk.text();
@@ -401,6 +403,7 @@ export const generateAIReport = async (req, res) => {
     const gemini = googleai.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
     
     const result = await gemini.generateContentStream(prompt);
+    result.response?.catch?.(() => {});
     
     for await (const chunk of result.stream) {
       const chunkText = chunk.text();

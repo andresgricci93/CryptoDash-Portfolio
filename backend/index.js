@@ -13,7 +13,12 @@ import profileRoutes from './routes/profile.route.js';
 import exportRoutes from './routes/pdfExport.route.js';
 import aiRoutes from './routes/ai.route.js';
 import chartDataRoutes from './routes/chartData.route.js';
+import newsRoutes from './routes/news.route.js';
 import { fetchAndCacheCryptos } from './controllers/cryptos.controller.js';
+import {
+    createDailyEditionIfMissing,
+    DAILY_EDITION_TIME_ZONE
+} from './services/dailyEdition.service.js';
 
 dotenv.config();
 
@@ -53,6 +58,7 @@ app.use('/api/profile', profileRoutes);
 app.use('/api', exportRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/chart', chartDataRoutes);
+app.use('/api', newsRoutes);
 
 
 const server = app.listen(PORT, () => {
@@ -83,6 +89,22 @@ const server = app.listen(PORT, () => {
             }
         });
         console.log(' Cron: Crypto prices (every 2 hours)');
+
+        // Compile and persist the daily news edition at 1:00 AM in Italy
+        cron.schedule('0 1 * * *', async () => {
+            console.log('Cron: Compiling daily news edition...');
+            try {
+                const { created, edition } = await createDailyEditionIfMissing();
+                console.log(
+                    `Cron: Daily edition ${edition.editionDate} ${created ? 'created' : 'already exists'}`
+                );
+            } catch (error) {
+                console.error('Cron error (daily news edition):', error.message);
+            }
+        }, {
+            timezone: DAILY_EDITION_TIME_ZONE
+        });
+        console.log(` Cron: Daily news edition (1:00 AM ${DAILY_EDITION_TIME_ZONE})`);
 
     } catch (error) {
         console.error('Service initialization error:', error.message);

@@ -6,6 +6,7 @@ import FavoriteCoinsPage from '../pages/FavoriteCoinsPage.jsx';
 import NotesPage from '../pages/NotesPage.jsx';
 import SettingsPage from '../pages/SettingsPage.jsx';
 import NoteDetailPage from '../pages/NoteDetailPage.jsx';
+import NewsPage from '../pages/NewsPage.jsx';
 
 
 function Dashboard() {
@@ -21,6 +22,7 @@ function Dashboard() {
       <div className="flex-1 relative z-10 overflow-y-auto overflow-x-hidden h-screen">
         <Routes>
           <Route path="dashboard" element={<OverviewPage />} />
+          <Route path="news" element={<NewsPage />} />
           <Route path="crypto/:id" element={<CryptoDetailPage />} />
           <Route path="favorites" element={<FavoriteCoinsPage />} />     
           <Route path="notes" element={<NotesPage />} />

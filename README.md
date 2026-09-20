@@ -39,11 +39,21 @@ It provides:
 
 <img width="1971" height="945" alt="image" src="https://github.com/user-attachments/assets/62bfd353-a960-4069-bb59-b02842cfc02a" />
 
+### 📰 Persistent Daily News Edition
+- Aggregates crypto news from CoinDesk, Decrypt, and CoinTelegraph RSS feeds
+- Normalizes articles into a shared schema, removes duplicates, and filters unrelated stories
+- Compiles up to 10 articles every day at 1:00 AM (`Europe/Rome`)
+- Persists each immutable Daily Edition in MongoDB
+- Extracts full article text when available and falls back to the RSS summary if scraping fails
+- Always preserves the original source URL, so every story remains clickable even after a failed scrape
+- Displays article images, source links, publication time, and responsive lead/digest layouts
+- Uses TanStack Query to cache the latest edition on the frontend
+
 
 
 ### 🤖 Advanced AI Assistant
 - Real-time Price Queries: Ask for current crypto prices instantly
-- Latest News Integration: Get up-to-date cryptocurrency news via RSS (CoinTelegraph)
+- Latest News Integration: Get up-to-date cryptocurrency news from the multi-source RSS pipeline
 - Semantic Memory: AI remembers your notes using RAG (Retrieval-Augmented Generation)
 - Context-aware conversations using RAG
 -Smart intent detection: The backend classifies each chat message with lightweight rules (no LLM). If it looks like a market snapshot (prices/news style wording) and the user is not asking for personal notes, the assistant runs in market-only mode: no RAG over notes, no conversation history in the prompt, and strict system text so the model must not mention saved notes. Within that mode, separate price vs news regex intents decide whether to attach the CoinGecko price block, the RSS news block, or both—so a “prices only” question does not get news filler and vice versa. For normal questions or anything that references my notes / the knowledge base, the full pipeline runs: semantic note search, same-day chat history, and both price and news sections when fetched.
@@ -420,6 +430,7 @@ This approach prioritizes information density while keeping the interface clean 
 - [ChromaDB](https://www.trychroma.com/) for vector database
 - [MongoDB](https://www.mongodb.com/) for data storage
 - [Mailtrap](https://mailtrap.io/) for email testing
+- [CoinDesk](https://www.coindesk.com/), [Decrypt](https://decrypt.co/), and [CoinTelegraph](https://cointelegraph.com/) for crypto news feeds
 
 ---
 

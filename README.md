@@ -55,8 +55,7 @@ It provides:
 - Real-time Price Queries: Ask for current crypto prices instantly
 - Latest News Integration: Get up-to-date cryptocurrency news from the multi-source RSS pipeline
 - Semantic Memory: AI remembers your notes using RAG (Retrieval-Augmented Generation)
-- Context-aware conversations using RAG
--Smart intent detection: The backend classifies each chat message with lightweight rules (no LLM). If it looks like a market snapshot (prices/news style wording) and the user is not asking for personal notes, the assistant runs in market-only mode: no RAG over notes, no conversation history in the prompt, and strict system text so the model must not mention saved notes. Within that mode, separate price vs news regex intents decide whether to attach the CoinGecko price block, the RSS news block, or both—so a “prices only” question does not get news filler and vice versa. For normal questions or anything that references my notes / the knowledge base, the full pipeline runs: semantic note search, same-day chat history, and both price and news sections when fetched.
+- **Context-aware conversations:** The backend dynamically selects the context for each request. Lightweight rule-based intent detection distinguishes market queries from knowledge-base conversations, routing price and news requests to the relevant real-time data sources while keeping personal notes and chat history out of market-only responses. For knowledge-based queries, the full RAG pipeline retrieves relevant notes and conversational context, combining them with available market and news data.
 - Time-aware responses based on server-side timestamps
 - Conversational memory design (work in progress) with summarized context
 - Investment Planning: Study trends and plan your next moves with precision

@@ -49,6 +49,8 @@ It provides:
 - Displays article images, source links, publication time, and responsive lead/digest layouts
 - Uses TanStack Query to cache the latest edition on the frontend
 
+<img width="1971" height="945" alt="{E2B32493-FA42-425A-AF67-190D85066CD7}" src="https://github.com/user-attachments/assets/05e11504-94fd-4735-a0c1-f115a719ea51" />
+
 
 
 ### 🤖 Advanced AI Assistant

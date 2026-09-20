@@ -1,13 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import ChatMessages from './ChatMessages.jsx';
 import Controls from './Controls';
 import { useChatStore } from '../../store/chatStore.js';
-import {
-  CHAT_BOT_IMAGE_PATH,
-  chatBotIconQueryKey,
-  fetchChatBotIconSrc,
-} from '../../api/chatBotIcon.js';
 import { parseRetryDelayMs } from '../../utils/parseRetryDelayMs.js';
 
 const INTERRUPTED_NOTICE = '\n\n_(The response was interrupted. Please try again.)_';
@@ -32,14 +26,6 @@ const formatChatErrorForUser = (body) => {
 const ChatAI = () => {
   const [sendBlockedUntil, setSendBlockedUntil] = useState(0);
   const [, bumpCooldownTick] = useState(0);
-
-  const { data: chatBotIconSrc = CHAT_BOT_IMAGE_PATH } = useQuery({
-    queryKey: chatBotIconQueryKey,
-    queryFn: fetchChatBotIconSrc,
-    staleTime: Infinity,
-    gcTime: Infinity,
-    placeholderData: CHAT_BOT_IMAGE_PATH,
-  });
 
   const { 
     messages, 
@@ -176,7 +162,7 @@ const ChatAI = () => {
       <div className="w-full p-2 mb-4 rounded flex items-center justify-center">
         <img 
           className="w-16 h-16" 
-          src={chatBotIconSrc} 
+          src="/chat-bot.png" 
           alt="AI Chatbot" 
         />
       </div>
